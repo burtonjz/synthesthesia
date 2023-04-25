@@ -1,13 +1,14 @@
-build/key.o: key.cpp key.hpp key-status.hpp linear-fader.hpp \
- oscillator.hpp waveform.hpp oscillator-base.hpp config.hpp \
- cfg-oscillator.hpp modulator.hpp modulator-type.hpp
-key.hpp:
-key-status.hpp:
-linear-fader.hpp:
-oscillator.hpp:
-waveform.hpp:
-oscillator-base.hpp:
-config.hpp:
-cfg-oscillator.hpp:
-modulator.hpp:
-modulator-type.hpp:
+build/key.o: src/key.cpp src/key.hpp src/key-status.hpp \
+ src/linear-fader.hpp src/oscillator.hpp src/waveform.hpp \
+ src/oscillator-base.hpp src/config.hpp src/cfg-oscillator.hpp \
+ src/modulator.hpp src/modulator-type.hpp
+src/key.hpp:
+src/key-status.hpp:
+src/linear-fader.hpp:
+src/oscillator.hpp:
+src/waveform.hpp:
+src/oscillator-base.hpp:
+src/config.hpp:
+src/cfg-oscillator.hpp:
+src/modulator.hpp:
+src/modulator-type.hpp:

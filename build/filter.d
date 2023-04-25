@@ -1,7 +1,7 @@
-build/filter.o: filter.cpp filter.hpp filter-type.hpp linear-fader.hpp \
- config.hpp waveform.hpp
-filter.hpp:
-filter-type.hpp:
-linear-fader.hpp:
-config.hpp:
-waveform.hpp:
+build/filter.o: src/filter.cpp src/filter.hpp src/filter-type.hpp \
+ src/linear-fader.hpp src/config.hpp src/waveform.hpp
+src/filter.hpp:
+src/filter-type.hpp:
+src/linear-fader.hpp:
+src/config.hpp:
+src/waveform.hpp:

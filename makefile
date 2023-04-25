@@ -1,7 +1,7 @@
 .PHONY: install clean
 
 CXX := g++
-CXXFLAGS := -Wall -Wextra -Wpedantic -O2 -std=c++17
+CXXFLAGS := -Wall -Wextra -Wpedantic -O2 -std=c++17 -Isrc
 LDFLAGS := -fvisibility=hidden -fPIC -Wl,-Bstatic -Wl,-Bdynamic -Wl,--as-needed -shared -pthread
 LDLIBS := -lm -ffast-math -lstdc++ `pkg-config --cflags --libs lv2`
 
@@ -12,7 +12,6 @@ INSTALL_DIR := $(HOME)/.lv2
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC))
-DERIVED_OBJ := $(patsubst $(SRC_DIR)/modulator-%.cpp,$(BUILD_DIR)/modulator-%.o,$(wildcard $(SRC_DIR)/modulator-*.cpp))
 DEP := $(OBJ:.o=.d)
 
 TARGET := synthesthesia.so
@@ -24,12 +23,6 @@ $(BUILD_DIR):
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -MMD -MP -fPIC -c $< -o $@
-
-# $(BUILD_DIR)/modulator-%.o: $(SRC_DIR)/modulator-%.cpp | $(BUILD_DIR)
-# 	$(CXX) $(CXXFLAGS) -MMD -MP -fPIC -c $< -o $@
-
-# $(BUILD_DIR)/oscillator.o: $(SRC_DIR)/oscillator.cpp | $(BUILD_DIR)
-# 	$(CXX) $(CXXFLAGS) -MMD -MP -fPIC -c $< -o $@
 
 $(BUILD_DIR)/$(TARGET): $(OBJ)
 	$(CXX) $(LDFLAGS) $(LDLIBS) $^ -o $@

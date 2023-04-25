@@ -1,17 +1,18 @@
-build/oscillator.o: oscillator.cpp oscillator.hpp waveform.hpp \
- key-status.hpp oscillator-base.hpp linear-fader.hpp config.hpp \
- cfg-oscillator.hpp modulator.hpp modulator-type.hpp key.hpp \
- modulator-env.hpp adsr.hpp modulator-lfo.hpp
-oscillator.hpp:
-waveform.hpp:
-key-status.hpp:
-oscillator-base.hpp:
-linear-fader.hpp:
-config.hpp:
-cfg-oscillator.hpp:
-modulator.hpp:
-modulator-type.hpp:
-key.hpp:
-modulator-env.hpp:
-adsr.hpp:
-modulator-lfo.hpp:
+build/oscillator.o: src/oscillator.cpp src/oscillator.hpp \
+ src/waveform.hpp src/key-status.hpp src/oscillator-base.hpp \
+ src/linear-fader.hpp src/config.hpp src/cfg-oscillator.hpp \
+ src/modulator.hpp src/modulator-type.hpp src/key.hpp \
+ src/modulator-env.hpp src/adsr.hpp src/modulator-lfo.hpp
+src/oscillator.hpp:
+src/waveform.hpp:
+src/key-status.hpp:
+src/oscillator-base.hpp:
+src/linear-fader.hpp:
+src/config.hpp:
+src/cfg-oscillator.hpp:
+src/modulator.hpp:
+src/modulator-type.hpp:
+src/key.hpp:
+src/modulator-env.hpp:
+src/adsr.hpp:
+src/modulator-lfo.hpp:

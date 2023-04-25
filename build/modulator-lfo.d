@@ -1,10 +1,10 @@
-build/modulator-lfo.o: modulator-lfo.cpp modulator-lfo.hpp waveform.hpp \
- oscillator-base.hpp linear-fader.hpp config.hpp modulator.hpp \
- modulator-type.hpp
-modulator-lfo.hpp:
-waveform.hpp:
-oscillator-base.hpp:
-linear-fader.hpp:
-config.hpp:
-modulator.hpp:
-modulator-type.hpp:
+build/modulator-lfo.o: src/modulator-lfo.cpp src/modulator-lfo.hpp \
+ src/waveform.hpp src/oscillator-base.hpp src/linear-fader.hpp \
+ src/config.hpp src/modulator.hpp src/modulator-type.hpp
+src/modulator-lfo.hpp:
+src/waveform.hpp:
+src/oscillator-base.hpp:
+src/linear-fader.hpp:
+src/config.hpp:
+src/modulator.hpp:
+src/modulator-type.hpp:

@@ -1,6 +1,6 @@
-build/oscillator-base.o: oscillator-base.cpp oscillator-base.hpp \
- waveform.hpp linear-fader.hpp config.hpp
-oscillator-base.hpp:
-waveform.hpp:
-linear-fader.hpp:
-config.hpp:
+build/oscillator-base.o: src/oscillator-base.cpp src/oscillator-base.hpp \
+ src/waveform.hpp src/linear-fader.hpp src/config.hpp
+src/oscillator-base.hpp:
+src/waveform.hpp:
+src/linear-fader.hpp:
+src/config.hpp:

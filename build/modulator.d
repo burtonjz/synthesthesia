@@ -1,3 +1,4 @@
-build/modulator.o: modulator.cpp modulator.hpp modulator-type.hpp
-modulator.hpp:
-modulator-type.hpp:
+build/modulator.o: src/modulator.cpp src/modulator.hpp \
+ src/modulator-type.hpp
+src/modulator.hpp:
+src/modulator-type.hpp:
