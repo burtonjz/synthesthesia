@@ -1,0 +1,68 @@
+#include "synthesthesia-ui.hpp"
+#include <iostream>
+#include <stdexcept>
+
+#define UI_PLUGIN_URI "https://github.com/burtonjz/lv2-plugins-dev/synthesthesia#ui"
+
+
+static LV2UI_Handle instantiate(
+    const struct LV2UI_Descriptor *descriptor, 
+    const char *plugin_uri, 
+    const char *bundle_path, 
+    LV2UI_Write_Function write_function, 
+    LV2UI_Controller controller, 
+    LV2UI_Widget *widget, 
+    const LV2_Feature *const *features)
+{
+    if(strcmp(plugin_uri,UI_PLUGIN_URI) != 0) return nullptr;
+
+    SynthesthesiaUI* ui;
+    try {ui = new SynthesthesiaUI(write_function,controller);}
+    catch(std::exception& exc){
+        std::cerr << "UI instantiation failed." << std::endl;
+        return nullptr;
+    }
+
+    *widget = ui->get_main();
+    return static_cast<LV2UI_Handle> (ui);
+
+}
+
+static void cleanup(LV2UI_Handle ui){
+    SynthesthesiaUI* ui = static_cast<SynthesthesiaUI*> (ui);
+    if(ui) delete ui;
+
+}
+
+static void port_event(
+    LV2UI_Handle ui, 
+    uint32_t port_index, 
+    uint32_t buffer_size, 
+    uint32_t format, 
+    const void *buffer)
+{
+    SynthesthesiaUI* synth_ui = static_cast<SynthesthesiaUI*> (ui);
+    if(synth_ui){
+        synth_ui->port_event(port_index,buffer_size,format,buffer);
+    }
+}
+
+static const void *extension_data(const char *uri){
+    return nullptr;
+}
+
+static const LV2UI_Descriptor ui_descriptor =
+{
+    "https://github.com/burtonjz/lv2-plugins-dev/synthesthesia#ui",
+    instantiate,
+    cleanup,
+    port_event,
+    extension_data
+};
+
+LV2_SYMBOL_EXPORT const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index){
+    switch(index){
+        case 0: return &ui_descriptor;
+        default: return 0;
+    }
+}
