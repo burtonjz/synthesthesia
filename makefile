@@ -5,7 +5,7 @@ CXXFLAGS := -Wall -Wextra -Wpedantic -O2 -std=c++17
 LDFLAGS := -fvisibility=hidden -fPIC -Wl,-Bstatic -Wl,-Bdynamic -Wl,--as-needed -shared -pthread
 LDLIBS := -lm -ffast-math -lstdc++ `pkg-config --cflags --libs lv2`
 
-SRC_DIR := .
+SRC_DIR := src
 BUILD_DIR := build
 PLUGIN := synthesthesia.lv2
 INSTALL_DIR := $(HOME)/.lv2
