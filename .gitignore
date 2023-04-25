@@ -1,4 +1,4 @@
 TODO
-*.so
-*.o
-
+build/*.so
+build/*.o
+build/*.d
