@@ -9,31 +9,31 @@ LowPassFilter::LowPassFilter():
     reset(); // set inputs/outputs to 0
 }
 
-inline void LowPassFilter::set_type(FilterType t){
+void LowPassFilter::set_type(FilterType t){
     filter_type = t;
     if(is_active()) calculate_coefficients();
     else reset();
 }
 
-inline bool LowPassFilter::is_active(){
+bool LowPassFilter::is_active(){
     return filter_type != FILTER_OFF;
 }
 
-inline std::array<float,N_CHANNELS> LowPassFilter::get_sample() const {
+std::array<float,N_CHANNELS> LowPassFilter::get_sample() const {
     return output[0];
 }
 
-inline double LowPassFilter::get_cutoff_freq() const {
+double LowPassFilter::get_cutoff_freq() const {
     return cutoff_freq.get();
 }
 
-inline void LowPassFilter::set_cutoff_freq(double f){
+void LowPassFilter::set_cutoff_freq(double f){
     cutoff_freq.set(f,rate * 0.01);
     if(is_active()) calculate_coefficients();
     else reset();
 }
 
-inline void LowPassFilter::reset(){
+void LowPassFilter::reset(){
     for(int i = 0; i < static_cast<int>(input.size()); ++i){
         input[i].fill(0.0f);
         output[i].fill(0.0f);

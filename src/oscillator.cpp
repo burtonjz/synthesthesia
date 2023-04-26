@@ -49,7 +49,7 @@ Oscillator::Oscillator():
 // GETTERS/SETTERS
 
 // gets release time from envelope if envelope set as amplitude modulator
-inline double Oscillator::get_release(){
+double Oscillator::get_release(){
     if(
         amplitude_modulator &&
         amplitude_modulator->get_is_active()
@@ -74,13 +74,13 @@ double Oscillator::get_env_level(KeyStatus status, double time, float start_leve
 
 // Give the Oscillator knowledge of where it is in the Key class so that
 // we can get the proper start_level during envelope modulation.
-inline void Oscillator::set_index(int i){
+void Oscillator::set_index(int i){
     index = i;
 }
 
 // set pointer to parent Key object. Necessary to synchronize envelope
 // or other modulation sources with corresponding Key Presses
-inline void Oscillator::set_key(Key* k){
+void Oscillator::set_key(Key* k){
     key = k;
 }
 
@@ -152,33 +152,33 @@ void Oscillator::configure(OscillatorConfig config){
     set_waveform(config.wf);
 }
 
-inline void Oscillator::connect_frequency_modulator(Modulator* ptr){
+void Oscillator::connect_frequency_modulator(Modulator* ptr){
     if(!frequency_modulator){
             frequency_modulator = ptr;
     }
 }
 
-inline void Oscillator::disconnect_frequency_modulator(){
+void Oscillator::disconnect_frequency_modulator(){
     frequency_modulator = nullptr;
 }
 
-inline void Oscillator::connect_amplitude_modulator(Modulator* ptr){
+void Oscillator::connect_amplitude_modulator(Modulator* ptr){
     if(!amplitude_modulator){
         amplitude_modulator = ptr;
     }
 }
 
-inline void Oscillator::disconnect_amplitude_modulator(){
+void Oscillator::disconnect_amplitude_modulator(){
     amplitude_modulator = nullptr;
 }
 
-inline void Oscillator::connect_phase_modulator(Modulator* ptr){
+void Oscillator::connect_phase_modulator(Modulator* ptr){
     if(!phase_modulator){
         phase_modulator = ptr;
     }
 }
 
-inline void Oscillator::disconnect_phase_modulator(){
+void Oscillator::disconnect_phase_modulator(){
     phase_modulator = nullptr;
 }
 

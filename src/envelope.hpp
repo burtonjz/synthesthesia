@@ -35,41 +35,41 @@ private:
         Logger<8> logger;
     #endif
 public:
-    inline Envelope(ADSR adsr, double t);
-    inline Envelope(ADSR adsr);
-    inline Envelope();
+    Envelope(ADSR adsr, double t);
+    Envelope(ADSR adsr);
+    Envelope();
     
     // GETTERS/SETTERS
-    inline void set_adsr(ADSR a){
+    void set_adsr(ADSR a){
         adsr = a;
     }
 
-    inline KeyStatus get_last_status(){
+    KeyStatus get_last_status(){
         return last_status;
     }
 
-    inline double get_release(){
+    double get_release(){
         return adsr.release;
     }
 
-    inline double get_time(){
+    double get_time(){
         return time;
     }
 
-    inline void set_time(double t){
+    void set_time(double t){
         time = t;
     }
     
-    inline float get_level(KeyStatus status);
+    float get_level(KeyStatus status);
 
-    inline void reset();
+    void reset();
 
-    inline void tick(double rate);
+    void tick(double rate);
 
 };
 
 // CONSTRUCTORS
-inline Envelope::Envelope(ADSR adsr, double t):
+Envelope::Envelope(ADSR adsr, double t):
     time(t),
     level(0.0f),
     last_status(KEY_OFF)
@@ -77,12 +77,12 @@ inline Envelope::Envelope(ADSR adsr, double t):
     set_adsr(adsr);
 };
 
-inline Envelope::Envelope(ADSR adsr):
+Envelope::Envelope(ADSR adsr):
     Envelope::Envelope(adsr,0.0)
 {
 };
 
-inline Envelope::Envelope():
+Envelope::Envelope():
     Envelope::Envelope({DEFAULT_ENV_ATTACK,DEFAULT_ENV_DECAY,DEFAULT_ENV_SUSTAIN,DEFAULT_ENV_RELEASE})
 {
 };
@@ -125,12 +125,12 @@ float Envelope::get_level(KeyStatus status){
     }
 };
 
-inline void Envelope::reset(){
+void Envelope::reset(){
     time = 0.0;
     level = 0.0;
     last_status = KEY_OFF;
 }
-inline void Envelope::tick(double rate){
+void Envelope::tick(double rate){
     #if LOG_LEVEL > 0
         std::string msg =  "[ADSREnvelope] generated level {'KeyStatus':" + std::to_string(last_status) +
                                                          ", 'state_time':" + std::to_string(time) +

@@ -28,29 +28,29 @@ void LFO::set_is_active(bool status){
     }
 };
 
-inline void LFO::set_freq(double f){
+void LFO::set_freq(double f){
     oscillator->set_freq(f);
 };
 
-inline void LFO::set_waveform(Waveform wf){
+void LFO::set_waveform(Waveform wf){
     oscillator->set_waveform(wf);
 };
 
-inline void LFO::set_depth(float d){
+void LFO::set_depth(float d){
     depth = d;
 }
 
-inline void LFO::tick(){
+void LFO::tick(){
     oscillator->tick();
 }
 
 
-inline float LFO::modulate_frequency(double input){
+float LFO::modulate_frequency(double input){
     return input * oscillator->get_sample() * depth;
 };
-inline float LFO::modulate_amplitude(double input){
+float LFO::modulate_amplitude(double input){
     return input * oscillator->get_sample() * depth;
 };
-inline float LFO::modulate_phase(double input){
+float LFO::modulate_phase(double input){
     return input * oscillator->get_sample() * depth;
 };

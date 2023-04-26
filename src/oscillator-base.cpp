@@ -3,7 +3,7 @@
 #include <cmath>
 
 // CONSTRUCTORS
-inline BaseOscillator::BaseOscillator(Waveform wf,double f,double r,double wave_range_min,double wave_range_max, double a,double p):
+BaseOscillator::BaseOscillator(Waveform wf,double f,double r,double wave_range_min,double wave_range_max, double a,double p):
     waveform(wf),
     rate(r),
     step(0.0),
@@ -19,7 +19,7 @@ inline BaseOscillator::BaseOscillator(Waveform wf,double f,double r,double wave_
     set_amp(a);
 }
 
-inline BaseOscillator::BaseOscillator(Waveform wf,uint8_t note,double r,double wave_range_min,double wave_range_max, double a,double p):
+BaseOscillator::BaseOscillator(Waveform wf,uint8_t note,double r,double wave_range_min,double wave_range_max, double a,double p):
     waveform(wf),
     rate(r),
     step(0.0),
@@ -35,19 +35,19 @@ inline BaseOscillator::BaseOscillator(Waveform wf,uint8_t note,double r,double w
     set_amp(a);
 }
 
-inline BaseOscillator::BaseOscillator(Waveform wf,double f,double r, double wave_range_min, double wave_range_max):
+BaseOscillator::BaseOscillator(Waveform wf,double f,double r, double wave_range_min, double wave_range_max):
     BaseOscillator::BaseOscillator(wf,f,r,wave_range_min,wave_range_max,DEFAULT_AMPLITUDE,DEFAULT_PHASE)
 {}
 
-inline BaseOscillator::BaseOscillator(Waveform wf,uint8_t note,double r):
+BaseOscillator::BaseOscillator(Waveform wf,uint8_t note,double r):
     BaseOscillator::BaseOscillator(wf,note,r,DEFAULT_WAVE_RANGE_MIN,DEFAULT_WAVE_RANGE_MAX,DEFAULT_AMPLITUDE,DEFAULT_PHASE)
 {}
 
-inline BaseOscillator::BaseOscillator(Waveform wf, double f, double r):
+BaseOscillator::BaseOscillator(Waveform wf, double f, double r):
     BaseOscillator::BaseOscillator(wf,f,r,DEFAULT_WAVE_RANGE_MIN,DEFAULT_WAVE_RANGE_MAX,DEFAULT_AMPLITUDE,DEFAULT_PHASE)
 {}
 
-inline BaseOscillator::BaseOscillator():
+BaseOscillator::BaseOscillator():
     BaseOscillator::BaseOscillator(WAVE_SINE,static_cast <uint8_t> (0),DEFAULT_SAMPLING_RATE)
 {}
 
@@ -55,107 +55,107 @@ BaseOscillator::~BaseOscillator(){};
 
 // GETTERS/SETTERS
 
-inline Waveform BaseOscillator::get_waveform() const {
+Waveform BaseOscillator::get_waveform() const {
     return waveform;
 }
 
-inline void BaseOscillator::set_waveform(Waveform w){
+void BaseOscillator::set_waveform(Waveform w){
     waveform = w;
 }
 
-inline double BaseOscillator::get_freq() const {
+double BaseOscillator::get_freq() const {
     return freq; 
 }
-inline void BaseOscillator::set_freq(double f){
+void BaseOscillator::set_freq(double f){
     freq = f;
     inst_freq = f;
     _post_freq_set();
 }
-inline void BaseOscillator::set_freq(uint8_t note){ // set freq through midi note
+void BaseOscillator::set_freq(uint8_t note){ // set freq through midi note
     freq = midi2freq(note);
     inst_freq = freq;
     _post_freq_set();
 }
 
-inline double BaseOscillator::get_amp() const {
+double BaseOscillator::get_amp() const {
     return amp;
 }
-inline void BaseOscillator::set_amp(double a){
+void BaseOscillator::set_amp(double a){
     amp = a;
     inst_amp = a;
     _post_amp_set();
 }
 
-inline double BaseOscillator::get_phase() const {
+double BaseOscillator::get_phase() const {
     return phase;
 }
-inline void BaseOscillator::set_phase(double p){
+void BaseOscillator::set_phase(double p){
     phase = p;
     inst_phase = p;
     _post_phase_set();
 }
 
-inline double BaseOscillator::get_rate() const {
+double BaseOscillator::get_rate() const {
     return rate;
 }
-inline void BaseOscillator::set_rate(double r){
+void BaseOscillator::set_rate(double r){
     rate = r;
 }
 
-inline double BaseOscillator::get_step() const {
+double BaseOscillator::get_step() const {
     return step; 
 }
-inline void BaseOscillator::set_step(double p){  // maybe not this one? CHECK!!
+void BaseOscillator::set_step(double p){  // maybe not this one? CHECK!!
     step = p; 
 }
 
-inline bool BaseOscillator::get_is_active() const {
+bool BaseOscillator::get_is_active() const {
     return is_active;
 }
 
-inline void BaseOscillator::set_is_active(bool status){
+void BaseOscillator::set_is_active(bool status){
     is_active = status;
 }
 
-inline void BaseOscillator::set_gain_ptr(LinearFader<float>* ptr){
+void BaseOscillator::set_gain_ptr(LinearFader<float>* ptr){
     gain = ptr;
 }
 
-inline void BaseOscillator::set_detune(float d){
+void BaseOscillator::set_detune(float d){
     detune = d;
 }
 
 // Dynamic/Instantaneous Vars (can be modulated)
-inline std::pair<double,double> BaseOscillator::get_wave_range() const {
+std::pair<double,double> BaseOscillator::get_wave_range() const {
     return wave_range;
 }
-inline void BaseOscillator::set_wave_range(double min, double max){
+void BaseOscillator::set_wave_range(double min, double max){
     wave_range = std::make_pair(min,max);
 }
-inline void BaseOscillator::set_wave_range(std::pair<double,double> wrng){
+void BaseOscillator::set_wave_range(std::pair<double,double> wrng){
     wave_range = wrng;
 }
 
-inline double BaseOscillator::get_inst_freq() const {
+double BaseOscillator::get_inst_freq() const {
     return inst_freq; 
 }
-inline void BaseOscillator::set_inst_freq(double f){
+void BaseOscillator::set_inst_freq(double f){
     inst_freq = f;
     _post_freq_set();
 }
 
-inline double BaseOscillator::get_inst_amp() const {
+double BaseOscillator::get_inst_amp() const {
     return inst_amp;
 }
-inline void BaseOscillator::set_inst_amp(double a){
+void BaseOscillator::set_inst_amp(double a){
     inst_amp = a;
     _post_amp_set();
 }
 
-inline double BaseOscillator::get_inst_phase() const {
+double BaseOscillator::get_inst_phase() const {
     return inst_phase;
 }
-inline void BaseOscillator::set_inst_phase(double p){
+void BaseOscillator::set_inst_phase(double p){
     inst_phase = p;
     _post_phase_set();
 }
@@ -264,6 +264,6 @@ float BaseOscillator::get_sample(){
         return sample * inst_amp;
 }
 
-inline void BaseOscillator::tick(){
+void BaseOscillator::tick(){
     step += step_increment;
 }
