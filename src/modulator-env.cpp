@@ -3,6 +3,7 @@
 // CLASS CONSTRUCTORS
 
 ADSREnvelope::ADSREnvelope(ADSR a):
+    Modulator(true), // connections handled elsewhere for Envelopes
     adsr(a)
 {}
 

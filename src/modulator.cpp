@@ -4,6 +4,10 @@ Modulator::Modulator():
     is_active(false)
 {}
 
+Modulator::Modulator(bool is_active_):
+    is_active(is_active_)
+{}
+
 Modulator::~Modulator(){
 }
 

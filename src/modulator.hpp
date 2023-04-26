@@ -9,6 +9,8 @@ protected:
 
 public:
     Modulator();
+    Modulator(bool is_active_);
+    
     virtual ~Modulator();
     
     virtual float modulate_frequency(double input) = 0;

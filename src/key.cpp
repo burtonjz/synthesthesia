@@ -57,7 +57,7 @@ void Key::press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
         oscillator[i].set_key(this);
         oscillator[i].configure(osc_config[i]);
         oscillator[i].set_freq(nt);
-        start_level[i] = oscillator[i].get_env_level(status,time,start_level[i]);
+        start_level[i] = oscillator[i].get_env_level();
     }
 }
 
@@ -68,7 +68,7 @@ the start_level and time so that envelope logic can be used to modulate oscillat
 void Key::release(const uint8_t nt){
     if ((status == KEY_PRESSED) && (note == nt)){
         for(int i = 0; i < N_OSCILLATORS; ++i){
-            start_level[i] = oscillator[i].get_env_level(status,time,start_level[i]);
+            start_level[i] = oscillator[i].get_env_level();
         }
         status = KEY_RELEASED;
         time = 0.0;
@@ -107,7 +107,7 @@ std::array<float,N_OSCILLATORS> Key::get_sample(){
 }
 
 void Key::tick(){
-    bool is_off = false;
+    bool is_off = true;
     time += 1.0 / oscillator[0].get_rate();
 
     for(int i = 0; i < N_OSCILLATORS; ++i){

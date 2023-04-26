@@ -61,13 +61,13 @@ double Oscillator::get_release(){
 }
 
 // gets level from envelope if envelope set as amplitude modulator
-double Oscillator::get_env_level(KeyStatus status, double time, float start_level) const {
+double Oscillator::get_env_level() const {
     if(
         amplitude_modulator &&
         amplitude_modulator->get_is_active()
     ){
         if(ADSREnvelope* envamp = dynamic_cast<ADSREnvelope*>(amplitude_modulator)){
-            return envamp->get_level(status,time,start_level);
+            return envamp->get_level(key->get_status(),key->get_time(),key->get_start_level(index));
         } else return 1.0f;
     } else return 1.0f;
 }

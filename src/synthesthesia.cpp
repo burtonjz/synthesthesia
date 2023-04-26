@@ -181,6 +181,9 @@ void Synthesthesia::run(const uint32_t sample_count)
             case CTRL_OSC3_PAN:
                 ctrl_osc_pan[2].set(ctrl_values[i], 0.01 * rate);
                 break;
+            case CTRL_ENV1_CONNECTIONS:
+                env1.set_connections(ctrl_values[i]);
+                break;
             case CTRL_ENV1_ATTACK:
             case CTRL_ENV1_DECAY:
             case CTRL_ENV1_SUSTAIN:

@@ -33,7 +33,7 @@ public:
     
     // GETTERS/SETTERS
     double get_release(); // get release timing information from amplitude envelope (if exists)
-    double get_env_level(KeyStatus status, double time, float start_level) const; // get level from amplitude envelope (if exists)
+    double get_env_level() const; // get level from amplitude envelope (if exists)
     void set_index(int i); // index of this oscillator within Key class
     void set_key(Key* key); // set pointer to parent key (necessary to synchronize envelope modulators to key presses/timing)
 
