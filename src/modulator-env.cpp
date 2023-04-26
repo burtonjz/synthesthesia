@@ -2,11 +2,11 @@
 
 // CLASS CONSTRUCTORS
 
-inline ADSREnvelope::ADSREnvelope(ADSR a):
+ADSREnvelope::ADSREnvelope(ADSR a):
     adsr(a)
 {}
 
-inline ADSREnvelope::ADSREnvelope():
+ADSREnvelope::ADSREnvelope():
     ADSREnvelope({0.0,0.0,0.0,0.0})
 {}
 

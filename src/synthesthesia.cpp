@@ -1,76 +1,20 @@
-#include <lv2.h>
-#include <lv2/atom/atom.h>
-#include <lv2/urid/urid.h>
+#include "synthesthesia.hpp"
+
 #include <lv2/midi/midi.h>
 #include <lv2/core/lv2_util.h>
 #include <lv2/atom/util.h>
 
 #include <array>
-#include <boost/container/flat_map.hpp>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 #include "config.hpp"
-#include "port-info.hpp"
 #include "array-math.hpp"
 #include "linear-fader.hpp"
 #include "limit.hpp"
-#include "panner.hpp"
 #include "cfg-oscillator.hpp"
-#include "modulator-lfo.hpp"
-#include "modulator-env.hpp"
 #include "filter-type.hpp"
-#include "filter.hpp"
-#include "key.hpp"
 
-
-#define SYNTH_URI "https://github.com/burtonjz/lv2-plugins-dev/synthesthesia"
-#define N_OSCILLATORS 3
-
-struct Urids {
-    LV2_URID midi_MidiEvent;
-};
-
-/*
-===========================================================
-=============== Synth Class Definition ====================
-===========================================================
-*/ 
-class Synthesthesia {
-private:
-    std::array<const LV2_Atom_Sequence*,MIDI_N> midi_in ;
-    std::array<float*,AUDIO_OUT_N> audio_out;
-    std::array<const float*, CTRL_N> control;
-    std::array<float, CTRL_N> ctrl_values;
-    LV2_URID_Map* map;
-    Urids urids;
-    double rate;
-    double pos;
-    boost::container::flat_map<uint8_t, Key> key;
-
-    std::array<LinearFader<float>,N_OSCILLATORS> ctrl_osc_gain;
-    std::array<double,N_OSCILLATORS> ctrl_osc_detune;
-    std::array<Panner,N_OSCILLATORS> ctrl_osc_pan;
-
-    // Filters
-    LowPassFilter lpf1;
-
-    // Modulators
-    LFO lfo1;
-    ADSREnvelope env1;
-
-public:
-    Synthesthesia (const double sample_rate, const LV2_Feature *const *features);
-    void connectPort (const uint32_t port, void* data);
-    void activate();
-    void run (const uint32_t sample_count);
-    void deactivate();
-
-private:
-    void play (const uint32_t start, const uint32_t end);
-    std::array<OscillatorConfig,N_OSCILLATORS> configure_oscillators(); 
-    void normalize_osc_gain();
-};
 
 Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const *features):
     midi_in{nullptr},
@@ -323,77 +267,3 @@ void Synthesthesia::activate(){
 void Synthesthesia::deactivate(){
 };
 
-/*
-===========================================================
-=============== internal core methods =====================
-===========================================================
-*/ 
-static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sample_rate, const char *bundle_path, const LV2_Feature *const *features)
-{
-    std::cout << "[" << SYNTH_URI << "]: Instantiating plugin." << std::endl;
-
-    Synthesthesia* m = nullptr;
-    try {
-        m = new Synthesthesia(sample_rate, features);
-    } 
-    catch(const std::invalid_argument& ia){
-        std::cerr << ia.what() << std::endl;
-        return nullptr;
-    }
-    catch(const std::bad_alloc& ba){
-        std::cerr << "Failed to allocate memory. Aborting." << std::endl;
-        return nullptr;
-    }
-    
-    std::cout << "[" << SYNTH_URI << "]: Plugin Instantiated." << std::endl;
-    return m;
-}
-
-static void connect_port(LV2_Handle instance, uint32_t port, void *data){
-    std::cout << "[" << SYNTH_URI << "]: Attempting to connect port " << port << "." << std::endl;
-    Synthesthesia* m = static_cast <Synthesthesia*> (instance);
-    if (m) m->connectPort (port, data);
-}
-
-static void activate(LV2_Handle instance){
-    Synthesthesia* m = static_cast <Synthesthesia*> (instance);
-    m->activate();
-}
-
-static void run(LV2_Handle instance, uint32_t sample_count){
-    Synthesthesia* m = static_cast <Synthesthesia*> (instance);
-
-    if (m) m->run (sample_count);
-}
-
-static void deactivate (LV2_Handle instance){
-    Synthesthesia* m = static_cast <Synthesthesia*> (instance);
-    m->deactivate();
-}
-
-static void cleanup (LV2_Handle instance){
-    Synthesthesia* m = static_cast <Synthesthesia*> (instance);
-    if (m) delete m;
-}
-
-static const void* extension_data(const char *uri){
-    return NULL;
-}
-
-// descriptor
-static LV2_Descriptor const descriptor = {
-    SYNTH_URI,
-    instantiate,
-    connect_port,
-    activate,
-    run,
-    deactivate,
-    cleanup,
-    extension_data
-};
-
-// interface
-LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index){
-    if (index == 0) return &descriptor;
-    return NULL;
-};

@@ -2,3 +2,4 @@ TODO
 build/*.so
 build/*.o
 build/*.d
+.vscode
