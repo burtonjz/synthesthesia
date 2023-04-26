@@ -46,11 +46,10 @@ void Key::press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
         const uint8_t nt, const uint8_t vel){
     note = nt;
     velocity = vel;
-    time = 0.0;
+    
 
     // env.set_adsr
     keyFader.set(1.0f,0.0);
-    status = KEY_PRESSED;
 
     for(int i = 0; i < N_OSCILLATORS; ++i){
         oscillator[i].set_index(i);
@@ -59,6 +58,9 @@ void Key::press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
         oscillator[i].set_freq(nt);
         start_level[i] = oscillator[i].get_env_level();
     }
+
+    time = 0.0;
+    status = KEY_PRESSED;
 }
 
 /*
