@@ -15,7 +15,6 @@
 
 
 #define SYNTH_URI "https://github.com/burtonjz/lv2-plugins-dev/synthesthesia"
-#define N_OSCILLATORS 3
 
 struct Urids {
     LV2_URID midi_MidiEvent;

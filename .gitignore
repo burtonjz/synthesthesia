@@ -1,5 +1,3 @@
 TODO
-build/*.so
-build/*.o
-build/*.d
+build
 .vscode

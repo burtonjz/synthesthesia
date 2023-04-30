@@ -4,9 +4,15 @@
 #include <cstdint>
 #include "waveform.hpp"
 
+#ifndef TEST_MODE_
 constexpr int N_OSCILLATORS = 3;
 constexpr int N_ENVELOPES = 1;
 constexpr int N_CHANNELS = 2;
+#else
+constexpr int N_OSCILLATORS = 1;
+constexpr int N_ENVELOPES = 1;
+constexpr int N_CHANNELS = 1;
+#endif
 
 // WAVEFORM GENERATION CONFIGS
 

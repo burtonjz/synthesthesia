@@ -1,11 +1,12 @@
 #ifndef FILTER_HPP_
 #define FILTER_HPP_
 
+#include "config.hpp"
 #include <cmath>
 #include <array>
 #include "filter-type.hpp"
 #include "linear-fader.hpp"
-#include "config.hpp"
+
 
 // Second order Butterworth filter
 class LowPassFilter{

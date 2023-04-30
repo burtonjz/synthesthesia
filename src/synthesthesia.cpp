@@ -1,4 +1,4 @@
-#include "synthesthesia.hpp"
+#include "config.hpp"
 
 #include <lv2/midi/midi.h>
 #include <lv2/core/lv2_util.h>
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "config.hpp"
+#include "synthesthesia.hpp"
 #include "array-math.hpp"
 #include "linear-fader.hpp"
 #include "limit.hpp"
@@ -76,11 +76,11 @@ void Synthesthesia::play (const uint32_t start, const uint32_t end){
         std::array<float,N_CHANNELS> pan_vals = {};
         for(int j = 0; j < N_OSCILLATORS; ++j){
             pan_vals = ctrl_osc_pan[j].get();
-            array_multiply<float,2>(pan_vals,osc_samps[j]);
-            array_add<float,2>(out,pan_vals);
+            array_multiply<float,N_CHANNELS>(pan_vals,osc_samps[j]);
+            array_add<float,N_CHANNELS>(out,pan_vals);
         }
 
-        // apply filter
+        // apply filter if active
         lpf1.tick(out);
         if(lpf1.is_active()){
             out = lpf1.get_sample();
