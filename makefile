@@ -29,12 +29,7 @@ PLUGIN_EXEC := synthesthesia.so
 TEST_DIR := test
 TEST_BUILD_DIR := $(TEST_DIR)/build
 
-TEST := $(wildcard $(TEST_DIR)/*-test.cpp)
-TESTOBJ := $(patsubst $(TEST_DIR)/%-test.cpp,$(BUILD_DIR)/%-test.o,$(TEST))
-TESTDEP := $(TESTOBJ:.o=.d)
-
-TEST_SRC_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(TEST_BUILD_DIR)/%.o,$(SRC))
-
+TEST_SRC_OBJ := $(patsubst $(SRC_DIR)/%.cpp,$(TEST_BUILD_DIR)/%.o,$(filter-out $(SRC_DIR)/main.cpp,$(SRC)))
 TEST_EXEC := test-runner
 
 #===============================================================
@@ -79,15 +74,15 @@ $(TEST_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(TEST_BUILD_DIR)/%.d
 	$(CXX) $(CXXFLAGS) -DTEST_MODE_ -c $< -o $@
 
 # generate test dependencies
-$(TEST_BUILD_DIR)/oscillator-base-test.d: $(TEST_DIR)/oscillator-base-test.cpp | $(TEST_BUILD_DIR)
+$(TEST_BUILD_DIR)/main.d: $(TEST_DIR)/main.cpp | $(TEST_BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -MM -MT '$(TEST_BUILD_DIR)/$*.o' $^ > $@
 
 # generate test file objects
-$(TEST_BUILD_DIR)/oscillator-base-test.o: $(TEST_DIR)/oscillator-base-test.cpp $(TEST_BUILD_DIR)/oscillator-base-test.d
+$(TEST_BUILD_DIR)/main.o: $(TEST_DIR)/main.cpp $(TEST_BUILD_DIR)/main.d
 	$(CXX) $(CXXFLAGSTEST) -c $< -o $@
 
 # create test
-$(TEST_BUILD_DIR)/$(TEST_EXEC): $(TEST_BUILD_DIR)/oscillator-base-test.o $(TEST_SRC_OBJ)
+$(TEST_BUILD_DIR)/$(TEST_EXEC): $(TEST_BUILD_DIR)/main.o $(TEST_SRC_OBJ)
 	$(CXX) $(LDFLAGSTEST) $^ -o $@ $(LDLIBSTEST)
 
 #===============================================================

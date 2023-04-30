@@ -1,7 +1,3 @@
-#define TEST_MODE_
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE KeyTest
-
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
@@ -21,6 +17,8 @@ Case | Description
 1    | Amp Modulation envelope performs as expected
 
 */
+
+BOOST_AUTO_TEST_SUITE(key_tests)
 
 BOOST_AUTO_TEST_CASE(adsr_envelope_logic_test){
     const double rate = 100;
@@ -69,7 +67,7 @@ BOOST_AUTO_TEST_CASE(adsr_envelope_logic_test){
 
         key.tick();
     }
-
+}
     // TODO: add other ADSR phases, and add other tests for interrupted actions like pressing during release stage
 
-}
+BOOST_AUTO_TEST_SUITE_END()

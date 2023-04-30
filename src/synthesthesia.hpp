@@ -13,7 +13,6 @@
 #include "modulator-env.hpp"
 #include "key.hpp"
 
-
 #define SYNTH_URI "https://github.com/burtonjz/lv2-plugins-dev/synthesthesia"
 
 struct Urids {

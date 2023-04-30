@@ -1,11 +1,10 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE BaseOscillatorTest
-
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
 
 #include "oscillator-base.hpp"
+
+BOOST_AUTO_TEST_SUITE(oscillator_base_test)
 
 /*
 ===========================================
@@ -127,3 +126,5 @@ BOOST_AUTO_TEST_CASE(saw_wave_test){
         osc.tick();
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()
