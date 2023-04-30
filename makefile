@@ -79,11 +79,11 @@ $(TEST_BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(TEST_BUILD_DIR)/%.d
 	$(CXX) $(CXXFLAGS) -DTEST_MODE_ -c $< -o $@
 
 # generate test dependencies
-$(TEST_BUILD_DIR)/oscillator-base-test.d: $(TEST_DIR)/oscillator-base-test.cpp
-	$(CXX) $(CXXFLAGS) -MM -MT '$(BUILD_DIR)/$*.o' $^ > $@
+$(TEST_BUILD_DIR)/oscillator-base-test.d: $(TEST_DIR)/oscillator-base-test.cpp | $(TEST_BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -MM -MT '$(TEST_BUILD_DIR)/$*.o' $^ > $@
 
 # generate test file objects
-$(TEST_BUILD_DIR)/oscillator-base-test.o: $(TEST_DIR)/oscillator-base-test.cpp
+$(TEST_BUILD_DIR)/oscillator-base-test.o: $(TEST_DIR)/oscillator-base-test.cpp $(TEST_BUILD_DIR)/oscillator-base-test.d
 	$(CXX) $(CXXFLAGSTEST) -c $< -o $@
 
 # create test
