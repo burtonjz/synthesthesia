@@ -9,6 +9,8 @@
 #include "cfg-oscillator.hpp"
 #include "config.hpp"
 
+class Synthesthesia; // forward declaration
+
 class Key {
 private:
     KeyStatus status;
@@ -21,7 +23,6 @@ private:
     
     // for handling amp envelope modulation
     std::array<float,N_OSCILLATORS> start_level;
-
 public:
     Key();
     Key(const double rt);
@@ -30,9 +31,10 @@ public:
     KeyStatus get_status() const;
     double get_time() const;
     float get_start_level(int index) const; 
+    double get_rate() const;
     
     void press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
-        const uint8_t nt, const uint8_t vel);
+        const uint8_t nt, const uint8_t vel, Synthesthesia* synth_ptr);
 
     void release();
     void release(const uint8_t nt);

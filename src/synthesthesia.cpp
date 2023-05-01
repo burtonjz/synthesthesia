@@ -43,6 +43,12 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     urids.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 }
 
+Key* Synthesthesia::find_key(uint8_t index){
+    auto it = key.find(index);
+    if (it != key.end()) return &(it->second);
+    else return nullptr;
+};
+
 void Synthesthesia::connectPort(const uint32_t port, void* data){
     if (port<MIDI_N){
         std::cout << "[" << SYNTH_URI << "]: Connected Port "  << port << "." << std::endl;
@@ -237,7 +243,8 @@ void Synthesthesia::run(const uint32_t sample_count)
                 key[msg[1] & 0x7f].press(
                     osc_configs, // oscillator configs
                     msg[1], // note
-                    msg[2]
+                    msg[2], // velocity
+                    this
                 );
                 break;
 

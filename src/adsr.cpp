@@ -8,7 +8,7 @@ float ADSR::get_level(KeyStatus status, double time, float start_level){
         }
 
         if (time < attack + decay){
-            return 1.0f - ((1.0f - sustain) * (time - attack) / decay);
+            return 1.0f - (1.0f - sustain) * (time - attack) / decay;
         }
 
         return sustain;

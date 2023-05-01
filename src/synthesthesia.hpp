@@ -49,6 +49,11 @@ private:
 
 public:
     Synthesthesia (const double sample_rate, const LV2_Feature *const *features);
+
+    // GETTERS/SETTERS
+    Key* find_key(uint8_t i);
+
+    // hooks for internal LV2 core functions
     void connectPort (const uint32_t port, void* data);
     void activate();
     void run (const uint32_t sample_count);

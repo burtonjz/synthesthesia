@@ -1,9 +1,10 @@
+#include "config.hpp"
 #include "oscillator.hpp"
-#include "key.hpp"
 #include "modulator-env.hpp"
 #include "modulator-lfo.hpp"
 #include "adsr.hpp"
-#include "config.hpp"
+#include "key.hpp"
+#include "synthesthesia.hpp"
 
 // CONSTRUCTORS
 
@@ -14,20 +15,20 @@ This class is highly coupled with the Key class due to the nature of envelope mo
 Unlike other modulation sources, envelopes used to modulate amplitude need to be known to
 the Key so that the Key class knows when the release stage is completed.
 */
-Oscillator::Oscillator(Waveform wf,double f,double r,double wave_range_min,double wave_range_max, double a,double p, Key* k):
+Oscillator::Oscillator(Waveform wf,double f,double r,double wave_range_min,double wave_range_max, double a,double p, Synthesthesia* synth_ptr_):
     BaseOscillator(wf,f,r,wave_range_min,wave_range_max,a,p),
     frequency_modulator(nullptr),
     amplitude_modulator(nullptr),
     phase_modulator(nullptr),
-    key(k)
+    synth_ptr(synth_ptr_)
 {};
 
-Oscillator::Oscillator(Waveform wf,uint8_t note,double r,double wave_range_min,double wave_range_max, double a,double p, Key* k):
+Oscillator::Oscillator(Waveform wf,uint8_t note,double r,double wave_range_min,double wave_range_max, double a,double p, Synthesthesia* synth_ptr_):
     BaseOscillator(wf,note,r,wave_range_min,wave_range_max,a,p),
     frequency_modulator(nullptr),
     amplitude_modulator(nullptr),
     phase_modulator(nullptr),
-    key(k)
+    synth_ptr(synth_ptr_)
 {};
 
 Oscillator::Oscillator(Waveform wf,double f,double r, double wave_range_min, double wave_range_max):
@@ -67,21 +68,27 @@ double Oscillator::get_env_level() const {
         amplitude_modulator->get_is_active()
     ){
         if(ADSREnvelope* envamp = dynamic_cast<ADSREnvelope*>(amplitude_modulator)){
-            return envamp->get_level(key->get_status(),key->get_time(),key->get_start_level(index));
+            Key* k = synth_ptr->find_key(key_index);
+            return envamp->get_level(k->get_status(),k->get_time(),k->get_start_level(oscillator_index));
         } else return 1.0f;
     } else return 1.0f;
 }
 
-// Give the Oscillator knowledge of where it is in the Key class so that
-// we can get the proper start_level during envelope modulation.
-void Oscillator::set_index(int i){
-    index = i;
+// set pointer to parent Synth object. Necessary to synchronize envelope
+// or other modulation sources with corresponding Key Presses
+void Oscillator::set_synth_ptr(Synthesthesia* synth_ptr_){
+    synth_ptr = synth_ptr_;
 }
 
-// set pointer to parent Key object. Necessary to synchronize envelope
-// or other modulation sources with corresponding Key Presses
-void Oscillator::set_key(Key* k){
-    key = k;
+// also need to know where key is within the flat map
+void Oscillator::set_key_index(uint8_t i){
+    key_index = i;
+}
+
+// Give the Oscillator knowledge of where it is in the Key class so that
+// we can get the proper start_level during envelope modulation.
+void Oscillator::set_oscillator_index(int i){
+    oscillator_index = i;
 }
 
 // OTHER FUNCTION IMPLEMENTATIONS
@@ -102,7 +109,8 @@ void Oscillator::modulate_frequency(){
     }
 
     if (ADSREnvelope* envfreq = dynamic_cast<ADSREnvelope*>(frequency_modulator)){
-        set_inst_freq(get_freq() + envfreq->modulate_frequency(get_freq(),key->get_status(), key->get_time(), key->get_start_level(index)));
+        Key* k = synth_ptr->find_key(key_index);
+        set_inst_freq(get_freq() + envfreq->modulate_frequency(get_freq(),k->get_status(), k->get_time(), k->get_start_level(oscillator_index)));
         return;
     }
 }
@@ -116,7 +124,8 @@ void Oscillator::modulate_phase(){
     } 
 
     if (ADSREnvelope* envphase = dynamic_cast<ADSREnvelope*>(phase_modulator)){
-        set_inst_phase(get_phase() + envphase->modulate_phase(get_phase(),key->get_status(),key->get_time(),key->get_start_level(index)));
+        Key* k = synth_ptr->find_key(key_index);
+        set_inst_phase(get_phase() + envphase->modulate_phase(get_phase(),k->get_status(),k->get_time(),k->get_start_level(oscillator_index)));
         return;
     }
 }
@@ -130,7 +139,8 @@ void Oscillator::modulate_amplitude(){
     }
 
     if(ADSREnvelope* envamp = dynamic_cast<ADSREnvelope*>(amplitude_modulator)){
-        set_inst_amp(envamp->modulate_amplitude(get_amp(),key->get_status(),key->get_time(),key->get_start_level(index)));
+        Key* k = synth_ptr->find_key(key_index);
+        set_inst_amp(envamp->modulate_amplitude(get_amp(),k->get_status(),k->get_time(),k->get_start_level(oscillator_index)));
         return;
     }
 }

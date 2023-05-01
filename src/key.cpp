@@ -1,4 +1,5 @@
 #include "key.hpp"
+#include "synthesthesia.hpp"
 
 // CONSTRUCTORS
 
@@ -35,6 +36,10 @@ float Key::get_start_level(int index) const {
     return start_level[index];
 }
 
+double Key::get_rate() const {
+    return rate;
+}
+
 // MEMBER FUNCTIONS
 
 /* 
@@ -43,7 +48,7 @@ and keep track of certain variables for any envelope modulators connected to the
 oscillator
 */
 void Key::press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
-        const uint8_t nt, const uint8_t vel){
+        const uint8_t nt, const uint8_t vel, Synthesthesia* synth_ptr){
     note = nt;
     velocity = vel;
     
@@ -52,8 +57,9 @@ void Key::press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
     keyFader.set(1.0f,0.0);
 
     for(int i = 0; i < N_OSCILLATORS; ++i){
-        oscillator[i].set_index(i);
-        oscillator[i].set_key(this);
+        oscillator[i].set_synth_ptr(synth_ptr);
+        oscillator[i].set_key_index(nt);
+        oscillator[i].set_oscillator_index(i);
         oscillator[i].configure(osc_config[i]);
         oscillator[i].set_freq(nt);
         start_level[i] = oscillator[i].get_env_level();
@@ -110,7 +116,7 @@ std::array<float,N_OSCILLATORS> Key::get_sample(){
 
 void Key::tick(){
     bool is_off = true;
-    time += 1.0 / oscillator[0].get_rate();
+    time += 1.0 / rate;
 
     for(int i = 0; i < N_OSCILLATORS; ++i){
         oscillator[i].tick();
