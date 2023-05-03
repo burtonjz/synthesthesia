@@ -14,7 +14,7 @@ Key::Key(const double rt):
     rate(rt),
     note{0},
     velocity{0},
-    keyFader{1.0f},
+    keyFader{0.0f},
     oscillator{},
     start_level{}
 {}
@@ -51,19 +51,17 @@ void Key::press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,
         const uint8_t nt, const uint8_t vel, Synthesthesia* synth_ptr){
     note = nt;
     velocity = vel;
-    
 
-    // env.set_adsr
-    keyFader.set(1.0f,0.0);
-
+    bool has_envelope = true; // all oscillators have connected envelope
     for(int i = 0; i < N_OSCILLATORS; ++i){
-        oscillator[i].set_synth_ptr(synth_ptr);
-        oscillator[i].set_key_index(nt);
-        oscillator[i].set_oscillator_index(i);
-        oscillator[i].configure(osc_config[i]);
-        oscillator[i].set_freq(nt);
+        oscillator[i].configure(osc_config[i],nt,synth_ptr,i);
         start_level[i] = oscillator[i].get_env_level();
+        has_envelope = has_envelope && start_level[i] != -1.0f;
     }
+
+    // KeyFader helps prevent clicks if envelope not implemented
+    if(has_envelope) keyFader.set(1.0f,0.0);
+    else keyFader.set(1.0f,KEY_FADER_WEIGHT * rate);
 
     time = 0.0;
     status = KEY_PRESSED;
@@ -75,9 +73,13 @@ the start_level and time so that envelope logic can be used to modulate oscillat
 */
 void Key::release(const uint8_t nt){
     if ((status == KEY_PRESSED) && (note == nt)){
+        bool has_envelope = true;
         for(int i = 0; i < N_OSCILLATORS; ++i){
             start_level[i] = oscillator[i].get_env_level();
+            has_envelope = has_envelope && start_level[i] != -1.0f;
         }
+
+        if(!has_envelope) keyFader.set(0.0f, KEY_FADER_WEIGHT * rate);
         status = KEY_RELEASED;
         time = 0.0;
     }
@@ -97,7 +99,7 @@ void Key::off(){
 }
 
 void Key::mute(){
-    keyFader.set(0.0f, 0.01 * oscillator[0].get_rate());
+    keyFader.set(0.0f, KEY_FADER_WEIGHT * rate);
 }
 
 std::array<float,N_OSCILLATORS> Key::get_sample(){
@@ -115,15 +117,16 @@ std::array<float,N_OSCILLATORS> Key::get_sample(){
 }
 
 void Key::tick(){
-    bool is_off = true;
+    bool is_off = status == KEY_RELEASED;
     time += 1.0 / rate;
 
     for(int i = 0; i < N_OSCILLATORS; ++i){
         oscillator[i].tick();
-        is_off = is_off && (time >= oscillator[i].get_release());
+        is_off = is_off && (time >= oscillator[i].get_release() || keyFader.get() == 0.0f);
     }
+    keyFader.tick();
 
-    if ((status == KEY_RELEASED) && is_off) off();
+    if (is_off) off();
 }
 
 bool Key::isOn(){

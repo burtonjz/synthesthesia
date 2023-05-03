@@ -57,8 +57,8 @@ double Oscillator::get_release(){
     ){
         if(ADSREnvelope* envamp = dynamic_cast<ADSREnvelope*>(amplitude_modulator)){
             return envamp->get_adsr().release;
-        } else return 0.0;
-    } else return 0.0;
+        } else return 100.0; // arbitrarily high value so that KeyFader can control when key goes off
+    } else return 100.0;
 }
 
 // gets level from envelope if envelope set as amplitude modulator
@@ -70,8 +70,8 @@ double Oscillator::get_env_level() const {
         if(ADSREnvelope* envamp = dynamic_cast<ADSREnvelope*>(amplitude_modulator)){
             Key* k = synth_ptr->find_key(key_index);
             return envamp->get_level(k->get_status(),k->get_time(),k->get_start_level(oscillator_index));
-        } else return 1.0f;
-    } else return 1.0f;
+        } else return -1.0f;
+    } else return -1.0f;
 }
 
 // set pointer to parent Synth object. Necessary to synchronize envelope
@@ -152,14 +152,19 @@ void Oscillator::tick(){
 }
 
 // Handle ingestion of oscillator config parameter struct
-void Oscillator::configure(OscillatorConfig config){
+void Oscillator::configure(OscillatorConfig config, uint8_t note, Synthesthesia* synth_ptr, int osc_index){
+    set_is_active(config.status);
+    set_synth_ptr(synth_ptr);
+    set_gain_ptr(config.gain);
+    set_key_index(note);
+    set_oscillator_index(osc_index);
     connect_frequency_modulator(config.freq_mod);
     connect_amplitude_modulator(config.amp_mod);
     connect_phase_modulator(config.phase_mod);
-    set_is_active(config.status);
-    set_gain_ptr(config.gain);
     set_detune(config.detune);
+    set_freq(note);
     set_waveform(config.wf);
+    modulate(); // run first modulation so first sample is modulated
 }
 
 void Oscillator::connect_frequency_modulator(Modulator* ptr){

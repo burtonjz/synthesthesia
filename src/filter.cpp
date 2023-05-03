@@ -28,7 +28,7 @@ double LowPassFilter::get_cutoff_freq() const {
 }
 
 void LowPassFilter::set_cutoff_freq(double f){
-    cutoff_freq.set(f,rate * 0.01);
+    cutoff_freq.set(f,CTRL_FADER_WEIGHT * rate);
     if(is_active()) calculate_coefficients();
     else reset();
 }

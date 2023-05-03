@@ -23,6 +23,9 @@ constexpr float DEFAULT_WAVE_RANGE_MAX = 1.0f;
 constexpr float DEFAULT_AMPLITUDE = 1.0f;
 constexpr float DEFAULT_PHASE = 0.0f;
 
+constexpr float CTRL_FADER_WEIGHT = 0.01; // What percentage of SAMPLING_RATE to use to fade values for control ports
+constexpr float KEY_FADER_WEIGHT = 0.01; // What percentage of SAMPLING_RATE to use to fade values for Key class (if amplitude modulator envelope is not connected)
+
 // MODULATOR CONNECTION LOGIC
 
 enum ModConnection : uint16_t {

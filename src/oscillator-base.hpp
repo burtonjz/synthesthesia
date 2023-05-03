@@ -100,9 +100,7 @@ public:
 
     // SAMPLE GENERATION FUNCTIONS
     float get_sample();
-
     float squish_sample(float val);
-
     virtual void tick();
 };
 

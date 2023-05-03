@@ -49,6 +49,7 @@ private:
 
 public:
     Synthesthesia (const double sample_rate, const LV2_Feature *const *features);
+    Synthesthesia (const double sample_rate); // for testing without LV2 Host
 
     // GETTERS/SETTERS
     Key* find_key(uint8_t i);

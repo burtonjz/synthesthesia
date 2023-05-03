@@ -40,9 +40,9 @@ public:
     void set_oscillator_index(int i); // index of this oscillator within Key class
     void set_key_index(uint8_t i); // index of parent key within flat_map
     void set_synth_ptr(Synthesthesia* key); // set pointer to parent key (necessary to synchronize envelope modulators to key presses/timing)
+    void configure(OscillatorConfig config, uint8_t note, Synthesthesia* synth_ptr, int osc_index); // set oscillator members based on parameter object
 
-    void tick() override; // move oscillator to next sample
-    void configure(OscillatorConfig config); // set oscillator members based on parameter object
+    void tick() override; // to add modulation elements to sample generation
 
     void connect_frequency_modulator(Modulator* ptr);
     void disconnect_frequency_modulator();

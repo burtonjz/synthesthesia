@@ -43,6 +43,25 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     urids.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 }
 
+// This constructor is only used for testing without an LV2 Host
+Synthesthesia::Synthesthesia(const double sample_rate):
+    midi_in{nullptr},
+    audio_out{nullptr},
+    control{nullptr},
+    ctrl_values{0},
+    map(nullptr),
+    rate(sample_rate),
+    pos(0.0),
+    key(),
+    ctrl_osc_gain{LinearFader<float>(0.0f)},
+    ctrl_osc_detune{0.0},
+    ctrl_osc_pan{Panner()},
+    lpf1(),
+    lfo1(),
+    env1()
+{
+}
+
 Key* Synthesthesia::find_key(uint8_t index){
     auto it = key.find(index);
     if (it != key.end()) return &(it->second);
@@ -135,11 +154,11 @@ void Synthesthesia::normalize_osc_gain(){
     }
     if(gain_sum > 1.0){
         for(int i = 0; i < N_OSCILLATORS; ++i){
-            ctrl_osc_gain[i].set(ctrl_values[OSC_GET_GAIN(i)]/gain_sum, 0.01 * rate);
+            ctrl_osc_gain[i].set(ctrl_values[OSC_GET_GAIN(i)]/gain_sum, CTRL_FADER_WEIGHT * rate);
         }
     } else {
         for(int i = 0; i < N_OSCILLATORS; ++i){
-            ctrl_osc_gain[i].set(ctrl_values[OSC_GET_GAIN(i)], 0.01 * rate);
+            ctrl_osc_gain[i].set(ctrl_values[OSC_GET_GAIN(i)], CTRL_FADER_WEIGHT * rate);
         }
     }
 }
@@ -179,13 +198,13 @@ void Synthesthesia::run(const uint32_t sample_count)
                 ctrl_osc_detune[2] = ctrl_values[i];
                 break;
             case CTRL_OSC1_PAN:
-                ctrl_osc_pan[0].set(ctrl_values[i], 0.01 * rate);
+                ctrl_osc_pan[0].set(ctrl_values[i], CTRL_FADER_WEIGHT * rate);
                 break;
             case CTRL_OSC2_PAN:
-                ctrl_osc_pan[1].set(ctrl_values[i], 0.01 * rate);
+                ctrl_osc_pan[1].set(ctrl_values[i], CTRL_FADER_WEIGHT * rate);
                 break;
             case CTRL_OSC3_PAN:
-                ctrl_osc_pan[2].set(ctrl_values[i], 0.01 * rate);
+                ctrl_osc_pan[2].set(ctrl_values[i], CTRL_FADER_WEIGHT * rate);
                 break;
             case CTRL_ENV1_CONNECTIONS:
                 env1.set_connections(ctrl_values[i]);
