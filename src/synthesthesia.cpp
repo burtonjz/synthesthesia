@@ -130,7 +130,6 @@ std::array<OscillatorConfig,N_OSCILLATORS> Synthesthesia::configure_oscillators(
         amp_mod = nullptr;
         phase_mod = nullptr;
         for(int j = 0; j < N_MODULATORS; ++j){
-            std::cout << "modulator " << j << " is_active: " << modulator[j]->get_is_active() << "connections: " << modulator[j]->get_connections() << std::endl;
             if(modulator[j]->get_is_active()){
                 if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(1 << (i*3)))) amp_mod = modulator[j];
                 if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(2 << (i*3)))) freq_mod = modulator[j];
@@ -230,7 +229,6 @@ void Synthesthesia::run(const uint32_t sample_count)
                 break;
             case CTRL_LFO1_CONNECTIONS:
                 lfo[0].set_connections(ctrl_values[i]);
-                std::cout << "lfo connections set to " << ctrl_values[i] << " " << lfo[0].get_connections() << " " << lfo[0].get_is_active() << std::endl;
                 break;
             case CTRL_LFO1_FREQ:
                 lfo[0].set_freq(static_cast<double> (ctrl_values[i]));
