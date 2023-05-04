@@ -120,15 +120,29 @@ void Synthesthesia::play (const uint32_t start, const uint32_t end){
 
 std::array<OscillatorConfig,N_OSCILLATORS> Synthesthesia::configure_oscillators(){
     std::array<OscillatorConfig,N_OSCILLATORS> osc_configs;
-
+    // determine modulator connections
+    Modulator* freq_mod = nullptr;
+    Modulator* amp_mod = nullptr;
+    Modulator* phase_mod = nullptr;
 
     for(int i = 0; i < N_OSCILLATORS; ++i){
+        freq_mod = nullptr;
+        amp_mod = nullptr;
+        phase_mod = nullptr;
+        for(int j = 0; j < N_MODULATORS; ++j){
+            std::cout << "modulator " << j << " is_active: " << modulator[j]->get_is_active() << "connections: " << modulator[j]->get_connections() << std::endl;
+            if(modulator[j]->get_is_active()){
+                if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(1 << (i*3)))) amp_mod = modulator[j];
+                if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(2 << (i*3)))) freq_mod = modulator[j];
+                if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(4 << (i*3)))) phase_mod = modulator[j];
+            }
+        }
         osc_configs[i] = {
             ctrl_values[OSC_GET_STATUS(i)] != 0.0,
             static_cast<Waveform> (ctrl_values[OSC_GET_WAVEFORM(i)]),
-            &lfo[0], // freq modulator
-            &env[0], // amp modulator
-            nullptr,  // phase modulator
+            freq_mod, // freq modulator
+            amp_mod, // amp modulator
+            phase_mod,  // phase modulator
             &ctrl_osc_gain[i],
             ctrl_osc_detune[i]
         };
@@ -214,8 +228,9 @@ void Synthesthesia::run(const uint32_t sample_count)
                         ctrl_values[CTRL_ENV1_RELEASE]
                 });
                 break;
-            case CTRL_LFO1_STATUS:
-                lfo[0].set_is_active(ctrl_values[i] != 0.0);
+            case CTRL_LFO1_CONNECTIONS:
+                lfo[0].set_connections(ctrl_values[i]);
+                std::cout << "lfo connections set to " << ctrl_values[i] << " " << lfo[0].get_connections() << " " << lfo[0].get_is_active() << std::endl;
                 break;
             case CTRL_LFO1_FREQ:
                 lfo[0].set_freq(static_cast<double> (ctrl_values[i]));

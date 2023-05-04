@@ -3,7 +3,6 @@
 // CLASS CONSTRUCTORS
 
 ADSREnvelope::ADSREnvelope(ADSR a):
-    Modulator(true), // connections handled elsewhere for Envelopes
     adsr(a)
 {}
 
@@ -15,14 +14,6 @@ ADSREnvelope::ADSREnvelope():
 
 ModulatorType ADSREnvelope::getType() const {
     return MODULATOR_ENV;
-}
-
-uint16_t ADSREnvelope::get_connections() const{
-    return connections;
-}
-
-void ADSREnvelope::set_connections(uint16_t c){
-    connections = c;
 }
 
 ADSR ADSREnvelope::get_adsr() const{

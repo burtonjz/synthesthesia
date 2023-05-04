@@ -104,12 +104,13 @@ void Key::mute(){
 
 std::array<float,N_OSCILLATORS> Key::get_sample(){
     std::array<float,N_OSCILLATORS> sample = {};
-    float level;
+    float vel;
     
-    level = (static_cast <float> (velocity) / 127.0f) * keyFader.get();
+    vel = (static_cast <float> (velocity) / 127.0f);
     for(int i = 0; i < N_OSCILLATORS; ++i){
         if(oscillator[i].get_is_active()){
-            sample[i] = oscillator[i].get_sample() * level;
+            sample[i] = oscillator[i].get_sample() * vel;
+            if(start_level[i] == -1.0f) sample[i] *= keyFader.get();
         } else sample[i] = 0.0f;
     }
     
@@ -117,16 +118,16 @@ std::array<float,N_OSCILLATORS> Key::get_sample(){
 }
 
 void Key::tick(){
-    bool is_off = status == KEY_RELEASED;
+    bool key_off = status == KEY_RELEASED;
     time += 1.0 / rate;
-
+    
     for(int i = 0; i < N_OSCILLATORS; ++i){
         oscillator[i].tick();
-        is_off = is_off && (time >= oscillator[i].get_release() || keyFader.get() == 0.0f);
+        key_off = key_off && (time >= oscillator[i].get_release() || (start_level[i] == -1.0f && keyFader.get() == 0.0f));
     }
     keyFader.tick();
 
-    if (is_off) off();
+    if (key_off) off();
 }
 
 bool Key::isOn(){

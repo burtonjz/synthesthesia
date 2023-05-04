@@ -12,7 +12,6 @@
 class ADSREnvelope : public Modulator {
 private:
     ADSR adsr;
-    uint16_t connections; // contains logic for what signals are being modulated.
 public:
     ADSREnvelope(ADSR a);
     ADSREnvelope();
@@ -21,9 +20,6 @@ public:
 
     ADSR get_adsr() const;
     void set_adsr(ADSR a);
-
-    uint16_t get_connections() const;
-    void set_connections(uint16_t c);
 
     float get_level(KeyStatus status, double time, float start_level);
 

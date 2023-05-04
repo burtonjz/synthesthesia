@@ -43,7 +43,7 @@ enum ControlPorts {
     CTRL_ENV1_DECAY       = 17,
     CTRL_ENV1_SUSTAIN     = 18,
     CTRL_ENV1_RELEASE     = 19,
-    CTRL_LFO1_STATUS      = 20,
+    CTRL_LFO1_CONNECTIONS = 20,
     CTRL_LFO1_WAVEFORM    = 21,
     CTRL_LFO1_FREQ        = 22,
     CTRL_LFO1_DEPTH       = 23,
@@ -84,7 +84,7 @@ constexpr std::array<std::pair<float, float>, CTRL_N> ctrlLimits = {{
     {0.001f , 4.0f},     // CTRL_ENV1_DECAY
     {0.0f   , 1.0f},     // CTRL_ENV1_SUSTAIN
     {0.001f , 4.0f},     // CTRL_ENV1_RELEASE
-    {0.0f   , 1.0f},     // CTRL_LFO1_STATUS
+    {0.0f   , 65535.0f},     // CTRL_LFO1_CONNECTIONS
     {0.0f   , 4.0f},     // CTRL_LFO1_WAVEFORM
     {0.1f   , 20.0f},    // CTRL_LFO1_FREQ
     {0.0f   , 1.0f},     // CTRL_LFO1_DEPTH
