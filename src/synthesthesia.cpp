@@ -29,8 +29,8 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     ctrl_osc_detune{0.0},
     ctrl_osc_pan{Panner()},
     lpf1(),
-    lfo1(),
-    env1()
+    lfo{LFO()},
+    env{ADSREnvelope()}
 {
     const char* missing = lv2_features_query(
         features,
@@ -41,25 +41,15 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     if (missing) throw std::invalid_argument("Feature map not provided by the host. Aborting.");
 
     urids.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
-}
 
-// This constructor is only used for testing without an LV2 Host
-Synthesthesia::Synthesthesia(const double sample_rate):
-    midi_in{nullptr},
-    audio_out{nullptr},
-    control{nullptr},
-    ctrl_values{0},
-    map(nullptr),
-    rate(sample_rate),
-    pos(0.0),
-    key(),
-    ctrl_osc_gain{LinearFader<float>(0.0f)},
-    ctrl_osc_detune{0.0},
-    ctrl_osc_pan{Panner()},
-    lpf1(),
-    lfo1(),
-    env1()
-{
+    // initialize modulator pointer array
+    for(int i = 0; i < N_ENVELOPES; ++i){
+        modulator[i] = &env[i];
+    }
+    for(int i = 0; i < N_LFOS; ++i){
+        modulator[N_ENVELOPES+i] = &lfo[i];
+    }
+
 }
 
 Key* Synthesthesia::find_key(uint8_t index){
@@ -122,18 +112,22 @@ void Synthesthesia::play (const uint32_t start, const uint32_t end){
             ctrl_osc_pan[i].tick();
         }
         
-        if(lfo1.get_is_active()) lfo1.tick();
+        for(int i = 0; i < N_LFOS; ++i){
+            if(lfo[i].get_is_active()) lfo[i].tick();
+        }
     }
 }
 
 std::array<OscillatorConfig,N_OSCILLATORS> Synthesthesia::configure_oscillators(){
     std::array<OscillatorConfig,N_OSCILLATORS> osc_configs;
+
+
     for(int i = 0; i < N_OSCILLATORS; ++i){
         osc_configs[i] = {
             ctrl_values[OSC_GET_STATUS(i)] != 0.0,
             static_cast<Waveform> (ctrl_values[OSC_GET_WAVEFORM(i)]),
-            &lfo1, // freq modulator
-            &env1, // amp modulator
+            &lfo[0], // freq modulator
+            &env[0], // amp modulator
             nullptr,  // phase modulator
             &ctrl_osc_gain[i],
             ctrl_osc_detune[i]
@@ -207,13 +201,13 @@ void Synthesthesia::run(const uint32_t sample_count)
                 ctrl_osc_pan[2].set(ctrl_values[i], CTRL_FADER_WEIGHT * rate);
                 break;
             case CTRL_ENV1_CONNECTIONS:
-                env1.set_connections(ctrl_values[i]);
+                env[0].set_connections(ctrl_values[i]);
                 break;
             case CTRL_ENV1_ATTACK:
             case CTRL_ENV1_DECAY:
             case CTRL_ENV1_SUSTAIN:
             case CTRL_ENV1_RELEASE:
-                env1.set_adsr({
+                env[0].set_adsr({
                         ctrl_values[CTRL_ENV1_ATTACK],
                         ctrl_values[CTRL_ENV1_DECAY],
                         ctrl_values[CTRL_ENV1_SUSTAIN],
@@ -221,16 +215,16 @@ void Synthesthesia::run(const uint32_t sample_count)
                 });
                 break;
             case CTRL_LFO1_STATUS:
-                lfo1.set_is_active(ctrl_values[i] != 0.0);
+                lfo[0].set_is_active(ctrl_values[i] != 0.0);
                 break;
             case CTRL_LFO1_FREQ:
-                lfo1.set_freq(static_cast<double> (ctrl_values[i]));
+                lfo[0].set_freq(static_cast<double> (ctrl_values[i]));
                 break;
             case CTRL_LFO1_WAVEFORM:
-                lfo1.set_waveform(static_cast<Waveform> (ctrl_values[i]));
+                lfo[0].set_waveform(static_cast<Waveform> (ctrl_values[i]));
                 break;
             case CTRL_LFO1_DEPTH:
-                lfo1.set_depth(ctrl_values[i]);
+                lfo[0].set_depth(ctrl_values[i]);
                 break;
             case CTRL_FILTER1_TYPE:
                 lpf1.set_type(static_cast<FilterType> (ctrl_values[i]));

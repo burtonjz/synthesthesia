@@ -44,8 +44,9 @@ private:
     LowPassFilter lpf1;
 
     // Modulators
-    LFO lfo1;
-    ADSREnvelope env1;
+    std::array<LFO,N_LFOS> lfo;
+    std::array<ADSREnvelope,N_ENVELOPES> env;
+    std::array<Modulator*,N_MODULATORS> modulator;
 
 public:
     Synthesthesia (const double sample_rate, const LV2_Feature *const *features);
