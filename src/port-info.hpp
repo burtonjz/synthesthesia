@@ -49,7 +49,8 @@ enum ControlPorts {
     CTRL_LFO1_DEPTH       = 23,
     CTRL_FILTER1_TYPE     = 24,
     CTRL_FILTER1_FREQ     = 25,
-    CTRL_N                = 26
+    CTRL_FILTER1_RES      = 26,
+    CTRL_N                = 27
 };
 
 // Oscillator Looping Functions
@@ -84,12 +85,13 @@ constexpr std::array<std::pair<float, float>, CTRL_N> ctrlLimits = {{
     {0.001f , 4.0f},     // CTRL_ENV1_DECAY
     {0.0f   , 1.0f},     // CTRL_ENV1_SUSTAIN
     {0.001f , 4.0f},     // CTRL_ENV1_RELEASE
-    {0.0f   , 65535.0f},     // CTRL_LFO1_CONNECTIONS
+    {0.0f   , 65535.0f}, // CTRL_LFO1_CONNECTIONS
     {0.0f   , 4.0f},     // CTRL_LFO1_WAVEFORM
     {0.1f   , 20.0f},    // CTRL_LFO1_FREQ
     {0.0f   , 1.0f},     // CTRL_LFO1_DEPTH
     {0.0f   , 4.0f},     // CTRL_FILTER1_TYPE
-    {0.0f   , 20000.0f}  // CTRL_FILTER1_FREQ
+    {0.0f   , 20000.0f}, // CTRL_FILTER1_FREQ
+    {0.5f   , 10.0f}     // CTRL_FILTER1_RES
 }};
 
 #endif // PORT_INFO_HPP_

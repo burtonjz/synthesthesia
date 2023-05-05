@@ -13,7 +13,9 @@ class LowPassFilter{
 private:
     FilterType filter_type;
     double rate;
-    LinearFader<double> cutoff_freq;
+    double cutoff_freq;
+    double q_factor;
+    bool needs_recalculate;
 
     // sample logs
     std::array<std::array<float,N_CHANNELS>,3> input;
@@ -38,6 +40,8 @@ public:
 
     double get_cutoff_freq() const;
     void set_cutoff_freq(double f);
+    double get_q_factor() const;
+    void set_q_factor(double q);
 
     void reset();
 

@@ -95,7 +95,7 @@ void Synthesthesia::play (const uint32_t start, const uint32_t end){
             array_add<float,N_CHANNELS>(out,pan_vals);
         }
 
-        // apply filter if active
+        // apply filter if active TODO: add filter connection logic (allow connect to some but not all oscillators?)
         lpf1.tick(out);
         if(lpf1.is_active()){
             out = lpf1.get_sample();
@@ -244,6 +244,10 @@ void Synthesthesia::run(const uint32_t sample_count)
                 break;
             case CTRL_FILTER1_FREQ:
                 lpf1.set_cutoff_freq(ctrl_values[i]);
+                break;
+            case CTRL_FILTER1_RES:
+                lpf1.set_q_factor(ctrl_values[i]);
+                break;
             }
         }
     }

@@ -323,4 +323,13 @@
             lv2:default 10000.0 ;
             lv2:minimum 0.0 ;
             lv2:maximum 20000.0 ;
+        ] ,
+        [
+            a lv2:InputPort , lv2:ControlPort ;
+            lv2:index 29 ;
+            lv2:symbol "filter1_resonance" ;
+            lv2:name "Filter1 Resonance" ;
+            lv2:default 0.5 ;
+            lv2:minimum 0.1 ;
+            lv2:maximum 10.0 ;
         ] .

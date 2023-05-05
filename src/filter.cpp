@@ -2,9 +2,10 @@
 
 
 LowPassFilter::LowPassFilter():
-    filter_type(FILTER_LP),
+    filter_type(FILTER_OFF),
     rate(DEFAULT_SAMPLING_RATE),
-    cutoff_freq(LinearFader<double>(10000.0))
+    cutoff_freq(10000.0),
+    q_factor(0.7071)
 {
     reset(); // set inputs/outputs to 0
 }
@@ -24,13 +25,22 @@ std::array<float,N_CHANNELS> LowPassFilter::get_sample() const {
 }
 
 double LowPassFilter::get_cutoff_freq() const {
-    return cutoff_freq.get();
+    return cutoff_freq;
 }
 
 void LowPassFilter::set_cutoff_freq(double f){
-    cutoff_freq.set(f,CTRL_FADER_WEIGHT * rate);
-    if(is_active()) calculate_coefficients();
+    cutoff_freq = f;
+    if(is_active()) needs_recalculate = true;
     else reset();
+}
+
+double LowPassFilter::get_q_factor() const {
+    return q_factor;
+}
+
+void LowPassFilter::set_q_factor(double q) {
+    q_factor = q;
+    if(is_active()) needs_recalculate = true;
 }
 
 void LowPassFilter::reset(){
@@ -41,41 +51,46 @@ void LowPassFilter::reset(){
 }
 
 void LowPassFilter::tick(std::array<float,N_CHANNELS> inp){
-    cutoff_freq.tick();
-    if(is_active()) calculate_coefficients();
-    else reset();
-
-    // shift input/output samples
-    input[2] = input[1];
-    input[1] = input[0];
-    input[0] = inp;
-    
-    output[2] = output[1];
-    output[1] = output[0];
-    output[0] = get_output_sample();
+    if(needs_recalculate) calculate_coefficients();
+    if(is_active()){
+        // shift input/output samples
+        input[2] = input[1];
+        input[1] = input[0];
+        input[0] = inp;
+        
+        output[2] = output[1];
+        output[1] = output[0];
+        output[0] = get_output_sample();
+    } else reset();
 }
 
 
 // see pg. 484 The Audio Programming Book
 void LowPassFilter::calculate_coefficients(){
-    double gamma;
+    double w0, alpha, cosw0, b0;
 
     switch(filter_type){
     case FILTER_LP:
-        gamma = 1 / std::tan(M_PI * (cutoff_freq.get() / rate ));
-        a0 = 1.0 / (1.0 + 2.0*gamma + gamma*gamma);
-        a1 = 2.0 * a0;
-        a2 = a0; 
-        b1 = 2.0 * a0 * ( 1.0 - gamma*gamma);
-        b2 = a0 * (1.0 - 2.0*gamma + gamma*gamma);
+        w0 = 2.0 * M_PI * cutoff_freq / (rate/2.0);
+        alpha = std::sin(w0) / (2.0 * q_factor);
+        cosw0 = std::cos(w0);
+        b0 = 1.0 + alpha;
+        a0 = (1.0 - cosw0) / (2.0 * b0);
+        a1 = (1.0 - cosw0) / b0;
+        a2 = a0;
+        b1 = (-2.0 * cosw0) / b0;
+        b2 = (1.0 - alpha) / b0;
         break;
     case FILTER_HP:
-        gamma = std::tan(M_PI * (cutoff_freq.get() / rate ));
-        a0 = 1.0 / (1.0 + 2.0*gamma + gamma*gamma);
-        a1 = 2.0 * a0;
+        w0 = 2.0 * M_PI * cutoff_freq / (rate/2.0);
+        alpha = std::sin(w0) / (2.0 * q_factor);
+        cosw0 = std::cos(w0);
+        b0 = 1.0 + alpha;
+        a0 = (1.0 + cosw0) / (2.0 * b0);
+        a1 = -(1.0 + cosw0) / b0;
         a2 = a0;
-        b1 = 2.0 * a0 * (gamma*gamma - 1.0);
-        b2 = a0 * (1.0 - 2.0*gamma + gamma*gamma);
+        b1 = (-2.0 * cosw0) / b0;
+        b2 = (1.0 - alpha) / b0;
         break;
     default:
         break;
