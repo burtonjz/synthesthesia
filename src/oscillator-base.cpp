@@ -8,6 +8,7 @@ BaseOscillator::BaseOscillator(Waveform wf,double f,double r,double wave_range_m
     rate(r),
     step(0.0),
     is_active(true),
+    last_sample(0),
     gain(nullptr),
     detune(0.0),
     wave_range(wave_range_min,wave_range_max),
@@ -24,6 +25,7 @@ BaseOscillator::BaseOscillator(Waveform wf,uint8_t note,double r,double wave_ran
     rate(r),
     step(0.0),
     is_active(true),
+    last_sample(0.0),
     gain(nullptr),
     detune(0.0),
     wave_range(wave_range_min,wave_range_max),
@@ -162,6 +164,20 @@ void BaseOscillator::set_inst_phase(double p){
 
 // SAMPLE GENERATION FUNCTIONS
 
+// reduce aliasing for square/saw waves
+double BaseOscillator::poly_blep(double t){
+    double dt = step_increment / (M_PI * 2.0);
+    if(t < dt){
+        t /= dt;
+        return t + t - t * t - 1.0;
+    }
+    else if(t > 1.0f - dt){
+        t = (t - 1.0) / dt;
+        return t * t + t + t + 1.0;
+    }
+    return 0.0;
+}
+
 // make sample value fit within wave range
 float BaseOscillator::squish_sample(float val){ 
     return (((val + 1) / 2 ) * (wave_range.second - wave_range.first)) + wave_range.first;
@@ -206,12 +222,10 @@ void BaseOscillator::_post_phase_set(){
     case WAVE_SINE:
         break;
     case WAVE_TRIANGLE:
-        inst_phase *= (rate / inst_freq);
         break;
     case WAVE_SQUARE:
         break;
     case WAVE_SAW:
-        // inst_phase *= (rate / inst_freq);
         break;
     default:
         break;
@@ -228,25 +242,66 @@ double BaseOscillator::midi2freq(uint8_t note){
     return midi2freq(note,detune);
 }
 
+
+float BaseOscillator::get_sine_sample(){
+    return std::sin(step + inst_phase) * inst_amp;
+}
+
+// TODO: change to pulse wave/add duty cycle?
+float BaseOscillator::get_square_sample(){
+    double p = std::fmod(step + inst_phase, 2.0 * M_PI);
+    double s = (p < M_PI) ? 1.0 : -1.0;
+    double t = p / (2.0 * M_PI);
+    s += poly_blep(t); // first drop
+    s -= poly_blep(fmod(t + 0.5, 1.0)); // second drop
+    return s * inst_amp;
+
+}
+
+float BaseOscillator::get_saw_sample(){
+    double p = std::fmod(step + inst_phase, 2.0 * M_PI);
+    double t = p / (2.0 * M_PI);
+    double s = 2.0 * t - 1.0;
+    s -= poly_blep(t);
+    return s * inst_amp;
+}
+
+float BaseOscillator::get_triangle_sample(){
+    // get square wave
+    double p = std::fmod(step + inst_phase, 2.0 * M_PI);
+    double s = (p < M_PI) ? 1.0 : -1.0;
+    double t = p / (2.0 * M_PI);
+    s += poly_blep(t); // first drop
+    s -= poly_blep(fmod(t + 0.5, 1.0)); // second drop
+
+    // leaky integration
+    s = step_increment * s + (1.0 - step_increment) * last_sample;
+    last_sample = s;
+    return s * inst_amp;
+}
+
+float BaseOscillator::get_noise_sample(){
+    double s = distr(rnd);
+    return s * inst_amp;
+}
+
 float BaseOscillator::get_sample(){
         float sample = 0.0f;
         switch(waveform){
         case WAVE_SINE:
-            sample = std::sin(step + inst_phase);
+            sample = get_sine_sample();
             break;
         case WAVE_TRIANGLE: 
-            sample = std::fmod(step+inst_phase,2.0 * M_PI) / M_PI - 1;
-            sample = (std::abs(sample) - 0.5) * 2.0;
+            sample = get_triangle_sample();
             break;
         case WAVE_SQUARE:
-            sample = std::sin(step + inst_phase);
-            sample = (sample >= 0) ? inst_amp : -inst_amp; // TODO: add duty cycle
+            sample = get_square_sample();
             break;
         case WAVE_SAW:
-            sample = std::fmod(step+inst_phase,2.0 * M_PI) / M_PI - 1;
+            sample = get_saw_sample();
             break;
         case WAVE_NOISE:
-            sample = distr(rnd);
+            sample = get_noise_sample();
             break;
         default:
             sample = 0.0f;
@@ -261,7 +316,7 @@ float BaseOscillator::get_sample(){
         // apply gain if set
         if(gain) sample *= gain->get();
 
-        return sample * inst_amp;
+        return sample;
 }
 
 void BaseOscillator::tick(){

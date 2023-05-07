@@ -21,6 +21,7 @@ private:
     double step; // current position in function
     double step_increment; // increment to current position
     bool is_active;
+    double last_sample; // needed for triangle wave polyblep
 
     LinearFader<float>* gain;
     double detune;
@@ -42,6 +43,14 @@ private:
     
     double midi2freq(uint8_t note, double detune);
     double midi2freq(uint8_t note);
+
+    // sample calculation
+    float get_sine_sample();
+    float get_square_sample();
+    float get_saw_sample();
+    float get_triangle_sample();
+    float get_noise_sample();
+    double poly_blep(double t);
 
 public:  
     BaseOscillator(Waveform wf, double f, double r, double wave_range_min, double wave_range_max, double a, double p);
@@ -83,7 +92,7 @@ public:
 
     void set_detune(float d);
 
-    // Dynamic/Instantaneous Vars (can be modulated)
+    // Dynamic/Instantaneous vars (can be modulated)
 
     std::pair<double,double> get_wave_range() const;
     void set_wave_range(double min, double max);
@@ -97,6 +106,7 @@ public:
 
     double get_inst_phase() const;
     void set_inst_phase(double p);
+
 
     // SAMPLE GENERATION FUNCTIONS
     float get_sample();
