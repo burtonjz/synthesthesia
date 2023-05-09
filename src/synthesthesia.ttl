@@ -70,9 +70,10 @@
             lv2:scalePoint [ rdfs:label "Square" ; rdf:value 2 ] ;
             lv2:scalePoint [ rdfs:label "Sawtooth" ; rdf:value 3 ] ;
             lv2:scalePoint [ rdfs:label "Noise" ; rdf:value 4 ] ;
+            lv2:scalePoint [ rdfs:label "Experimental" ; rdf:value 5 ] ;
             lv2:default 0 ;
             lv2:minimum 0 ;
-            lv2:maximum 4 ;
+            lv2:maximum 5 ;
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
@@ -122,9 +123,10 @@
             lv2:scalePoint [ rdfs:label "Square" ; rdf:value 2 ] ;
             lv2:scalePoint [ rdfs:label "Sawtooth" ; rdf:value 3 ] ;
             lv2:scalePoint [ rdfs:label "Noise" ; rdf:value 4 ] ;
+            lv2:scalePoint [ rdfs:label "Experimental" ; rdf:value 5 ] ;
             lv2:default 0 ;
             lv2:minimum 0 ;
-            lv2:maximum 4 ;
+            lv2:maximum 5 ;
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
@@ -174,9 +176,10 @@
             lv2:scalePoint [ rdfs:label "Square" ; rdf:value 2 ] ;
             lv2:scalePoint [ rdfs:label "Sawtooth" ; rdf:value 3 ] ;
             lv2:scalePoint [ rdfs:label "Noise" ; rdf:value 4 ] ;
+            lv2:scalePoint [ rdfs:label "Experimental" ; rdf:value 5 ] ;
             lv2:default 0 ;
             lv2:minimum 0 ;
-            lv2:maximum 4 ;
+            lv2:maximum 5 ;
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
@@ -278,9 +281,10 @@
             lv2:scalePoint [ rdfs:label "Square" ; rdf:value 2 ] ;
             lv2:scalePoint [ rdfs:label "Sawtooth" ; rdf:value 3 ] ;
             lv2:scalePoint [ rdfs:label "Noise" ; rdf:value 4 ] ;
+            lv2:scalePoint [ rdfs:label "Experimental" ; rdf:value 5 ] ;
             lv2:default 0 ;
             lv2:minimum 0 ;
-            lv2:maximum 4 ;
+            lv2:maximum 5 ;
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;

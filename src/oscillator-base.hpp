@@ -50,6 +50,7 @@ private:
     float get_saw_sample();
     float get_triangle_sample();
     float get_noise_sample();
+    float get_experimental_sample();
     double poly_blep(double t);
 
 public:  

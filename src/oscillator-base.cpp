@@ -184,52 +184,13 @@ float BaseOscillator::squish_sample(float val){
 }
 
 void BaseOscillator::_post_freq_set(){
-    switch(waveform){
-    case WAVE_SINE:
-        step_increment = (2.0 * M_PI * inst_freq ) / rate;
-        break;
-    case WAVE_TRIANGLE:
-        step_increment = (2.0 * M_PI * inst_freq ) / rate;
-        break;
-    case WAVE_SQUARE:
-        step_increment = (2.0 * M_PI * inst_freq ) / rate;
-        break;
-    case WAVE_SAW:
-        step_increment = (2.0 * M_PI * inst_freq ) / rate;
-        break;
-    default:
-        break;
-    }
+    step_increment = (2.0 * M_PI * inst_freq ) / rate;
 }
 
 void BaseOscillator::_post_amp_set(){
-    switch(waveform){
-    case WAVE_SINE:
-        break;
-    case WAVE_TRIANGLE:
-        break;
-    case WAVE_SQUARE:
-        break;
-    case WAVE_SAW:
-        break;
-    default:
-        break;
-    }  
 }
 
 void BaseOscillator::_post_phase_set(){
-    switch(waveform){
-    case WAVE_SINE:
-        break;
-    case WAVE_TRIANGLE:
-        break;
-    case WAVE_SQUARE:
-        break;
-    case WAVE_SAW:
-        break;
-    default:
-        break;
-    }
 }
 
 double BaseOscillator::midi2freq(uint8_t note, double detune ){
@@ -285,6 +246,15 @@ float BaseOscillator::get_noise_sample(){
     return s * inst_amp;
 }
 
+float BaseOscillator::get_experimental_sample(){
+    // a parabola where [0,-1],[π,1],[2π,-1]
+    double p = std::fmod(step + inst_phase, 2.0 * M_PI);
+    double t = p / (2.0 * M_PI);
+    double s = 2.0 * (p - M_PI) / ( M_SQRT2 * M_PI);
+    s = s * s - 1.0;
+    return s * inst_amp;
+}
+
 float BaseOscillator::get_sample(){
         float sample = 0.0f;
         switch(waveform){
@@ -302,6 +272,9 @@ float BaseOscillator::get_sample(){
             break;
         case WAVE_NOISE:
             sample = get_noise_sample();
+            break;
+        case WAVE_EXPERIMENT:
+            sample = get_experimental_sample();
             break;
         default:
             sample = 0.0f;

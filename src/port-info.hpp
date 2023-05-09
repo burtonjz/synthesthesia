@@ -66,17 +66,17 @@ const int TOTAL_PORTS = MIDI_N + AUDIO_OUT_N + CTRL_N;
 // value ranges for control ports
 constexpr std::array<std::pair<float, float>, CTRL_N> ctrlLimits = {{
     {0.0f   , 1.0f},     // CTRL_OSC1_STATUS
-    {0.0f   , 4.0f},     // CTRL_OSC1_WAVEFORM
+    {0.0f   , 5.0f},     // CTRL_OSC1_WAVEFORM
     {0.0f   , 1.0f},     // CTRL_OSC1_GAIN
     {-24.5  , 24.5},     // CTRL_OSC1_DETUNE
     {-1.0f  , 1.0f},     // CTRL_OSC1_PAN
     {0.0f   , 1.0f},     // CTRL_OSC2_STATUS
-    {0.0f   , 4.0f},     // CTRL_OSC2_WAVEFORM
+    {0.0f   , 5.0f},     // CTRL_OSC2_WAVEFORM
     {0.0f   , 1.0f},     // CTRL_OSC2_GAIN
     {-24.5  , 24.5},     // CTRL_OSC2_DETUNE
     {-1.0f  , 1.0f},     // CTRL_OSC2_PAN
     {0.0f   , 1.0f},     // CTRL_OSC3_STATUS
-    {0.0f   , 4.0f},     // CTRL_OSC3_WAVEFORM
+    {0.0f   , 5.0f},     // CTRL_OSC3_WAVEFORM
     {0.0f   , 1.0f},     // CTRL_OSC3_GAIN
     {-24.5  , 24.5},     // CTRL_OSC3_DETUNE
     {-1.0f  , 1.0f},     // CTRL_OSC3_PAN
@@ -86,7 +86,7 @@ constexpr std::array<std::pair<float, float>, CTRL_N> ctrlLimits = {{
     {0.0f   , 1.0f},     // CTRL_ENV1_SUSTAIN
     {0.001f , 4.0f},     // CTRL_ENV1_RELEASE
     {0.0f   , 65535.0f}, // CTRL_LFO1_CONNECTIONS
-    {0.0f   , 4.0f},     // CTRL_LFO1_WAVEFORM
+    {0.0f   , 5.0f},     // CTRL_LFO1_WAVEFORM
     {0.1f   , 20.0f},    // CTRL_LFO1_FREQ
     {0.0f   , 1.0f},     // CTRL_LFO1_DEPTH
     {0.0f   , 4.0f},     // CTRL_FILTER1_TYPE
