@@ -47,10 +47,16 @@ void LFO::tick(){
 
 float LFO::modulate_frequency(double input){
     return input * oscillator->get_sample() * depth;
-};
+}
 float LFO::modulate_amplitude(double input){
     return input * oscillator->get_sample() * depth;
-};
+}
 float LFO::modulate_phase(double input){
     return input * oscillator->get_sample() * depth;
-};
+}
+float LFO::modulate_filter_q(double input){
+    return input * oscillator->get_sample() * depth;
+}
+float LFO::modulate_filter_fc(double input){
+    return input * oscillator->get_sample() * depth;
+}

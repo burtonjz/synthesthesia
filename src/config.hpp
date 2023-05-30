@@ -46,7 +46,8 @@ enum ModConnection : uint16_t {
     MOD_CONNECT_OSC3_AMP       = 0x0040,
     MOD_CONNECT_OSC3_FREQ      = 0x0080,
     MOD_CONNECT_OSC3_PHASE     = 0x0100,
-    MOD_CONNECT_FILTER1_CUTOFF = 0x0200
+    MOD_CONNECT_FILTER1_CUTOFF = 0x0200,
+    MOD_CONNECT_FILTER1_Q      = 0x0400
 };
 
 constexpr bool MOD_IS_CONNECTED(uint16_t cval, ModConnection c ){

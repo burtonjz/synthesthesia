@@ -19,6 +19,8 @@ public:
     float modulate_frequency(double input) override;
     float modulate_amplitude(double input) override;
     float modulate_phase(double input) override;
+    float modulate_filter_q(double input) override;
+    float modulate_filter_fc(double input) override;
     // modulate filters? cutoff, resonance, etc..
 
     ModulatorType getType() const override;

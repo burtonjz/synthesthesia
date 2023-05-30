@@ -6,7 +6,9 @@
 #include <array>
 #include "filter-type.hpp"
 #include "linear-fader.hpp"
+#include "modulator.hpp"
 
+class Synthesthesia; // forward declaration for Synthesthesia class
 
 // Second order Butterworth filter
 class LowPassFilter{
@@ -15,6 +17,8 @@ private:
     double rate;
     double cutoff_freq;
     double q_factor;
+    double inst_cutoff_freq;
+    double inst_q_factor;
     bool needs_recalculate;
 
     // sample logs
@@ -22,13 +26,19 @@ private:
     std::array<std::array<float,N_CHANNELS>,3> output;
 
     // feedback coefficients
+    double a1;
+    double a2;
+
+    // feedforward coefficients
+    double b0;
     double b1;
     double b2;
 
-    // feedforward coefficients
-    double a0;
-    double a1;
-    double a2;
+    // modulation
+    Modulator* mod_fc;
+    Modulator* mod_q;
+
+    Synthesthesia* synth_ptr;
 
 public:
     LowPassFilter();
@@ -40,8 +50,27 @@ public:
 
     double get_cutoff_freq() const;
     void set_cutoff_freq(double f);
+
     double get_q_factor() const;
     void set_q_factor(double q);
+
+    double get_inst_cutoff_freq() const;
+    void set_inst_cutoff_freq(double f);
+
+    double get_inst_q_factor() const;
+    void set_inst_q_factor(double q);
+
+    void set_synth_ptr(Synthesthesia* ptr);
+
+    void connect_modulator_q(Modulator* qmod);
+    void disconnect_modulator_q();
+
+    void connect_modulator_fc(Modulator* fcmod);
+    void disconnect_modulator_fc();
+
+    void modulate_q();
+    void modulate_fc();
+    void modulate();
 
     void reset();
 

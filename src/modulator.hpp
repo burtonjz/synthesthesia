@@ -28,6 +28,8 @@ public:
     virtual float modulate_frequency(double input) = 0;
     virtual float modulate_amplitude(double input) = 0;
     virtual float modulate_phase(double input) = 0;
+    virtual float modulate_filter_q(double input) = 0;
+    virtual float modulate_filter_fc(double input) = 0;
     // TODO: modulate filters? cutoff, resonance, etc..    
 };
 

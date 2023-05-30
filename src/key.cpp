@@ -1,5 +1,6 @@
 #include "key.hpp"
 #include "synthesthesia.hpp"
+#include <algorithm>
 
 // CONSTRUCTORS
 
@@ -34,6 +35,11 @@ double Key::get_time() const {
 
 float Key::get_start_level(int index) const {
     return start_level[index];
+}
+
+// if not given an index, return the highest value
+float Key::get_start_level() const {
+    return *std::max_element(start_level.begin(),start_level.end());
 }
 
 double Key::get_rate() const {

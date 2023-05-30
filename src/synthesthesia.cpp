@@ -42,6 +42,9 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
 
     urids.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 
+    // couple filter with this class (required for current implementation of envelope modulation)
+    lpf1.set_synth_ptr(this);
+
     // initialize modulator pointer array
     for(int i = 0; i < N_ENVELOPES; ++i){
         modulator[i] = &env[i];
@@ -57,6 +60,35 @@ Key* Synthesthesia::find_key(uint8_t index){
     if (it != key.end()) return &(it->second);
     else return nullptr;
 };
+
+/*
+For a global filter to be modulated by an envelope, we need to find the key parameters in the following priority
+KEY_PRESS -- return first pressed key (for attack/decay/sustain stages)
+KEY_RELEASE -- find most recently released key (for release stage)
+KEY_OFF
+*/
+std::tuple<KeyStatus,double,float> Synthesthesia::get_global_key_params() const {
+    KeyStatus status = KEY_OFF;
+    double time = 0.0;
+    float start_level = 0.0f;
+    for (auto it = key.begin(); it < key.end(); ){
+        switch(it->second.get_status()){
+        case KEY_PRESSED:
+            return std::make_tuple(it->second.get_status(),it->second.get_time(),it->second.get_start_level());
+        case KEY_RELEASED:
+            if (status == KEY_OFF){
+                status = KEY_RELEASED;
+                time = it->second.get_time();
+                start_level = it->second.get_start_level();
+            } else if (time > it->second.get_time()){
+                time = it->second.get_time();
+                start_level = it->second.get_start_level();
+            }
+            break;
+        }
+        ++it;
+    }
+}
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
     if (port<MIDI_N){
@@ -170,8 +202,7 @@ void Synthesthesia::normalize_osc_gain(){
     }
 }
 
-void Synthesthesia::run(const uint32_t sample_count)
-{
+void Synthesthesia::validate_and_update_ports(){
     // make sure all ports are connected
     for (int i = 0; i < MIDI_N; ++i){
         if (!midi_in[i]) return;
@@ -251,6 +282,28 @@ void Synthesthesia::run(const uint32_t sample_count)
             }
         }
     }
+}
+
+void Synthesthesia::update_filter_connections(){
+    // check filter cutoff
+    if (MOD_IS_CONNECTED(ctrl_values[CTRL_ENV1_CONNECTIONS],MOD_CONNECT_FILTER1_CUTOFF)){
+        lpf1.connect_modulator_fc(&env[0]);
+    } else if (MOD_IS_CONNECTED(ctrl_values[CTRL_LFO1_CONNECTIONS],MOD_CONNECT_FILTER1_CUTOFF)){
+        lpf1.connect_modulator_fc(&lfo[0]);
+    } else lpf1.disconnect_modulator_fc();
+
+    // check filter resonance (Q Factor)
+    if (MOD_IS_CONNECTED(ctrl_values[CTRL_ENV1_CONNECTIONS],MOD_CONNECT_FILTER1_Q)){
+        lpf1.connect_modulator_q(&env[0]);
+    } else if (MOD_IS_CONNECTED(ctrl_values[CTRL_LFO1_CONNECTIONS],MOD_CONNECT_FILTER1_Q)){
+        lpf1.connect_modulator_q(&lfo[0]);
+    } else lpf1.disconnect_modulator_q();
+
+}
+
+void Synthesthesia::run(const uint32_t sample_count)
+{
+    validate_and_update_ports();
 
     /* 
     get incoming midi messages
@@ -258,9 +311,12 @@ void Synthesthesia::run(const uint32_t sample_count)
     */
     uint32_t last_frame = 0;
     LV2_ATOM_SEQUENCE_FOREACH(midi_in[0], ev){
+        update_filter_connections(); // update modulators for filters if they have changes
+
         // play frames until event
         const uint32_t frame = ev->time.frames;
         play(last_frame, frame);
+        
         last_frame = frame;
         if (ev->body.type == urids.midi_MidiEvent){
             const uint8_t* const msg = reinterpret_cast <const uint8_t*> (ev + 1); // within frame, move to data block

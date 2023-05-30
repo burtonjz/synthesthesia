@@ -2,6 +2,7 @@
 #define MODULATOR_ENV_HPP_
 
 #include <cstdint>
+#include <tuple>
 #include "modulator.hpp"
 #include "modulator-type.hpp"
 #include "key-status.hpp"
@@ -12,6 +13,7 @@
 class ADSREnvelope : public Modulator {
 private:
     ADSR adsr;
+
 public:
     ADSREnvelope(ADSR a);
     ADSREnvelope();
@@ -23,14 +25,21 @@ public:
 
     float get_level(KeyStatus status, double time, float start_level);
 
-    // modulator overrides
+    // modulation funcs
     float modulate_frequency(double input,KeyStatus status, double time, float start_level);
-    float modulate_amplitude(double input,KeyStatus status, double time, float start_level);
-    float modulate_phase(double input,KeyStatus status, double time, float start_level);
-
     float modulate_frequency(double input) override;
+
+    float modulate_amplitude(double input,KeyStatus status, double time, float start_level);
     float modulate_amplitude(double input) override;
+
+    float modulate_phase(double input,KeyStatus status, double time, float start_level);
     float modulate_phase(double input) override;
+
+    float modulate_filter_fc(double input, KeyStatus status, double time, float start_level);
+    float modulate_filter_fc(double input) override;
+    
+    float modulate_filter_q(double input, KeyStatus status, double time, float start_level);
+    float modulate_filter_q(double input) override;
 
 };
 

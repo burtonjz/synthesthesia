@@ -1,5 +1,6 @@
 #include <array>
 #include <boost/container/flat_map.hpp>
+#include <tuple>
 
 #include <lv2.h>
 #include <lv2/atom/atom.h>
@@ -50,10 +51,10 @@ private:
 
 public:
     Synthesthesia (const double sample_rate, const LV2_Feature *const *features);
-    Synthesthesia (const double sample_rate); // for testing without LV2 Host
 
     // GETTERS/SETTERS
     Key* find_key(uint8_t i);
+    std::tuple<KeyStatus,double,float> get_global_key_params() const;
 
     // hooks for internal LV2 core functions
     void connectPort (const uint32_t port, void* data);
@@ -65,4 +66,6 @@ private:
     void play (const uint32_t start, const uint32_t end);
     std::array<OscillatorConfig,N_OSCILLATORS> configure_oscillators(); 
     void normalize_osc_gain();
+    void validate_and_update_ports();
+    void update_filter_connections();
 };

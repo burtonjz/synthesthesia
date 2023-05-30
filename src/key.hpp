@@ -31,6 +31,8 @@ public:
     KeyStatus get_status() const;
     double get_time() const;
     float get_start_level(int index) const; 
+    float get_start_level() const;
+
     double get_rate() const;
     
     void press(const std::array<OscillatorConfig,N_OSCILLATORS> osc_config,

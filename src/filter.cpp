@@ -1,13 +1,18 @@
 #include "filter.hpp"
-
+#include "modulator-env.hpp"
+#include "modulator-lfo.hpp"
+#include "key-status.hpp"
+#include "synthesthesia.hpp"
 
 LowPassFilter::LowPassFilter():
     filter_type(FILTER_OFF),
     rate(DEFAULT_SAMPLING_RATE),
     cutoff_freq(10000.0),
-    q_factor(0.7071)
+    q_factor(0.7071),
+    mod_q(nullptr),
+    mod_fc(nullptr)
 {
-    reset(); // set inputs/outputs to 0
+    reset();
 }
 
 void LowPassFilter::set_type(FilterType t){
@@ -30,8 +35,8 @@ double LowPassFilter::get_cutoff_freq() const {
 
 void LowPassFilter::set_cutoff_freq(double f){
     cutoff_freq = f;
+    inst_cutoff_freq = f;
     if(is_active()) needs_recalculate = true;
-    else reset();
 }
 
 double LowPassFilter::get_q_factor() const {
@@ -40,7 +45,85 @@ double LowPassFilter::get_q_factor() const {
 
 void LowPassFilter::set_q_factor(double q) {
     q_factor = q;
+    inst_q_factor = q;
     if(is_active()) needs_recalculate = true;
+}
+
+double LowPassFilter::get_inst_cutoff_freq() const {
+    return inst_cutoff_freq;
+}
+
+void LowPassFilter::set_inst_cutoff_freq(double f){
+    inst_cutoff_freq = f;
+    if(is_active()) needs_recalculate = true;
+    else reset();
+}
+
+double LowPassFilter::get_inst_q_factor() const {
+    return inst_q_factor;
+}
+
+void LowPassFilter::set_inst_q_factor(double q) {
+    inst_q_factor = q;
+    if(is_active()) needs_recalculate = true;
+}
+
+
+
+
+void LowPassFilter::set_synth_ptr(Synthesthesia* ptr){
+    synth_ptr = ptr;
+}
+
+// MODULATION
+
+void LowPassFilter::connect_modulator_q(Modulator* qmod){
+    mod_q = qmod;
+}
+void LowPassFilter::disconnect_modulator_q(){
+    mod_q = nullptr;
+    inst_q_factor = q_factor;
+    needs_recalculate = true;
+}
+
+void LowPassFilter::connect_modulator_fc(Modulator* fcmod){
+    mod_fc = fcmod;
+}
+void LowPassFilter::disconnect_modulator_fc(){
+    mod_fc = nullptr;
+    inst_cutoff_freq = cutoff_freq;
+    needs_recalculate = true;
+}
+
+void LowPassFilter::modulate_q(){
+    if(!mod_q || !mod_q->get_is_active()) return;
+
+    if(ADSREnvelope* qenv = static_cast<ADSREnvelope*>(mod_q)){
+        std::tuple<KeyStatus,double,float> params = synth_ptr->get_global_key_params();
+        set_inst_q_factor(get_q_factor() + qenv->modulate_filter_q(get_q_factor(),std::get<0>(params),std::get<1>(params),std::get<2>(params)));
+    }
+
+    if(LFO* qlfo = static_cast<LFO*>(mod_q)){
+        set_inst_q_factor(get_q_factor() + qlfo->modulate_filter_q(get_q_factor()));
+    }
+}
+
+void LowPassFilter::modulate_fc(){
+    if(!mod_fc || !mod_fc->get_is_active()) return;
+
+    if(ADSREnvelope* fcenv = static_cast<ADSREnvelope*>(mod_fc)){
+        std::tuple<KeyStatus,double,float> params = synth_ptr->get_global_key_params();
+        set_inst_cutoff_freq(get_cutoff_freq() + fcenv->modulate_filter_q(get_cutoff_freq(),std::get<0>(params),std::get<1>(params),std::get<2>(params)));
+    }
+
+    if(LFO* fclfo = static_cast<LFO*>(mod_fc)){
+        set_inst_cutoff_freq(get_cutoff_freq() + fclfo->modulate_filter_fc(get_cutoff_freq()));
+    }
+}
+
+void LowPassFilter::modulate(){
+    modulate_fc();
+    modulate_q();
 }
 
 void LowPassFilter::reset(){
@@ -50,7 +133,10 @@ void LowPassFilter::reset(){
     }
 }
 
+
+
 void LowPassFilter::tick(std::array<float,N_CHANNELS> inp){
+    modulate();
     if(needs_recalculate) calculate_coefficients();
     if(is_active()){
         // shift input/output samples
@@ -67,30 +153,30 @@ void LowPassFilter::tick(std::array<float,N_CHANNELS> inp){
 
 // see pg. 484 The Audio Programming Book
 void LowPassFilter::calculate_coefficients(){
-    double w0, alpha, cosw0, b0;
+    double w0, alpha, cosw0, a0;
 
     switch(filter_type){
     case FILTER_LP:
-        w0 = 2.0 * M_PI * cutoff_freq / (rate/2.0);
-        alpha = std::sin(w0) / (2.0 * q_factor);
+        w0 = 2.0 * M_PI * inst_cutoff_freq / (rate/2.0); // normalized by nyquist frequency
+        alpha = std::sin(w0) / (2.0 * inst_q_factor);
         cosw0 = std::cos(w0);
-        b0 = 1.0 + alpha;
-        a0 = (1.0 - cosw0) / (2.0 * b0);
-        a1 = (1.0 - cosw0) / b0;
-        a2 = a0;
-        b1 = (-2.0 * cosw0) / b0;
-        b2 = (1.0 - alpha) / b0;
+        a0 = 1.0 + alpha;
+        b0 = (1.0 - cosw0) / (2.0 * a0);
+        b1 = (1.0 - cosw0) / a0;
+        b2 = b0;
+        a1 = (-2.0 * cosw0) / a0;
+        a2 = (1.0 - alpha) / a0;
         break;
     case FILTER_HP:
-        w0 = 2.0 * M_PI * cutoff_freq / (rate/2.0);
-        alpha = std::sin(w0) / (2.0 * q_factor);
+        w0 = 2.0 * M_PI * inst_cutoff_freq / (rate/2.0);
+        alpha = std::sin(w0) / (2.0 * inst_q_factor);
         cosw0 = std::cos(w0);
-        b0 = 1.0 + alpha;
-        a0 = (1.0 + cosw0) / (2.0 * b0);
-        a1 = -(1.0 + cosw0) / b0;
-        a2 = a0;
-        b1 = (-2.0 * cosw0) / b0;
-        b2 = (1.0 - alpha) / b0;
+        a0 = 1.0 + alpha;
+        b0 = (1.0 + cosw0) / (2.0 * a0);
+        b1 = -(1.0 + cosw0) / a0;
+        b2 = b0;
+        a1 = (-2.0 * cosw0) / a0;
+        a2 = (1.0 - alpha) / a0;
         break;
     default:
         break;
@@ -100,7 +186,7 @@ void LowPassFilter::calculate_coefficients(){
 std::array<float,N_CHANNELS> LowPassFilter::get_output_sample(){
     std::array<float,N_CHANNELS> out = {};
     for(int i = 0; i < N_CHANNELS; ++i){
-        out[i] = a0*input[0][i] + a1*input[1][i] + a2*input[2][i] - b1*output[1][i] - b2*output[2][i];
+        out[i] = b0*input[0][i] + b1*input[1][i] + b2*input[2][i] - a1*output[1][i] - a2*output[2][i];
     }   
     return out;
 }
