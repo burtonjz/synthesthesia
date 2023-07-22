@@ -5,6 +5,21 @@
 #define UI_PLUGIN_URI "https://github.com/burtonjz/lv2-plugins-dev/synthesthesia#ui"
 
 
+SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Controller controller):
+    write_function(write_function),
+    controller(controller)
+{
+
+};
+
+
+
+
+
+
+
+// Connectors to LV2 Interface
+
 static LV2UI_Handle instantiate(
     const struct LV2UI_Descriptor *descriptor, 
     const char *plugin_uri, 
@@ -14,7 +29,9 @@ static LV2UI_Handle instantiate(
     LV2UI_Widget *widget, 
     const LV2_Feature *const *features)
 {
+    // make sure we're called by the right plugin
     if(strcmp(plugin_uri,UI_PLUGIN_URI) != 0) return nullptr;
+
 
     SynthesthesiaUI* ui;
     try {ui = new SynthesthesiaUI(write_function,controller);}

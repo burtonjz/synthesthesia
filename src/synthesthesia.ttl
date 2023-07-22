@@ -10,8 +10,10 @@
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .
 @prefix ui: <http://lv2plug.in/ns/extensions/ui#> .
 
-# <https://github.com/burtonjz/lv2-plugins-dev/synthesthesia#ui> ui:GTK3ui;
-#     lv2:binary <synthesthesia_ui.so> .
+# <https://github.com/burtonjz/lv2-plugins-dev/synthesthesia#ui> ui:X11UI;
+#     lv2:binary <synthesthesia_ui.so> ;
+#     lv2:requiredFeature ui:idleInterface ;
+#     lv2:extensionData ui:idleInterface
 
 <https://github.com/burtonjz/lv2-plugins-dev/synthesthesia> a lv2:Plugin, lv2:OscillatorPlugin, doap:Project ;
     lv2:binary <synthesthesia.so> ;

@@ -11,8 +11,10 @@ private:
     LV2UI_Controller controller;
 public:
     SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Controller controller);
+    ~SynthesthesiaUI();
     LV2UI_Widget get_main();
-    static void port_event(uint32_t port_index,uint32_t buffer_size,uint32_t format,const void *buffer);
+    void port_event(uint32_t port_index,uint32_t buffer_size,uint32_t format,const void *buffer);
+    static int value_change_callback(GtkWidget* widget, gpointer data);
 };
 
 #endif // UI_HPP_
