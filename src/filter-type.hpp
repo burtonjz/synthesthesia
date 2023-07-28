@@ -10,4 +10,6 @@ enum FilterType {
     FILTER_N   = 5
 };
 
+#define FILTER_TYPE_STRINGS {"Low Pass","High Pass","Band Pass","Band Reject"}
+
 #endif //FILTER_TYPE_HPP_

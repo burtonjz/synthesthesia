@@ -91,16 +91,9 @@ std::tuple<KeyStatus,double,float> Synthesthesia::get_global_key_params() const 
 }
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
-    if (port<MIDI_N){
-        std::cout << "[" << SYNTH_URI << "]: Connected Port "  << port << "." << std::endl;
-        midi_in[port] = static_cast <const LV2_Atom_Sequence*> (data);
-    } else if (port < MIDI_N + AUDIO_OUT_N){
-        std::cout << "[" << SYNTH_URI << "]: Connected Port "  << port << "." << std::endl;
-        audio_out[port - MIDI_N] = static_cast <float*> (data);
-    } else {
-        std::cout << "[" << SYNTH_URI << "]: Connected Port "  << port << "." << std::endl;
-        control[port - MIDI_N - AUDIO_OUT_N] = static_cast <const float*> (data);
-    }
+    if (port<MIDI_N) midi_in[port] = static_cast <const LV2_Atom_Sequence*> (data);
+    else if (port < MIDI_N + AUDIO_OUT_N) audio_out[port - MIDI_N] = static_cast <float*> (data);
+    else control[port - MIDI_N - AUDIO_OUT_N] = static_cast <const float*> (data);
 }
 
 void Synthesthesia::play (const uint32_t start, const uint32_t end){

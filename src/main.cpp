@@ -31,7 +31,6 @@ static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sa
 }
 
 static void connect_port(LV2_Handle instance, uint32_t port, void *data){
-    std::cout << "[" << SYNTH_URI << "]: Attempting to connect port " << port << "." << std::endl;
     Synthesthesia* m = static_cast <Synthesthesia*> (instance);
     if (m) m->connectPort (port, data);
 }

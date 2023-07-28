@@ -11,4 +11,7 @@ enum Waveform {
     WAVE_N          = 6
 };
 
+#define WAVEFORM_STRINGS {"sine","triangle","square","saw","noise","experiment"}
+
+
 #endif // WAVEFORM_HPP_

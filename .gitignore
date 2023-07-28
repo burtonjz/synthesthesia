@@ -1,3 +1,5 @@
 TODO
 build
 .vscode
+assets/*.svg
+*.o
