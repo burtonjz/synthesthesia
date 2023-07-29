@@ -13,13 +13,13 @@ g++ -LBWidgets/build src/ui-x11/*.o -lbwidgetscore -lpugl -lcairoplus -lfontconf
 
 */
 int main (){
-    BWidgets::Window window(750, 600, 0);
+    BWidgets::Window window(1500, 1200, NULL, 0,"Synthesthesia",true);
     UIOscObject osc1(0,0,0);
-    UIOscObject osc2(0,50,1);
-    UIOscObject osc3(0,100,2);
-    UIEnvObject env1(0,150,0);
-    UILfoObject lfo1(0,200,0);
-    UIFilterObject flt1(0,250,0);
+    UIOscObject osc2(0,100,1);
+    UIOscObject osc3(0,200,2);
+    UIEnvObject env1(0,300,0);
+    UILfoObject lfo1(0,400,0);
+    UIFilterObject flt1(0,500,0);
 
     for(auto& element : osc1.getWidgetArray()) window.add(element);
     for(auto& element : osc2.getWidgetArray()) window.add(element);

@@ -5,7 +5,7 @@
 
 UIOscObject::UIOscObject(double x, double y, int index):
     UIObject(x,y,index),
-    button_on(true, true),
+    button_on(x+UI_OSC_BUTTON_ON_X,y+UI_OSC_BUTTON_ON_Y,UI_OSC_BUTTON_ON_WIDTH,UI_OSC_BUTTON_ON_HEIGHT,true, true,BUTILITIES_URID_UNKNOWN_URID,"Osc On"),
     dial_gain(
         x+UI_OSC_DIAL_GAIN_X,y+UI_OSC_DIAL_GAIN_Y,UI_OSC_DIAL_GAIN_WIDTH,UI_OSC_DIAL_GAIN_HEIGHT,
         0.5, ctrlLimits[CTRL_OSC1_GAIN].first, ctrlLimits[CTRL_OSC1_GAIN].second
@@ -39,6 +39,15 @@ UIOscObject::UIOscObject(double x, double y, int index):
         MOD_SOURCES,0
     )
 {
+    dial_gain.setClickable(false);
+    dial_gain.setActivatable(false);
+    dial_pan.setClickable(false);
+    dial_pan.setActivatable(false);
+    dial_detune_semi.setClickable(false);
+    dial_detune_semi.setActivatable(false);
+    dial_detune_cents.setClickable(false);
+    dial_detune_cents.setActivatable(false);
+
     widget[0] = &button_on;
     widget[1] = &dial_gain;
     widget[2] = &cb_waveform;

@@ -18,6 +18,11 @@ UILfoObject::UILfoObject(double x, double y, int index):
         WAVEFORM_STRINGS,1
     )
 {
+    slider_freq.setClickable(false);
+    slider_freq.setActivatable(false);
+    slider_depth.setClickable(false);
+    slider_depth.setActivatable(false);
+
     widget[0] = &slider_freq;
     widget[1] = &slider_depth;
     widget[2] = &cb_waveform;

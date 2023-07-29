@@ -22,6 +22,15 @@ UIEnvObject::UIEnvObject(double x, double y, int index):
         0.1, ctrlLimits[CTRL_ENV1_RELEASE].first, ctrlLimits[CTRL_ENV1_RELEASE].second
     )
 {
+    slider_attack.setClickable(false);
+    slider_attack.setActivatable(false);
+    slider_decay.setClickable(false);
+    slider_decay.setActivatable(false);    
+    slider_sustain.setClickable(false);
+    slider_sustain.setActivatable(false);
+    slider_release.setClickable(false);
+    slider_release.setActivatable(false);
+
     widget[0]=&slider_attack;
     widget[1]=&slider_decay;
     widget[2]=&slider_sustain;
