@@ -1,6 +1,8 @@
 #include <iostream>
 #include "cairo/cairo.h"
 #include "synthesthesia-ui.hpp"
+#include "../port-info.hpp"
+#include "../config.hpp"
 #include <stdexcept>
 
 #define UI_PLUGIN_URI "https://github.com/burtonjz/synthesthesia#ui"
@@ -29,6 +31,7 @@ LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
 void SynthesthesiaUI::port_event(uint32_t port_index,uint32_t buffer_size,uint32_t format,const void *buffer){
     if(format == 0){
         const float value = *static_cast<const float*>(buffer);
+        const int control_port = port_index - MIDI_N - AUDIO_OUT_N;
         switch(port_index){
             case 2: 
                 dial.setValue(value);

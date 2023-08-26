@@ -63,13 +63,13 @@ $(BUILD_DIR)/$(PLUGIN_EXEC): $(OBJ)
 	$(CXX) $(LDFLAGS) $(LDLIBS) $^ -o $@
 
 # create final plugin folder with contents
-$(PLUGIN_DIR): $(SRC_DIR)/manifest.ttl $(SRC_DIR)/synthesthesia.ttl $(BUILD_DIR)/$(PLUGIN_EXEC) $(X11_UI_BUILD_DIR)/synthesthesia_ui.so assets
+$(PLUGIN_DIR): $(SRC_DIR)/manifest.ttl $(SRC_DIR)/synthesthesia.ttl $(BUILD_DIR)/$(PLUGIN_EXEC) # $(X11_UI_BUILD_DIR)/synthesthesia_ui.so assets
 	rm -rf $(PLUGIN_DIR)
 	mkdir -p $(PLUGIN_DIR)
 	cp $(SRC_DIR)/manifest.ttl $(SRC_DIR)/synthesthesia.ttl $(PLUGIN_DIR)
 	cp $(BUILD_DIR)/synthesthesia.so $(PLUGIN_DIR)
-	cp $(X11_UI_BUILD_DIR)/synthesthesia_ui.so $(PLUGIN_DIR)
-	cp assets/*.png $(PLUGIN_DIR)
+	# cp $(X11_UI_BUILD_DIR)/synthesthesia_ui.so $(PLUGIN_DIR)
+	# cp assets/*.png $(PLUGIN_DIR)
 
 #===============================================================
 #================= RULES TO BUILD PLUGIN UI ====================

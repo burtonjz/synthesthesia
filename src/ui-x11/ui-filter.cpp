@@ -18,7 +18,6 @@ UIFilterObject::UIFilterObject(double x, double y, int index):
         0.5, ctrlLimits[CTRL_FILTER1_RES].first, ctrlLimits[CTRL_FILTER1_RES].second
     )
 {
-    slider_cutoff.setClickable(false);
     slider_cutoff.setActivatable(false);
     dial_resonance.setClickable(false);
     dial_resonance.setActivatable(false);

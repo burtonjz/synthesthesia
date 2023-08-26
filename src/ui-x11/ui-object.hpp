@@ -48,6 +48,11 @@ public:
     */
     std::array<double,4> getObjectDimensions() const;
 
+    /**
+     * @brief virtual function to set widget value from a port event
+    */
+   virtual void port_event(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) = 0;
+
 protected:
     double x_;
     double y_;

@@ -5,13 +5,13 @@
 #include "ui-object.hpp"
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
-#include "../../BWidgets/BWidgets/Dial.hpp"
+#include "../../BWidgets/BWidgets/ValueDial.hpp"
 
 class UIFilterObject : public UIObject {
 private:
     BWidgets::ComboBox cb_filter_type;
     BWidgets::ValueHSlider slider_cutoff;
-    BWidgets::Dial dial_resonance;
+    BWidgets::ValueDial dial_resonance;
     std::array<BWidgets::Widget*,3> widget;
 public:
     /**

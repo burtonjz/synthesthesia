@@ -11,7 +11,7 @@
 class Synthesthesia; // forward declaration for Synthesthesia class
 
 // Second order Butterworth filter
-class LowPassFilter{
+class Filter{
 private:
     FilterType filter_type;
     double rate;
@@ -41,7 +41,7 @@ private:
     Synthesthesia* synth_ptr;
 
 public:
-    LowPassFilter();
+    Filter();
 
     void set_type(FilterType t);
     bool is_active();

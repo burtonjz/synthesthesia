@@ -3,13 +3,13 @@
 
 #include <array>
 #include "ui-object.hpp"
-#include "../../BWidgets/BWidgets/ValueHSlider.hpp"
+#include "../../BWidgets/BWidgets/HSwitch.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 #include "../../BWidgets/BWidgets/ValueDial.hpp"
 
 class UIOscObject : public UIObject {
 private:
-    BWidgets::Button button_on;
+    BWidgets::HSwitch switch_on;
     BWidgets::ValueDial dial_gain;
     BWidgets::ComboBox cb_waveform;
     BWidgets::ValueDial dial_detune_semi;
@@ -33,6 +33,7 @@ public:
     double getObjectHeight() const override;
     double getObjectWidth() const override;
     std::array<BWidgets::Widget*,9> getWidgetArray() const;
+    void port_event(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) override;
 };
 
 #endif // UI_OSC_WIDGETS_HPP_

@@ -11,6 +11,7 @@ constexpr int N_CHANNELS     = 2;
 constexpr int N_ENVELOPES    = 1;
 constexpr int N_LFOS         = 1;
 constexpr int N_MODULATORS   = N_ENVELOPES + N_LFOS;
+constexpr int N_FILTERS      = 1;
 
 #else
 constexpr int N_OSCILLATORS  = 1;

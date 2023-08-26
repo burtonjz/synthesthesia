@@ -5,7 +5,7 @@
 
 UIOscObject::UIOscObject(double x, double y, int index):
     UIObject(x,y,index),
-    button_on(x+UI_OSC_BUTTON_ON_X,y+UI_OSC_BUTTON_ON_Y,UI_OSC_BUTTON_ON_WIDTH,UI_OSC_BUTTON_ON_HEIGHT,true, true,BUTILITIES_URID_UNKNOWN_URID,"Osc On"),
+    switch_on(x+UI_OSC_SWITCH_ON_X,y+UI_OSC_SWITCH_ON_Y,UI_OSC_SWITCH_ON_WIDTH,UI_OSC_SWITCH_ON_HEIGHT,true, true,BUTILITIES_URID_UNKNOWN_URID,"Osc On"),
     dial_gain(
         x+UI_OSC_DIAL_GAIN_X,y+UI_OSC_DIAL_GAIN_Y,UI_OSC_DIAL_GAIN_WIDTH,UI_OSC_DIAL_GAIN_HEIGHT,
         0.5, ctrlLimits[CTRL_OSC1_GAIN].first, ctrlLimits[CTRL_OSC1_GAIN].second
@@ -28,17 +28,20 @@ UIOscObject::UIOscObject(double x, double y, int index):
     ),
     cb_freq_mod(
         x+UI_OSC_BOX_MOD_FREQ_X,y+UI_OSC_BOX_MOD_FREQ_Y,UI_OSC_BOX_MOD_FREQ_WIDTH,UI_OSC_BOX_MOD_FREQ_HEIGHT,
-        MOD_SOURCES,0
+        MOD_SOURCES,1
     ),
     cb_amp_mod(
         x+UI_OSC_BOX_MOD_AMP_X,y+UI_OSC_BOX_MOD_AMP_Y,UI_OSC_BOX_MOD_AMP_WIDTH,UI_OSC_BOX_MOD_AMP_HEIGHT,
-        MOD_SOURCES,0
+        MOD_SOURCES,1
     ),
     cb_phase_mod(
         x+UI_OSC_BOX_MOD_PHASE_X,y+UI_OSC_BOX_MOD_PHASE_Y,UI_OSC_BOX_MOD_PHASE_WIDTH,UI_OSC_BOX_MOD_PHASE_HEIGHT,
-        MOD_SOURCES,0
+        MOD_SOURCES,1
     )
 {
+    cb_waveform.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
+    dial_gain.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
+
     dial_gain.setClickable(false);
     dial_gain.setActivatable(false);
     dial_pan.setClickable(false);
@@ -48,7 +51,7 @@ UIOscObject::UIOscObject(double x, double y, int index):
     dial_detune_cents.setClickable(false);
     dial_detune_cents.setActivatable(false);
 
-    widget[0] = &button_on;
+    widget[0] = &switch_on;
     widget[1] = &dial_gain;
     widget[2] = &cb_waveform;
     widget[3] = &dial_detune_semi;
@@ -73,4 +76,8 @@ double UIOscObject::getObjectWidth() const {
 
 std::array<BWidgets::Widget*,9> UIOscObject::getWidgetArray() const {
     return widget;
+}
+
+void UIOscObject::port_event(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer){
+    
 }

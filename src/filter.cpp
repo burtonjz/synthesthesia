@@ -4,7 +4,7 @@
 #include "key-status.hpp"
 #include "synthesthesia.hpp"
 
-LowPassFilter::LowPassFilter():
+Filter::Filter():
     filter_type(FILTER_OFF),
     rate(DEFAULT_SAMPLING_RATE),
     cutoff_freq(10000.0),
@@ -15,55 +15,55 @@ LowPassFilter::LowPassFilter():
     reset();
 }
 
-void LowPassFilter::set_type(FilterType t){
+void Filter::set_type(FilterType t){
     filter_type = t;
     if(is_active()) calculate_coefficients();
     else reset();
 }
 
-bool LowPassFilter::is_active(){
+bool Filter::is_active(){
     return filter_type != FILTER_OFF;
 }
 
-std::array<float,N_CHANNELS> LowPassFilter::get_sample() const {
+std::array<float,N_CHANNELS> Filter::get_sample() const {
     return output[0];
 }
 
-double LowPassFilter::get_cutoff_freq() const {
+double Filter::get_cutoff_freq() const {
     return cutoff_freq;
 }
 
-void LowPassFilter::set_cutoff_freq(double f){
+void Filter::set_cutoff_freq(double f){
     cutoff_freq = f;
     inst_cutoff_freq = f;
     if(is_active()) needs_recalculate = true;
 }
 
-double LowPassFilter::get_q_factor() const {
+double Filter::get_q_factor() const {
     return q_factor;
 }
 
-void LowPassFilter::set_q_factor(double q) {
+void Filter::set_q_factor(double q) {
     q_factor = q;
     inst_q_factor = q;
     if(is_active()) needs_recalculate = true;
 }
 
-double LowPassFilter::get_inst_cutoff_freq() const {
+double Filter::get_inst_cutoff_freq() const {
     return inst_cutoff_freq;
 }
 
-void LowPassFilter::set_inst_cutoff_freq(double f){
+void Filter::set_inst_cutoff_freq(double f){
     inst_cutoff_freq = f;
     if(is_active()) needs_recalculate = true;
     else reset();
 }
 
-double LowPassFilter::get_inst_q_factor() const {
+double Filter::get_inst_q_factor() const {
     return inst_q_factor;
 }
 
-void LowPassFilter::set_inst_q_factor(double q) {
+void Filter::set_inst_q_factor(double q) {
     inst_q_factor = q;
     if(is_active()) needs_recalculate = true;
 }
@@ -71,31 +71,31 @@ void LowPassFilter::set_inst_q_factor(double q) {
 
 
 
-void LowPassFilter::set_synth_ptr(Synthesthesia* ptr){
+void Filter::set_synth_ptr(Synthesthesia* ptr){
     synth_ptr = ptr;
 }
 
 // MODULATION
 
-void LowPassFilter::connect_modulator_q(Modulator* qmod){
+void Filter::connect_modulator_q(Modulator* qmod){
     mod_q = qmod;
 }
-void LowPassFilter::disconnect_modulator_q(){
+void Filter::disconnect_modulator_q(){
     mod_q = nullptr;
     inst_q_factor = q_factor;
     needs_recalculate = true;
 }
 
-void LowPassFilter::connect_modulator_fc(Modulator* fcmod){
+void Filter::connect_modulator_fc(Modulator* fcmod){
     mod_fc = fcmod;
 }
-void LowPassFilter::disconnect_modulator_fc(){
+void Filter::disconnect_modulator_fc(){
     mod_fc = nullptr;
     inst_cutoff_freq = cutoff_freq;
     needs_recalculate = true;
 }
 
-void LowPassFilter::modulate_q(){
+void Filter::modulate_q(){
     if(!mod_q || !mod_q->get_is_active()) return;
 
     if(ADSREnvelope* qenv = static_cast<ADSREnvelope*>(mod_q)){
@@ -108,7 +108,7 @@ void LowPassFilter::modulate_q(){
     }
 }
 
-void LowPassFilter::modulate_fc(){
+void Filter::modulate_fc(){
     if(!mod_fc || !mod_fc->get_is_active()) return;
 
     if(ADSREnvelope* fcenv = static_cast<ADSREnvelope*>(mod_fc)){
@@ -121,12 +121,12 @@ void LowPassFilter::modulate_fc(){
     }
 }
 
-void LowPassFilter::modulate(){
+void Filter::modulate(){
     modulate_fc();
     modulate_q();
 }
 
-void LowPassFilter::reset(){
+void Filter::reset(){
     for(int i = 0; i < static_cast<int>(input.size()); ++i){
         input[i].fill(0.0f);
         output[i].fill(0.0f);
@@ -135,7 +135,7 @@ void LowPassFilter::reset(){
 
 
 
-void LowPassFilter::tick(std::array<float,N_CHANNELS> inp){
+void Filter::tick(std::array<float,N_CHANNELS> inp){
     modulate();
     if(needs_recalculate) calculate_coefficients();
     if(is_active()){
@@ -152,7 +152,7 @@ void LowPassFilter::tick(std::array<float,N_CHANNELS> inp){
 
 
 // see pg. 484 The Audio Programming Book
-void LowPassFilter::calculate_coefficients(){
+void Filter::calculate_coefficients(){
     double w0, alpha, cosw0, a0;
 
     switch(filter_type){
@@ -183,7 +183,7 @@ void LowPassFilter::calculate_coefficients(){
     }
 }
 
-std::array<float,N_CHANNELS> LowPassFilter::get_output_sample(){
+std::array<float,N_CHANNELS> Filter::get_output_sample(){
     std::array<float,N_CHANNELS> out = {};
     for(int i = 0; i < N_CHANNELS; ++i){
         out[i] = b0*input[0][i] + b1*input[1][i] + b2*input[2][i] - a1*output[1][i] - a2*output[2][i];
