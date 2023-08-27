@@ -34,7 +34,7 @@ int ConnectionManager::find_connection(ModulatableType module, int instance, int
 }
 
 int ConnectionManager::find_connection(uint64_t connection) const {
-    for (int i = 0; i < 58; i += 6){
+    for (int i = 0; i < 55; i += 6){
         uint64_t masked_value = (data_ >> i) & 0b111111;
         if (masked_value == connection) return i;
     }
@@ -56,7 +56,7 @@ void ConnectionManager::add_connection(uint64_t connection){
     }
 
     // find first available 6 bits to house new connection
-    for (int i = 0; i < 58; i += 6){
+    for (int i = 0; i < 55; i += 6){
         uint64_t masked_value = (data_ >> i) & 0b111111;
         if ( (masked_value >> 4) == MODULATABLE_NONE){
             data_ |= (connection << i);
