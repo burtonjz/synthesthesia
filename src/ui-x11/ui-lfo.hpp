@@ -2,12 +2,14 @@
 #define UI_LFO_WIDGETS_HPP_
 
 #include <array>
+#include "ui-config.hpp"
+
 #include "ui-object.hpp"
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 
 
-class UILfoObject : public UIObject {
+class LfoFrame : public ModuleFrame {
 private:
     BWidgets::ValueHSlider slider_freq;
     BWidgets::ValueHSlider slider_depth;
@@ -15,17 +17,27 @@ private:
     std::array<BWidgets::Widget*,3> widget;
 public:
     /**
-     * @brief UILfoObject constructor
+     * @brief LfoFrame constructor
      * 
-     * @param x The x-coordinate corresponding with the top-left corner of the object
-     * @param y The y-coordinate corresponding with the top-left corner of the object
-     * @param index The URID to be used for the first BWidget within the object
     */
-    UILfoObject(double x, double y, int index);
+    LfoFrame();
 
-    int getNumWidgets() const override;
-    double getObjectHeight() const override;
-    double getObjectWidth() const override;
+    /**
+     * @brief position frame and widgets
+     * 
+     * @param x integer top-left x coordinate
+     * @param y integer top-left y coordinate
+    */
+    void configure(int x, int y) override;
+
+    /**
+     * @brief update widgets based off port value changes
+     * 
+     * @param port port index relative to frame
+     * @param value update value for widget
+    */
+    void port_event(int port, float value) override;
+
     std::array<BWidgets::Widget*,3> getWidgetArray() const;
 };
 

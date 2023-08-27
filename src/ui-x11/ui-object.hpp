@@ -1,62 +1,33 @@
 #ifndef UI_OBJECT_HPP_
 #define UI_OBJECT_HPP_
 
-#include <array>
 
-class UIObject {
+#include "ui-config.hpp"
+
+#include "../../BWidgets/BWidgets/Window.hpp"
+#include "../../BWidgets/BWidgets/Frame.hpp"
+
+class ModuleFrame : public BWidgets::Frame {
+private:
+
 public:
     /**
-     * @brief UIObject Constructor
-     * 
-     * @param x The x-coordinate corresponding with the top-left corner of the object
-     * @param y The y-coordinate corresponding with the top-left corner of the object
-     * @param index The Object index (e.g., widgets corresponding to Oscillator[0])
-     * 
+     * @brief Virtual Class for UI Module Frames
     */
-    UIObject(double x, double y, int index);
+    ModuleFrame();
 
     /**
-     * @brief virtual desctructure for cleanup of derived objects
+     * @brief virtual function to configure widget/frame positions
     */
-    virtual ~UIObject() = default;
+   virtual void configure(int x, int y) = 0;
 
-    /**
-    * @brief Virtual function providing the number of widgets the object contains
-    * 
-    * @return The number of widgets contained by the object.
-    */
-    virtual int getNumWidgets() const = 0;
-
-    /**
-    * @brief Virtual function providing the height of the object
-    * 
-    * @return double height of object
-    */
-    virtual double getObjectHeight() const = 0;
-
-    /**
-    * @brief Virtual function providing the width of the object
-    * 
-    * @return double width of object 
-    */
-    virtual double getObjectWidth() const = 0;
-
-    /**
-    * @brief common member function to return size details of object
-    * 
-    * @return std::array<double,4> x,y,width,height
-    */
-    std::array<double,4> getObjectDimensions() const;
-
-    /**
-     * @brief virtual function to set widget value from a port event
-    */
-   virtual void port_event(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) = 0;
-
-protected:
-    double x_;
-    double y_;
-    int index_;
+   /**
+    * @brief virtual function to handle port events. Port index is relative to the object
+   */
+  virtual void port_event(int port, float value) = 0;
+   
 };
+
+
 
 #endif // UI_OBJECT_HPP_

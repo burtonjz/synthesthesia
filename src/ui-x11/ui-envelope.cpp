@@ -1,27 +1,14 @@
-#include "ui-config.hpp"
 #include "ui-envelope.hpp"
 #include "../port-info.hpp"
-#include "../waveform.hpp"
 
-UIEnvObject::UIEnvObject(double x, double y, int index):
-    UIObject(x,y,index),
-    slider_attack(
-        x+UI_ENV_SLIDER_ATTACK_X,y+UI_ENV_SLIDER_ATTACK_Y,UI_ENV_SLIDER_ATTACK_WIDTH,UI_ENV_SLIDER_ATTACK_HEIGHT,
-        0.1, ctrlLimits[CTRL_ENV1_ATTACK].first, ctrlLimits[CTRL_ENV1_ATTACK].second
-    ),
-    slider_decay(
-        x+UI_ENV_SLIDER_DECAY_X,y+UI_ENV_SLIDER_DECAY_Y,UI_ENV_SLIDER_DECAY_WIDTH,UI_ENV_SLIDER_DECAY_HEIGHT,
-        0.1, ctrlLimits[CTRL_ENV1_DECAY].first, ctrlLimits[CTRL_ENV1_DECAY].second
-    ),
-    slider_sustain(
-        x+UI_ENV_SLIDER_SUSTAIN_X,y+UI_ENV_SLIDER_SUSTAIN_Y,UI_ENV_SLIDER_SUSTAIN_WIDTH,UI_ENV_SLIDER_SUSTAIN_HEIGHT,
-        0.1, ctrlLimits[CTRL_ENV1_SUSTAIN].first, ctrlLimits[CTRL_ENV1_SUSTAIN].second
-    ),
-    slider_release(
-        x+UI_ENV_SLIDER_RELEASE_X,y+UI_ENV_SLIDER_RELEASE_Y,UI_ENV_SLIDER_RELEASE_WIDTH,UI_ENV_SLIDER_RELEASE_HEIGHT,
-        0.1, ctrlLimits[CTRL_ENV1_RELEASE].first, ctrlLimits[CTRL_ENV1_RELEASE].second
-    )
+EnvelopeFrame::EnvelopeFrame():
+    slider_attack(0.1, EnvLimits[CTRL_ENV_ATTACK].first, EnvLimits[CTRL_ENV_ATTACK].second),
+    slider_decay(0.1, EnvLimits[CTRL_ENV_DECAY].first, EnvLimits[CTRL_ENV_DECAY].second),
+    slider_sustain(0.1, EnvLimits[CTRL_ENV_SUSTAIN].first, EnvLimits[CTRL_ENV_SUSTAIN].second),
+    slider_release(0.1, EnvLimits[CTRL_ENV_RELEASE].first, EnvLimits[CTRL_ENV_RELEASE].second)
 {
+    setDraggable(false);
+
     slider_attack.setActivatable(false);
     slider_decay.setActivatable(false);    
     slider_sustain.setActivatable(false);
@@ -31,20 +18,19 @@ UIEnvObject::UIEnvObject(double x, double y, int index):
     widget[1]=&slider_decay;
     widget[2]=&slider_sustain;
     widget[3]=&slider_release;
+
+    for(auto& element : widget) add(element);
 }
 
-int UIEnvObject::getNumWidgets() const {
-    return 4;
+void EnvelopeFrame::configure(int x, int y){
+    moveTo(x,y);
+
+    slider_attack.moveTo(UI_ENV_SLIDER_ATTACK_X,UI_ENV_SLIDER_ATTACK_Y);
+    slider_decay.moveTo(UI_ENV_SLIDER_DECAY_X,UI_ENV_SLIDER_DECAY_Y);
+    slider_sustain.moveTo(UI_ENV_SLIDER_SUSTAIN_X,UI_ENV_SLIDER_SUSTAIN_Y);
+    slider_release.moveTo(UI_ENV_SLIDER_RELEASE_X,UI_ENV_SLIDER_RELEASE_Y);
 }
 
-double UIEnvObject::getObjectHeight() const {
-    return UI_ENV_HEIGHT;
-}
-
-double UIEnvObject::getObjectWidth() const {
-    return UI_ENV_WIDTH;
-}
-
-std::array<BWidgets::Widget*,4> UIEnvObject::getWidgetArray() const {
+std::array<BWidgets::Widget*,4> EnvelopeFrame::getWidgetArray() const {
     return widget;
 }

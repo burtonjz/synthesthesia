@@ -5,13 +5,16 @@
 #include "waveform.hpp"
 
 #ifndef TEST_MODE_
-constexpr int N_OSCILLATORS  = 3;
+
 constexpr int N_CHANNELS     = 2;
 
+constexpr int N_OSCILLATORS  = 3;
 constexpr int N_ENVELOPES    = 1;
 constexpr int N_LFOS         = 1;
 constexpr int N_MODULATORS   = N_ENVELOPES + N_LFOS;
 constexpr int N_FILTERS      = 1;
+
+constexpr int N_MODULES      = N_OSCILLATORS + N_ENVELOPES + N_LFOS + N_FILTERS;
 
 #else
 constexpr int N_OSCILLATORS  = 1;

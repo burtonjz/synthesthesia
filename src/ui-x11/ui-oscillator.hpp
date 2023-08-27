@@ -2,12 +2,15 @@
 #define UI_OSC_WIDGETS_HPP_
 
 #include <array>
+
+#include "ui-config.hpp"
+
 #include "ui-object.hpp"
 #include "../../BWidgets/BWidgets/HSwitch.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 #include "../../BWidgets/BWidgets/ValueDial.hpp"
 
-class UIOscObject : public UIObject {
+class OscillatorFrame : public ModuleFrame {
 private:
     BWidgets::HSwitch switch_on;
     BWidgets::ValueDial dial_gain;
@@ -21,19 +24,28 @@ private:
     std::array<BWidgets::Widget*,9> widget;
 public:
     /**
-     * @brief UIOscObject constructor
+     * @brief OscillatorFrame constructor
      * 
-     * @param x The x-coordinate corresponding with the top-left corner of the object
-     * @param y The y-coordinate corresponding with the top-left corner of the object
-     * @param index The URID to be used for the first BWidget within the object
     */
-    UIOscObject(double x, double y, int index);
+    OscillatorFrame();
 
-    int getNumWidgets() const override;
-    double getObjectHeight() const override;
-    double getObjectWidth() const override;
+    /**
+     * @brief position frame and widgets
+     * 
+     * @param x integer top-left x coordinate
+     * @param y integer top-left y coordinate
+    */
+    void configure(int x, int y) override;
+
+    /**
+     * @brief update widgets based off port value changes
+     * 
+     * @param port port index relative to frame
+     * @param value update value for widget
+    */
+    void port_event(int port, float value) override;
+    
     std::array<BWidgets::Widget*,9> getWidgetArray() const;
-    void port_event(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) override;
 };
 
 #endif // UI_OSC_WIDGETS_HPP_

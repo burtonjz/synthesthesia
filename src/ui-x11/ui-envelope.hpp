@@ -2,10 +2,12 @@
 #define UI_ENV_WIDGETS_HPP_
 
 #include <array>
+
+#include "ui-config.hpp"
 #include "ui-object.hpp"
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 
-class UIEnvObject : public UIObject {
+class EnvelopeFrame : public ModuleFrame {
 private:
     BWidgets::ValueHSlider slider_attack;
     BWidgets::ValueHSlider slider_decay;
@@ -14,18 +16,28 @@ private:
     std::array<BWidgets::Widget*,4> widget;
 public:
     /**
-     * @brief UIEnvObject constructor
-     * 
-     * @param x The x-coordinate corresponding with the top-left corner of the object
-     * @param y The y-coordinate corresponding with the top-left corner of the object
-     * @param index The URID to be used for the first BWidget within the object
+     * @brief EnvelopeFrame constructor
     */
-    UIEnvObject(double x, double y, int index);
+    EnvelopeFrame();
+    
+    /**
+     * @brief position frame and widgets
+     * 
+     * @param x integer top-left x coordinate
+     * @param y integer top-left y coordinate
+    */
+    void configure(int x, int y) override;
 
-    int getNumWidgets() const override;
-    double getObjectHeight() const override;
-    double getObjectWidth() const override;
+    /**
+     * @brief update widgets based off port value changes
+     * 
+     * @param port port index relative to frame
+     * @param value update value for widget
+    */
+    void port_event(int port, float value) override;
+
     std::array<BWidgets::Widget*,4> getWidgetArray() const;
+    
 };
 
 #endif // UI_ENV_WIDGETS_HPP_

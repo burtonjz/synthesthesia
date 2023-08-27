@@ -1,19 +1,50 @@
 #include <iostream>
 #include "cairo/cairo.h"
+
 #include "synthesthesia-ui.hpp"
 #include "../port-info.hpp"
 #include "../config.hpp"
 #include <stdexcept>
 
-#define UI_PLUGIN_URI "https://github.com/burtonjz/synthesthesia#ui"
+
 
 
 SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Controller controller, void* parentXWindow, std::string bundlePath):
     Window(750, 600, reinterpret_cast<PuglNativeView>(parentXWindow),0, "Synthesthesia",false,PUGL_MODULE,0),
     write_function(write_function),
-    controller(controller)
+    controller(controller),
+    frames_ptr{nullptr},
+    oscillator(),
+    envelope(create_env_array()),
+    lfo(create_lfo_array()),
+    filter(create_filter_array())
 {
     setBackground(BStyles::Fill(bundlePath + "/background.png"));
+
+    // configure frames
+    int iFrame = 0;
+    for(size_t i = 0; i < oscillator.size(); ++i ){
+        frames_ptr[iFrame] = &oscillator[i];
+        iFrame += 1;
+    }
+    for(size_t i = 0; i < envelope.size(); ++i ){
+        frames_ptr[iFrame] = &envelope[i];
+        iFrame += 1;
+    }
+    for(size_t i = 0; i < lfo.size(); ++i ){
+        frames_ptr[iFrame] = &lfo[i];
+        iFrame += 1;
+    }
+    for(size_t i = 0; i < filter.size(); ++i ){
+        frames_ptr[iFrame] = &filter[i];
+        iFrame += 1;
+    }
+
+    for(size_t i = 0; i < frames_ptr.size(); ++i){
+        frames_ptr[i]->configure(0,i*BWIDGETS_DEFAULT_FRAME_HEIGHT);
+    }
+
+        
     // TODO: ADD INIT WIDGET FUNCTIONS
     // dial.setClickable(false);
     // dial.setCallbackFunction(BEvents::Event::EventType::valueChangedEvent, value_change_callback);
@@ -22,6 +53,21 @@ SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Contr
 SynthesthesiaUI::~SynthesthesiaUI(){
 
 }
+
+std::array<OscillatorFrame,N_OSCILLATORS> SynthesthesiaUI::create_osc_array(){
+
+}
+
+std::array<EnvelopeFrame,N_ENVELOPES> SynthesthesiaUI::create_env_array(){
+
+}
+std::array<LfoFrame,N_LFOS> SynthesthesiaUI::create_lfo_array(){
+
+}
+std::array<FilterFrame,N_FILTERS> SynthesthesiaUI::create_filter_array(){
+
+}
+
 
 LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
     return reinterpret_cast<LV2UI_Widget>(puglGetNativeView(getView()));
@@ -67,82 +113,3 @@ void SynthesthesiaUI::init_filter_widgets(FilterWidgets filt, const double x, co
 
 }
 
-// Connectors to LV2 Interface
-
-static LV2UI_Handle instantiate(
-    const struct LV2UI_Descriptor *descriptor, 
-    const char *plugin_uri, 
-    const char *bundle_path, 
-    LV2UI_Write_Function write_function, 
-    LV2UI_Controller controller, 
-    LV2UI_Widget *widget, 
-    const LV2_Feature *const *features)
-{
-    // make sure we're called by the right plugin
-    if(strcmp(plugin_uri,UI_PLUGIN_URI) != 0) return nullptr;
-
-    void* parentXWindow = nullptr;
-    for (int i = 0; features[i]; ++i){
-        if (strcmp (features[i]->URI, LV2_UI__parent) == 0) parentXWindow = features[i]->data;
-    }
-
-    if (!parentXWindow){
-        std::cerr << "Required feature LV2_UI__parent not provided" << std::endl;
-        return nullptr;
-    }
-
-    SynthesthesiaUI* synth_ui;
-    try {synth_ui = new SynthesthesiaUI(write_function,controller,parentXWindow,std::string(bundle_path));}
-    catch(std::exception& exc){
-        std::cerr << "UI instantiation failed." << std::endl;
-        return nullptr;
-    }
-
-    *widget = synth_ui->get_top_level_widget();
-    return static_cast<LV2UI_Handle> (synth_ui);
-
-}
-
-static void cleanup(LV2UI_Handle ui){
-    SynthesthesiaUI* synth_ui = static_cast<SynthesthesiaUI*> (ui);
-    if(synth_ui) delete synth_ui;
-}
-
-static void port_event(
-    LV2UI_Handle ui, 
-    uint32_t port_index, 
-    uint32_t buffer_size, 
-    uint32_t format, 
-    const void *buffer)
-{
-    SynthesthesiaUI* synth_ui = static_cast<SynthesthesiaUI*> (ui);
-    if(synth_ui) synth_ui->port_event(port_index,buffer_size,format,buffer);
-}
-
-static int ui_idle(LV2UI_Handle ui){
-    SynthesthesiaUI* synth_ui = static_cast<SynthesthesiaUI*> (ui);
-    synth_ui->handleEvents();
-    return 0;
-}
-
-static const void *extension_data(const char *uri){
-    static const LV2UI_Idle_Interface idle = { ui_idle };
-    if (strcmp (uri, LV2_UI__idleInterface) == 0) return &idle;
-    return nullptr;
-}
-
-static const LV2UI_Descriptor ui_descriptor =
-{
-    UI_PLUGIN_URI,
-    instantiate,
-    cleanup,
-    port_event,
-    extension_data
-};
-
-LV2_SYMBOL_EXPORT const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index){
-    switch(index){
-        case 0: return &ui_descriptor;
-        default: return 0;
-    }
-}
