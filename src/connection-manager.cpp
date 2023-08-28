@@ -2,12 +2,28 @@
 
 #include <iostream>
 
-uint64_t ConnectionManager::create_connection_value(ModulatableType module, int instance, int port) const {
+ConnectionManager::ConnectionManager(){};
+
+float ConnectionManager::encode_as_float(){
+    std::cerr << "About to encode data as float" << std::endl;
+    static_assert(sizeof(float) == sizeof(uint32_t), "Size mismatch between float and uint32_t");
+
+    return reinterpret_cast<float&>(data_);
+}
+
+void ConnectionManager::set_data_from_float(float d){
+    std::cerr << "Attempting to set data from float" << std::endl;
+    static_assert(sizeof(float) == sizeof(uint32_t), "Size mismatch between float and uint32_t");
+
+    data_ = reinterpret_cast<uint32_t&>(d);
+}
+
+uint32_t ConnectionManager::create_connection_value(ModulatableType module, int instance, int port) const {
     if(!is_connection_valid(module,instance,port)) return 0;
 
-    uint64_t connection = static_cast<uint64_t>(module) << 4;
-    connection |= static_cast<uint64_t>(instance) << 2;
-    connection |= static_cast<uint64_t>(port);
+    uint32_t connection = static_cast<uint32_t>(module) << 4;
+    connection |= static_cast<uint32_t>(instance) << 2;
+    connection |= static_cast<uint32_t>(port);
     return connection;
 }
 
@@ -28,14 +44,19 @@ bool ConnectionManager::is_connection_valid(ModulatableType module, int instance
     return true;
 }
 
+bool ConnectionManager::has_active_connections() const {
+    // if the module for the first 6 bits is not none, there is at least one active connection
+    return (data_ & 0b111111) >> 4 != MODULATABLE_NONE;
+}
+
 int ConnectionManager::find_connection(ModulatableType module, int instance, int port) const {
-    uint64_t connection = create_connection_value(module,instance,port);
+    uint32_t connection = create_connection_value(module,instance,port);
     return find_connection(connection);
 }
 
-int ConnectionManager::find_connection(uint64_t connection) const {
-    for (int i = 0; i < 55; i += 6){
-        uint64_t masked_value = (data_ >> i) & 0b111111;
+int ConnectionManager::find_connection(uint32_t connection) const {
+    for (int i = 0; i < 25; i += 6){
+        uint32_t masked_value = (data_ >> i) & 0b111111;
         if (masked_value == connection) return i;
     }
 
@@ -43,11 +64,11 @@ int ConnectionManager::find_connection(uint64_t connection) const {
 }
 
 void ConnectionManager::add_connection(ModulatableType module, int instance, int port){
-    uint64_t connection = create_connection_value(module,instance,port);
+    uint32_t connection = create_connection_value(module,instance,port);
     add_connection(connection);
 }
 
-void ConnectionManager::add_connection(uint64_t connection){
+void ConnectionManager::add_connection(uint32_t connection){
     bool connection_added = false;
 
     if(find_connection(connection) == -1){
@@ -56,8 +77,8 @@ void ConnectionManager::add_connection(uint64_t connection){
     }
 
     // find first available 6 bits to house new connection
-    for (int i = 0; i < 55; i += 6){
-        uint64_t masked_value = (data_ >> i) & 0b111111;
+    for (int i = 0; i < 25; i += 6){
+        uint32_t masked_value = (data_ >> i) & 0b111111;
         if ( (masked_value >> 4) == MODULATABLE_NONE){
             data_ |= (connection << i);
             connection_added = true;
@@ -69,11 +90,11 @@ void ConnectionManager::add_connection(uint64_t connection){
 }
 
 void ConnectionManager::remove_connection(ModulatableType module, int instance, int port){
-    uint64_t connection = create_connection_value(module,instance,port);
+    uint32_t connection = create_connection_value(module,instance,port);
     remove_connection(connection);
 }
 
-void ConnectionManager::remove_connection(uint64_t connection){
+void ConnectionManager::remove_connection(uint32_t connection){
     int i = find_connection(connection);
 
     if(i == -1){
@@ -82,7 +103,7 @@ void ConnectionManager::remove_connection(uint64_t connection){
     }
 
     // clear found connection
-    uint64_t new_data = data_ & ~(0b111111 << i);
+    uint32_t new_data = data_ & ~(0b111111 << i);
 
     // preserve last i bits, shift remaining bits
     data_ = (new_data & ((1ULL << i) - 1)) | ( new_data >> i) ;

@@ -13,6 +13,7 @@
 #include "linear-fader.hpp"
 #include "limit.hpp"
 #include "cfg-oscillator.hpp"
+#include "cfg-connection.hpp"
 #include "filter-type.hpp"
 
 
@@ -69,6 +70,12 @@ Key* Synthesthesia::find_key(uint8_t index){
     else return nullptr;
 };
 
+bool Synthesthesia::any_key_active() const {
+    for (const auto& pair : key){
+        if ( pair.second.get_status() != KEY_OFF) return true;
+    }
+    return false;
+}
 /*
 For a global filter to be modulated by an envelope, we need to find the key parameters in the following priority
 KEY_PRESS -- return first pressed key (for attack/decay/sustain stages)
@@ -96,9 +103,12 @@ std::tuple<KeyStatus,double,float> Synthesthesia::get_global_key_params() const 
         }
         ++it;
     }
+    return std::make_tuple(status,time,start_level);
 }
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
+
+    
     if (port >= PORT_MIDI_RANGE.first && port <= PORT_MIDI_RANGE.second){
         midi_in[port] = static_cast<const LV2_Atom_Sequence*>(data);
     } else if (port >= PORT_AUDIO_OUT_RANGE.first && port <= PORT_AUDIO_OUT_RANGE.second){
@@ -154,41 +164,37 @@ void Synthesthesia::play (const uint32_t start, const uint32_t end){
             ctrl_osc_gain[i].tick();
             ctrl_osc_pan[i].tick();
         }
-        
+                
         for(int i = 0; i < N_LFOS; ++i){
-            if(lfo[i].get_is_active()) lfo[i].tick();
+            if(lfo[i].get_is_active()){
+                if (key.empty()) lfo[i].reset();
+                lfo[i].tick();
+            } 
         }
     }
 }
 
 std::array<OscillatorConfig,N_OSCILLATORS> Synthesthesia::configure_oscillators(){
     std::array<OscillatorConfig,N_OSCILLATORS> osc_configs;
-    // determine modulator connections
-    Modulator* freq_mod = nullptr;
-    Modulator* amp_mod = nullptr;
-    Modulator* phase_mod = nullptr;
+    std::array<Modulator*,OSC_CONNECT_N> osc_mods;
 
+    // determine modulator connections
     for(int i = 0; i < N_OSCILLATORS; ++i){
-        freq_mod = nullptr;
-        amp_mod = nullptr;
-        phase_mod = nullptr;
         for(int j = 0; j < N_MODULATORS; ++j){
-            if(modulator[j]->get_is_active()){ // TODO: gotta be a better way?
-                if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(1 << (i*3)))) amp_mod = modulator[j];
-                if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(2 << (i*3)))) freq_mod = modulator[j];
-                if(MOD_IS_CONNECTED(modulator[j]->get_connections(),static_cast<ModConnection>(4 << (i*3)))) phase_mod = modulator[j];
+            if(modulator[j]->get_is_active()){
+                for(size_t k = 0; k < osc_mods.size(); ++k){
+                    if(modulator[j]->find_connection(MODULATABLE_OSCILLATOR,i,k)) osc_mods[k] = modulator[j];
+                }
             }
         }
+
         osc_configs[i] = {
             ctrl_osc_values[i * CTRL_OSC_N + CTRL_OSC_STATUS] != 0.0,
             static_cast<Waveform> (ctrl_osc_values[i * CTRL_OSC_N + CTRL_OSC_WAVEFORM]),
-            freq_mod, 
-            amp_mod, 
-            phase_mod,
             &ctrl_osc_gain[i],
-            ctrl_osc_detune[i]
+            ctrl_osc_detune[i],
+            osc_mods
         };
-        // TODO: add connection logic for freq/amp/phase
     }
     return osc_configs;
 }
@@ -336,20 +342,18 @@ void Synthesthesia::validate_and_update_ports(){
 }
 
 // TODO: Modulator Logic needs to be improved if we want to support dynamic number of components
-void Synthesthesia::update_filter_connections(){
-    // check filter cutoff
-    if (MOD_IS_CONNECTED(ctrl_env_values[CTRL_ENV_CONNECTIONS],MOD_CONNECT_FILTER1_CUTOFF)){
-        filter[0].connect_modulator_fc(&env[0]);
-    } else if (MOD_IS_CONNECTED(ctrl_lfo_values[CTRL_LFO_CONNECTIONS],MOD_CONNECT_FILTER1_CUTOFF)){
-        filter[0].connect_modulator_fc(&lfo[0]);
-    } else filter[0].disconnect_modulator_fc();
-
-    // check filter resonance (Q Factor)
-    if (MOD_IS_CONNECTED(ctrl_env_values[CTRL_ENV_CONNECTIONS],MOD_CONNECT_FILTER1_Q)){
-        filter[0].connect_modulator_q(&env[0]);
-    } else if (MOD_IS_CONNECTED(ctrl_lfo_values[CTRL_LFO_CONNECTIONS],MOD_CONNECT_FILTER1_Q)){
-        filter[0].connect_modulator_q(&lfo[0]);
-    } else filter[0].disconnect_modulator_q();
+void Synthesthesia::update_filter_connections(){ 
+    for(size_t i = 0; i < filter.size(); ++i){
+        for(size_t j = 0; j < modulator.size(); ++j){
+            if(modulator[j]->get_is_active()){
+                for(int k = 0; k < FILTER_CONNECT_N; ++k){
+                    if(modulator[j]->find_connection(MODULATABLE_FILTER,i,k)){
+                        filter[i].connect_modulator(modulator[j],static_cast<FilterConnectionPorts>(k));
+                    } 
+                }
+            }
+        }
+    }
 }
 
 void Synthesthesia::run(const uint32_t sample_count)

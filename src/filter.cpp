@@ -9,8 +9,7 @@ Filter::Filter():
     rate(DEFAULT_SAMPLING_RATE),
     cutoff_freq(10000.0),
     q_factor(0.7071),
-    mod_q(nullptr),
-    mod_fc(nullptr)
+    filter_mod{nullptr}
 {
     reset();
 }
@@ -77,46 +76,40 @@ void Filter::set_synth_ptr(Synthesthesia* ptr){
 
 // MODULATION
 
-void Filter::connect_modulator_q(Modulator* qmod){
-    mod_q = qmod;
-}
-void Filter::disconnect_modulator_q(){
-    mod_q = nullptr;
-    inst_q_factor = q_factor;
-    needs_recalculate = true;
+void Filter::connect_modulator(Modulator* ptr,FilterConnectionPorts port){
+    if(!filter_mod[port]) filter_mod[port] = ptr;
 }
 
-void Filter::connect_modulator_fc(Modulator* fcmod){
-    mod_fc = fcmod;
+void Filter::disconnect_modulator(FilterConnectionPorts port){
+    filter_mod[port] = nullptr;
 }
-void Filter::disconnect_modulator_fc(){
-    mod_fc = nullptr;
-    inst_cutoff_freq = cutoff_freq;
-    needs_recalculate = true;
+
+void Filter::disconnect_all_modulators(){
+    for(size_t i = 0; i < filter_mod.size(); ++i) filter_mod[i] = nullptr;
 }
 
 void Filter::modulate_q(){
-    if(!mod_q || !mod_q->get_is_active()) return;
+    if(!filter_mod[FILTER_CONNECT_Q] || !filter_mod[FILTER_CONNECT_Q]->get_is_active()) return;
 
-    if(ADSREnvelope* qenv = static_cast<ADSREnvelope*>(mod_q)){
+    if(ADSREnvelope* qenv = static_cast<ADSREnvelope*>(filter_mod[FILTER_CONNECT_Q])){
         std::tuple<KeyStatus,double,float> params = synth_ptr->get_global_key_params();
         set_inst_q_factor(get_q_factor() + qenv->modulate_filter_q(get_q_factor(),std::get<0>(params),std::get<1>(params),std::get<2>(params)));
     }
 
-    if(LFO* qlfo = static_cast<LFO*>(mod_q)){
+    if(LFO* qlfo = static_cast<LFO*>(filter_mod[FILTER_CONNECT_Q])){
         set_inst_q_factor(get_q_factor() + qlfo->modulate_filter_q(get_q_factor()));
     }
 }
 
 void Filter::modulate_fc(){
-    if(!mod_fc || !mod_fc->get_is_active()) return;
+    if(!filter_mod[FILTER_CONNECT_FREQ] || !filter_mod[FILTER_CONNECT_FREQ]->get_is_active()) return;
 
-    if(ADSREnvelope* fcenv = static_cast<ADSREnvelope*>(mod_fc)){
+    if(ADSREnvelope* fcenv = static_cast<ADSREnvelope*>(filter_mod[FILTER_CONNECT_FREQ])){
         std::tuple<KeyStatus,double,float> params = synth_ptr->get_global_key_params();
         set_inst_cutoff_freq(get_cutoff_freq() + fcenv->modulate_filter_q(get_cutoff_freq(),std::get<0>(params),std::get<1>(params),std::get<2>(params)));
     }
 
-    if(LFO* fclfo = static_cast<LFO*>(mod_fc)){
+    if(LFO* fclfo = static_cast<LFO*>(filter_mod[FILTER_CONNECT_FREQ])){
         set_inst_cutoff_freq(get_cutoff_freq() + fclfo->modulate_filter_fc(get_cutoff_freq()));
     }
 }

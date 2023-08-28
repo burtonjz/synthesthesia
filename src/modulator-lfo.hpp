@@ -25,8 +25,6 @@ public:
 
     ModulatorType getType() const override;
 
-    void set_is_active(bool status) override;
-
     void set_freq(double f);
 
     void set_waveform(Waveform wf);
@@ -34,6 +32,8 @@ public:
     void set_depth(float d);
 
     void tick();
+
+    void reset();
 
 };
 

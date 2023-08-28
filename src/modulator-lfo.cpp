@@ -21,13 +21,6 @@ ModulatorType LFO::getType() const {
     return MODULATOR_LFO;
 }; 
 
-void LFO::set_is_active(bool status){
-    if(status != is_active){
-        is_active = status;
-        oscillator->set_step(0.0);
-    }
-};
-
 void LFO::set_freq(double f){
     oscillator->set_freq(f);
 };
@@ -44,6 +37,9 @@ void LFO::tick(){
     oscillator->tick();
 }
 
+void LFO::reset(){
+    oscillator->set_step(0.0);
+}
 
 float LFO::modulate_frequency(double input){
     return input * oscillator->get_sample() * depth;
@@ -60,3 +56,4 @@ float LFO::modulate_filter_q(double input){
 float LFO::modulate_filter_fc(double input){
     return input * oscillator->get_sample() * depth;
 }
+

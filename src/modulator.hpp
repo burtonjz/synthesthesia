@@ -3,27 +3,47 @@
 
 #include "config.hpp"
 #include "modulator-type.hpp"
+#include "cfg-connection.hpp"
+#include "connection-manager.hpp"
 #include <cstdint>
 
 class Modulator {
 protected:
-    bool is_active;
-    uint16_t connections; // each bit is a connection to another object
+    ConnectionManager connections; 
 public:
     Modulator();
-    Modulator(bool is_active_);
     
     virtual ~Modulator();
 
     // getters setters
     virtual ModulatorType getType() const;
-    
+
+    /**
+     * @brief returns true if at least one connection to the modulator exists
+    */
     bool get_is_active() const;
-    virtual void set_is_active(bool status);
 
-    uint16_t get_connections() const;
-    void set_connections(uint16_t c);
+    /**
+     * @brief returns the bit index of the requested connection (-1 if not exist)
+     * 
+     * @param module module id to make a connection with
+     * @param instance instance id to make a connection with
+     * @param port which port/component to make a connection with
+    */
+    int find_connection(ModulatableType module, int instance, int port) const;
 
+    /**
+     * @brief set modulator connection data structure
+     * 
+     * @param d float value (from LV2 port)
+    */
+    void set_connections(float d);
+
+    /**
+     * @brief get modulator connection data encoded as a float (to send to LV2 port)
+    */
+    float get_connections_as_float();
+    
     // virtual modulation functions
     virtual float modulate_frequency(double input) = 0;
     virtual float modulate_amplitude(double input) = 0;

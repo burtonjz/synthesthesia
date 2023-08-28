@@ -63,6 +63,8 @@ public:
     Key* find_key(uint8_t i);
     std::tuple<KeyStatus,double,float> get_global_key_params() const;
 
+    bool any_key_active() const;
+
     // hooks for internal LV2 core functions
     void connectPort (const uint32_t port, void* data);
     void activate();

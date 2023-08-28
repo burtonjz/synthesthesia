@@ -7,6 +7,7 @@
 #include "filter-type.hpp"
 #include "linear-fader.hpp"
 #include "modulator.hpp"
+#include "cfg-connection.hpp"
 
 class Synthesthesia; // forward declaration for Synthesthesia class
 
@@ -35,8 +36,7 @@ private:
     double b2;
 
     // modulation
-    Modulator* mod_fc;
-    Modulator* mod_q;
+    std::array<Modulator*,FILTER_CONNECT_N> filter_mod;
 
     Synthesthesia* synth_ptr;
 
@@ -62,11 +62,9 @@ public:
 
     void set_synth_ptr(Synthesthesia* ptr);
 
-    void connect_modulator_q(Modulator* qmod);
-    void disconnect_modulator_q();
-
-    void connect_modulator_fc(Modulator* fcmod);
-    void disconnect_modulator_fc();
+    void connect_modulator(Modulator* ptr,FilterConnectionPorts port);
+    void disconnect_modulator(FilterConnectionPorts port);
+    void disconnect_all_modulators();
 
     void modulate_q();
     void modulate_fc();

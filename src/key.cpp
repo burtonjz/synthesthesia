@@ -98,7 +98,7 @@ void Key::release(){
 void Key::off(){
     for(int i = 0; i < N_OSCILLATORS; ++i){
         oscillator[i].set_step(0.0);
-        oscillator[i].disconnect_modulators();
+        oscillator[i].disconnect_all_modulators();
     }
 
     status = KEY_OFF;

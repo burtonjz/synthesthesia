@@ -2,6 +2,7 @@
 #define OSCILLATOR_HPP_
 
 #include <cstdint>
+#include <array>
 #include "waveform.hpp"
 #include "key-status.hpp"
 #include "oscillator-base.hpp"
@@ -12,9 +13,7 @@ class Synthesthesia; // forward declaration for Synthesthesia class
 
 class Oscillator : public BaseOscillator {
 private:
-    Modulator* frequency_modulator;
-    Modulator* amplitude_modulator;
-    Modulator* phase_modulator;
+    std::array<Modulator*,OSC_CONNECT_N> osc_mod;
 
     void modulate();
     void modulate_amplitude();
@@ -42,16 +41,10 @@ public:
     void set_synth_ptr(Synthesthesia* key); // set pointer to parent key (necessary to synchronize envelope modulators to key presses/timing)
     void configure(OscillatorConfig config, uint8_t note, Synthesthesia* synth_ptr, int osc_index); // set oscillator members based on parameter object
 
-    void connect_frequency_modulator(Modulator* ptr);
-    void disconnect_frequency_modulator();
-
-    void connect_amplitude_modulator(Modulator* ptr);
-    void disconnect_amplitude_modulator();
-
-    void connect_phase_modulator(Modulator* ptr);
-    void disconnect_phase_modulator();
-
-    void disconnect_modulators();
+    void connect_modulator(Modulator* ptr,OscillatorConnectionPorts port);
+    void disconnect_modulator(OscillatorConnectionPorts port);
+    
+    void disconnect_all_modulators();
 
     void tick() override; // to add modulation elements to sample generation
 };

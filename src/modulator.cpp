@@ -1,30 +1,25 @@
 #include "modulator.hpp"
 
-Modulator::Modulator():
-    is_active(false)
-{}
-Modulator::Modulator(bool is_active_):
-    is_active(is_active_)
-{}
-Modulator::~Modulator(){
-}
+Modulator::Modulator(){}
+
+Modulator::~Modulator(){}
 
 ModulatorType Modulator::getType() const {
     return MODULATOR_BASE;
 }
 
 bool Modulator::get_is_active() const {
-    return is_active;
-}
-void Modulator::set_is_active(bool status){
-    is_active = status;
+    return connections.has_active_connections();
 }
 
-uint16_t Modulator::get_connections() const {
-    return connections;
+int Modulator::find_connection(ModulatableType module, int instance, int port) const {
+    return connections.find_connection(module,instance,port);
 }
 
-void Modulator::set_connections(uint16_t c){
-    connections = c;
-    set_is_active(connections != MOD_CONNECT_NONE);
+void Modulator::set_connections(float d){
+    connections.set_data_from_float(d);
+}
+
+float Modulator::get_connections_as_float(){
+    return connections.encode_as_float();
 }

@@ -2,15 +2,26 @@
 #define CONNECTION_MANAGER_HPP_
 
 #include <cstdint>
-#include "connection-config.hpp"
-#include "modulator.hpp"
+#include "cfg-connection.hpp"
 
 class ConnectionManager {
 private:
-    uint64_t data_;
+    uint32_t data_;
 
 public:
     ConnectionManager();
+
+    /**
+     * @brief type punning data to float for LV2 port value
+    */
+    float encode_as_float();
+
+    /**
+     * @brief type punning float from LV2 port to uint32_t data value
+     * 
+     * @param d data from LV2 Port
+    */
+    void set_data_from_float(float d);
 
     /**
      * @brief create the connection value from the module, instance, and port
@@ -19,7 +30,7 @@ public:
      * @param instance the instance index to connect with
      * @param port the port index to connect with
     */
-    uint64_t create_connection_value(ModulatableType module, int instance, int port) const;
+    uint32_t create_connection_value(ModulatableType module, int instance, int port) const;
 
     /**
      * @brief validate a connection. A valid connection type has a module that is not 0, and all values within their proper ranges.
@@ -29,6 +40,12 @@ public:
      * @param port the port index to connect with
     */
     bool is_connection_valid(ModulatableType module, int instance, int port) const;
+
+    /**
+     * @brief returns true if any connections exist
+     * 
+    */
+    bool has_active_connections() const;
 
     /**
      * @brief returns index of connection within data structure (-1 if not found)
@@ -44,7 +61,7 @@ public:
      * 
      * @param connection the connection value
     */
-    int find_connection(uint64_t connection) const;
+    int find_connection(uint32_t connection) const;
 
     /**
      * @brief add a new connection. 
@@ -60,7 +77,7 @@ public:
      * 
      * @param connection the connection value
     */
-    void add_connection(uint64_t connection);
+    void add_connection(uint32_t connection);
 
     /**
      * @brief remove a connection. 
@@ -76,7 +93,7 @@ public:
      * 
      * @param connection the connection value
     */
-    void remove_connection(uint64_t connection);
+    void remove_connection(uint32_t connection);
 };
 
 
