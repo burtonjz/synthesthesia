@@ -2,10 +2,10 @@
 #define MODULATOR_TYPE_HPP_
 
 enum ModulatorType {
-    MODULATOR_BASE,
+    MODULATOR_NONE,
     MODULATOR_LFO,
     MODULATOR_ENV,
-    MODULATOR_RAND
+    MODULATOR_N
 };
 
 #endif 

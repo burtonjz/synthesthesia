@@ -19,9 +19,6 @@
 #define BWIDGETS_DEFAULT_VALUEHSLIDER_WIDTH 160
 #define BWIDGETS_DEFAULT_VALUEHSLIDER_HEIGHT 60
 
-#define MOD_SOURCES {"None","Env1","Lfo1"}
-
-
 constexpr int UI_MODULE_HEIGHT = 150; // all modules will have the same height
 
 // OSCILLATOR UI PARAMETERS
@@ -95,5 +92,11 @@ constexpr int UI_FLT_SLIDER_CUTOFF_Y = 30;
 
 constexpr int UI_FLT_DIAL_RES_X = 460;
 constexpr int UI_FLT_DIAL_RES_Y = 23;
+
+constexpr int UI_FLT_BOX_MOD_CUTOFF_X = 660;
+constexpr int UI_FLT_BOX_MOD_CUTOFF_Y = 45;
+
+constexpr int UI_FLT_BOX_MOD_RES_X = 870;
+constexpr int UI_FLT_BOX_MOD_RES_Y = 45;
 
 #endif // UI_CONFIG_HPP_

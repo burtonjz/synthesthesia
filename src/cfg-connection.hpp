@@ -17,8 +17,8 @@ enum OscillatorConnectionPorts {
 };
 
 enum FilterConnectionPorts {
-    FILTER_CONNECT_Q,
     FILTER_CONNECT_FREQ,
+    FILTER_CONNECT_Q,
     FILTER_CONNECT_N
 };
 

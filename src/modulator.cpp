@@ -5,7 +5,7 @@ Modulator::Modulator(){}
 Modulator::~Modulator(){}
 
 ModulatorType Modulator::getType() const {
-    return MODULATOR_BASE;
+    return MODULATOR_NONE;
 }
 
 bool Modulator::get_is_active() const {

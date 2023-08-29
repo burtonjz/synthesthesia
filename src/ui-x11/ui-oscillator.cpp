@@ -1,9 +1,11 @@
 #include "ui-oscillator.hpp"
 #include "../port-info.hpp"
 #include "../waveform.hpp"
+#include "../cfg-connection.hpp"
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
 #include <cmath>
+#include <string>
 
 OscillatorFrame::OscillatorFrame():
     switch_on(true, true,BUTILITIES_URID_UNKNOWN_URID,"Osc On"),
@@ -12,9 +14,9 @@ OscillatorFrame::OscillatorFrame():
     dial_detune_semi(0, -24, 24),
     dial_detune_cents(0.0, -0.99, 0.99),
     dial_pan(0.5, OscLimits[CTRL_OSC_PAN].first, OscLimits[CTRL_OSC_PAN].second),
-    cb_freq_mod(MOD_SOURCES,1),
-    cb_amp_mod(MOD_SOURCES,1),
-    cb_phase_mod(MOD_SOURCES,1)
+    cb_amp_mod({"None"},1),
+    cb_freq_mod({"None"},1),
+    cb_phase_mod({"None"},1)
 {
     setDraggable(false);
     cb_waveform.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
@@ -46,6 +48,7 @@ OscillatorFrame::OscillatorFrame():
 void OscillatorFrame::configure(int x, int y){
     // Move frame
     moveTo(x,y);
+
     // Move widgets within frame
     switch_on.moveTo(UI_OSC_SWITCH_ON_X,UI_OSC_SWITCH_ON_Y);
     dial_gain.moveTo(UI_OSC_DIAL_GAIN_X,UI_OSC_DIAL_GAIN_Y);
@@ -56,41 +59,53 @@ void OscillatorFrame::configure(int x, int y){
     cb_freq_mod.moveTo(UI_OSC_BOX_MOD_FREQ_X,UI_OSC_BOX_MOD_FREQ_Y);
     cb_amp_mod.moveTo(UI_OSC_BOX_MOD_AMP_X,UI_OSC_BOX_MOD_AMP_Y);
     cb_phase_mod.moveTo(UI_OSC_BOX_MOD_PHASE_X,UI_OSC_BOX_MOD_PHASE_Y);
+
+    // fill in modulator lists
+    for(int i = 0; i < N_ENVELOPES; ++i){
+        std::string s = "Env " + std::to_string(i);
+        cb_freq_mod.addItem(s);
+        cb_amp_mod.addItem(s);
+        cb_phase_mod.addItem(s);
+    }
+    for(int i = 0; i < N_LFOS; ++i){
+        std::string s = "LFO " + std::to_string(i);
+        cb_freq_mod.addItem(s);
+        cb_amp_mod.addItem(s);
+        cb_phase_mod.addItem(s);
+    }
+
 }
 
 void OscillatorFrame::port_event(int port, float value){
     switch(port){
     case CTRL_OSC_STATUS:
-        BWidgets::ValueableTyped<bool>* w = dynamic_cast<BWidgets::ValueableTyped<bool>*>(widget[CTRL_OSC_STATUS]);
-        w->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<bool>*>(widget[CTRL_OSC_STATUS])->setValue(value);
         break;
     case CTRL_OSC_WAVEFORM:
-        BWidgets::ValueableTyped<int>* w = dynamic_cast<BWidgets::ValueableTyped<int>*>(widget[CTRL_OSC_WAVEFORM]);
-        w->setValue(value+1);
+        dynamic_cast<BWidgets::ValueableTyped<int>*>(widget[CTRL_OSC_WAVEFORM])->setValue(value+1);
         break;
     case CTRL_OSC_GAIN:
-        BWidgets::ValueableTyped<float>* w = dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_GAIN]);
-        w->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_GAIN])->setValue(value);
         break;
     case CTRL_OSC_DETUNE:
-        BWidgets::ValueableTyped<float>* w = dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_DETUNE]);
-        w->setValue(std::floor(value));
-        BWidgets::ValueableTyped<float>* w = dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_DETUNE + 1]);
-        w->setValue(value - std::floor(value));
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_DETUNE])->setValue(std::floor(value));
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_DETUNE + 1])->setValue(value - std::floor(value));
         break;
     case CTRL_OSC_PAN:
-        BWidgets::ValueableTyped<float>* w = dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_PAN + 1]);
-        w->setValue(std::floor(value));
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_OSC_PAN + 1])->setValue(std::floor(value));
         break;
     // modulators
-    case CTRL_OSC_N: // amp
-        
-    case CTRL_OSC_N + 1: // freq
-
-    case CTRL_OSC_N + 2: // phase
-        
-
-
+    case CTRL_OSC_N + OSC_CONNECT_AMP: 
+        dynamic_cast<BWidgets::ValueableTyped<int>*>(&cb_amp_mod)->setValue(value);
+        break;
+    case CTRL_OSC_N + OSC_CONNECT_FREQ:
+        dynamic_cast<BWidgets::ValueableTyped<int>*>(&cb_freq_mod)->setValue(value);
+        break;
+    case CTRL_OSC_N + OSC_CONNECT_PHASE:
+        dynamic_cast<BWidgets::ValueableTyped<int>*>(&cb_phase_mod)->setValue(value);
+        break;
+    default:
+        break;
     }
 }
 

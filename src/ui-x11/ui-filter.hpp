@@ -14,7 +14,9 @@ private:
     BWidgets::ComboBox cb_filter_type;
     BWidgets::ValueHSlider slider_cutoff;
     BWidgets::ValueDial dial_resonance;
-    std::array<BWidgets::Widget*,3> widget;
+    BWidgets::ComboBox cb_mod_cutoff;
+    BWidgets::ComboBox cb_mod_resonance;
+    std::array<BWidgets::Widget*,5> widget;
 public:
     /**
      * @brief LfoFrame constructor
@@ -38,7 +40,7 @@ public:
     */
     void port_event(int port, float value) override;
 
-    std::array<BWidgets::Widget*,3> getWidgetArray() const;
+    std::array<BWidgets::Widget*,5> getWidgetArray() const;
 };
 
 #endif // UI_FLT_WIDGETS_HPP_
