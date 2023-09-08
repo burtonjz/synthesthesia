@@ -41,8 +41,9 @@ void LfoFrame::port_event(int port, float value){
     case CTRL_LFO_DEPTH:
         dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_LFO_DEPTH])->setValue(value);
         break;
-    case default:
+    default:
         break;
+    }
 }
 
 std::array<BWidgets::Widget*,3> LfoFrame::getWidgetArray() const {
