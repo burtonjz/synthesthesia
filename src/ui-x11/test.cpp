@@ -1,5 +1,5 @@
 #include "ui-config.hpp"
-
+#include "get-project-path.hpp"
 #include "ui-oscillator.hpp"
 #include "ui-filter.hpp"
 #include "ui-envelope.hpp"
@@ -29,7 +29,8 @@ int main (){
     LfoFrame lfo1;
     FilterFrame flt1;
     
-    window.setBackground(BStyles::Fill("./assets/background.png"));
+    std::string backgroundFilePath = getProjectPath("assets/background.png");
+    window.setBackground(BStyles::Fill(backgroundFilePath));
     window.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
     
     osc1.configure(0,0);
