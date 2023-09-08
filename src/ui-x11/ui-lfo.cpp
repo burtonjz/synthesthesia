@@ -3,7 +3,13 @@
 #include "../waveform.hpp"
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
+
 LfoFrame::LfoFrame():
+    LfoFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+{}
+
+LfoFrame::LfoFrame(const uint32_t urid, const std::string& title):
+    ModuleFrame(urid,title),
     slider_freq(0.1, LfoLimits[CTRL_LFO_FREQ].first, LfoLimits[CTRL_LFO_FREQ].second),
     slider_depth(0.1, LfoLimits[CTRL_LFO_DEPTH].first, LfoLimits[CTRL_LFO_DEPTH].second),
     cb_waveform(WAVEFORM_STRINGS,1)

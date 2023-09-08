@@ -1,6 +1,12 @@
 #ifndef UI_CONFIG_HPP_
 #define UI_CONFIG_HPP_
 
+// URIs
+#define SYNTHESTHESIA_GUI_URI "https://github.com/burtonjz/synthesthesia#gui"
+
+#define URID(x) (BURID(SYNTHESTHESIA_GUI_URI x)) /*> macro to convert text label to URID */
+
+// OVERRIDE WIDGET DEFAULTS
 #define BWIDGETS_DEFAULT_WINDOW_WIDTH 2250
 #define BWIDGETS_DEFAULT_WINDOW_HEIGHT 1800
 
@@ -19,10 +25,12 @@
 #define BWIDGETS_DEFAULT_VALUEHSLIDER_WIDTH 160
 #define BWIDGETS_DEFAULT_VALUEHSLIDER_HEIGHT 60
 
+// WIDGET PARAMETERS
+
 constexpr int UI_MODULE_HEIGHT = 150; // all modules will have the same height
 
-// OSCILLATOR UI PARAMETERS
-constexpr int UI_OSC_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH;
+// OSCILLATOR
+constexpr int UI_OSC_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH; // full "rack", divide by two for "half rack"
 
 constexpr int UI_OSC_SWITCH_ON_X = 80;
 constexpr int UI_OSC_SWITCH_ON_Y = 45;
@@ -51,9 +59,9 @@ constexpr int UI_OSC_BOX_MOD_AMP_Y = 45;
 constexpr int UI_OSC_BOX_MOD_PHASE_X = 2010;
 constexpr int UI_OSC_BOX_MOD_PHASE_Y = 45;
 
-// LFO UI PARAMETERS
+// LFO
 
-constexpr int UI_LFO_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH / 2.0;
+constexpr int UI_LFO_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH / 2.0; // half rack
 
 constexpr int UI_LFO_SLIDER_FREQ_X = 100;
 constexpr int UI_LFO_SLIDER_FREQ_Y = 45;
@@ -64,9 +72,9 @@ constexpr int UI_LFO_SLIDER_DEPTH_Y = 45;
 constexpr int UI_LFO_BOX_WAVEFORM_X = 425;
 constexpr int UI_LFO_BOX_WAVEFORM_Y = 55;
 
-// ENVELOPE UI PARAMETERS
+// ENVELOPE
 
-constexpr int UI_ENV_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH / 2.0;
+constexpr int UI_ENV_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH / 2.0; // half rack
 
 constexpr int UI_ENV_SLIDER_ATTACK_X = 95;
 constexpr int UI_ENV_SLIDER_ATTACK_Y = 45;
@@ -80,9 +88,9 @@ constexpr int UI_ENV_SLIDER_SUSTAIN_Y = 45;
 constexpr int UI_ENV_SLIDER_RELEASE_X = 600;
 constexpr int UI_ENV_SLIDER_RELEASE_Y = 45;
 
-// FILTER UI PARAMETERS
+// FILTER
 
-constexpr int UI_FLT_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH / 2.0;
+constexpr int UI_FLT_WIDTH = BWIDGETS_DEFAULT_WINDOW_WIDTH / 2.0; // half rack
 
 constexpr int UI_FLT_BOX_TYPE_X = 100;
 constexpr int UI_FLT_BOX_TYPE_Y = 45;

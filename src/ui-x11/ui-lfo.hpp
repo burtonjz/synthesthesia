@@ -8,6 +8,8 @@
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 
+#include <string>
+#include <cstdint>
 
 class LfoFrame : public ModuleFrame {
 private:
@@ -21,6 +23,14 @@ public:
      * 
     */
     LfoFrame();
+
+    /**
+     * @brief Virtual Class for UI Module Frames
+     * 
+     * @param URID object URID
+     * @param title widget title
+    */
+    LfoFrame(const uint32_t urid, const std::string& title);
 
     /**
      * @brief position frame and widgets

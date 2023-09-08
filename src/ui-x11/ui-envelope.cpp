@@ -2,7 +2,13 @@
 #include "../port-info.hpp"
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
+
 EnvelopeFrame::EnvelopeFrame():
+    EnvelopeFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+{}
+
+EnvelopeFrame::EnvelopeFrame(const uint32_t urid, const std::string& title):
+    ModuleFrame(urid,title),
     slider_attack(0.1, EnvLimits[CTRL_ENV_ATTACK].first, EnvLimits[CTRL_ENV_ATTACK].second),
     slider_decay(0.1, EnvLimits[CTRL_ENV_DECAY].first, EnvLimits[CTRL_ENV_DECAY].second),
     slider_sustain(0.1, EnvLimits[CTRL_ENV_SUSTAIN].first, EnvLimits[CTRL_ENV_SUSTAIN].second),

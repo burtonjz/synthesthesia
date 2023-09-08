@@ -7,6 +7,9 @@
 #include "ui-object.hpp"
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 
+#include <string>
+#include <cstdint>
+
 class EnvelopeFrame : public ModuleFrame {
 private:
     BWidgets::ValueHSlider slider_attack;
@@ -20,6 +23,14 @@ public:
     */
     EnvelopeFrame();
     
+    /**
+     * @brief Virtual Class for UI Module Frames
+     * 
+     * @param URID object URID
+     * @param title widget title
+    */
+    EnvelopeFrame(const uint32_t urid, const std::string& title);
+
     /**
      * @brief position frame and widgets
      * 

@@ -5,6 +5,11 @@
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
 FilterFrame::FilterFrame():
+    FilterFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+{}
+
+FilterFrame::FilterFrame(const uint32_t urid, const std::string& title):
+    ModuleFrame(urid,title),
     cb_filter_type(FILTER_TYPE_STRINGS,1),
     slider_cutoff(0.1, FilterLimits[CTRL_FILTER_FREQ].first, FilterLimits[CTRL_FILTER_FREQ].second),
     dial_resonance(0.5, FilterLimits[CTRL_FILTER_RES].first, FilterLimits[CTRL_FILTER_RES].second),

@@ -4,10 +4,11 @@
 #include <cstdint>
 #include "waveform.hpp"
 
-#ifndef TEST_MODE_
+#define SYNTHESTHESIA_URI "https://github.com/burtonjz/synthesthesia"
 
-constexpr int N_CHANNELS     = 2;
+// INPUTS, OUTPUTS, MODULES
 
+constexpr int N_CHANNELS     = 2; // number of audio out channels. Currently must be 1 or 2 (mono/stereo)
 constexpr int N_OSCILLATORS  = 3;
 constexpr int N_ENVELOPES    = 1;
 constexpr int N_LFOS         = 1;
@@ -15,15 +16,6 @@ constexpr int N_MODULATORS   = N_ENVELOPES + N_LFOS;
 constexpr int N_FILTERS      = 1;
 
 constexpr int N_MODULES      = N_OSCILLATORS + N_ENVELOPES + N_LFOS + N_FILTERS;
-
-#else
-constexpr int N_OSCILLATORS  = 1;
-constexpr int N_CHANNELS     = 1;
-
-constexpr int N_ENVELOPES    = 1;
-constexpr int N_LFOS         = 1;
-constexpr int N_MODULATORS   = N_ENVELOPES + N_LFOS;
-#endif
 
 // WAVEFORM GENERATION CONFIGS
 

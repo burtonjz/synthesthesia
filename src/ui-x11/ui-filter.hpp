@@ -9,6 +9,9 @@
 #include "../../BWidgets/BWidgets/ValueDial.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 
+#include <string>
+#include <cstdint>
+
 class FilterFrame : public ModuleFrame {
 private:
     BWidgets::ComboBox cb_filter_type;
@@ -23,6 +26,14 @@ public:
      * 
     */
     FilterFrame();
+
+    /**
+     * @brief Virtual Class for UI Module Frames
+     * 
+     * @param URID object URID
+     * @param title widget title
+    */
+    FilterFrame(const uint32_t urid, const std::string& title);
 
     /**
      * @brief position frame and widgets

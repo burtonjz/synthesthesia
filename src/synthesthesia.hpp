@@ -15,8 +15,6 @@
 #include "modulator-env.hpp"
 #include "key.hpp"
 
-#define SYNTH_URI "https://github.com/burtonjz/synthesthesia"
-
 struct Urids {
     LV2_URID midi_MidiEvent;
 };

@@ -10,6 +10,9 @@
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 #include "../../BWidgets/BWidgets/ValueDial.hpp"
 
+#include <string>
+#include <cstdint>
+
 class OscillatorFrame : public ModuleFrame {
 private:
     BWidgets::HSwitch switch_on;
@@ -28,6 +31,14 @@ public:
      * 
     */
     OscillatorFrame();
+
+    /**
+     * @brief Virtual Class for UI Module Frames
+     * 
+     * @param URID object URID
+     * @param title widget title
+    */
+    OscillatorFrame(const uint32_t urid, const std::string& title);
 
     /**
      * @brief position frame and widgets

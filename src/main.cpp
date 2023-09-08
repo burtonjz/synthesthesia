@@ -11,7 +11,7 @@
 */ 
 static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sample_rate, const char *bundle_path, const LV2_Feature *const *features)
 {
-    std::cout << "[" << SYNTH_URI << "]: Instantiating plugin." << std::endl;
+    std::cout << "[" << SYNTHESTHESIA_URI << "]: Instantiating plugin." << std::endl;
 
     Synthesthesia* m = nullptr;
     try {
@@ -26,7 +26,7 @@ static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sa
         return nullptr;
     }
     
-    std::cout << "[" << SYNTH_URI << "]: Plugin Instantiated." << std::endl;
+    std::cout << "[" << SYNTHESTHESIA_URI << "]: Plugin Instantiated." << std::endl;
     return m;
 }
 
@@ -62,7 +62,7 @@ static const void* extension_data(const char *uri){
 
 // descriptor
 static LV2_Descriptor const descriptor = {
-    SYNTH_URI,
+    SYNTHESTHESIA_URI,
     instantiate,
     connect_port,
     activate,

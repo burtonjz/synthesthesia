@@ -8,15 +8,20 @@
 #include <string>
 
 OscillatorFrame::OscillatorFrame():
-    switch_on(true, true,BUTILITIES_URID_UNKNOWN_URID,"Osc On"),
-    dial_gain(0.5, OscLimits[CTRL_OSC_GAIN].first, OscLimits[CTRL_OSC_GAIN].second),
-    cb_waveform(WAVEFORM_STRINGS,1),
-    dial_detune_semi(0, -24, 24),
-    dial_detune_cents(0.0, -0.99, 0.99),
-    dial_pan(0.5, OscLimits[CTRL_OSC_PAN].first, OscLimits[CTRL_OSC_PAN].second),
-    cb_amp_mod({"None"},1),
-    cb_freq_mod({"None"},1),
-    cb_phase_mod({"None"},1)
+    OscillatorFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+{}
+
+OscillatorFrame::OscillatorFrame(const uint32_t urid, const std::string& title):
+    ModuleFrame(urid,title),
+    switch_on(true, true,BUTILITIES_URID_UNKNOWN_URID,"oscillator-status"),
+    dial_gain(0.5, OscLimits[CTRL_OSC_GAIN].first, OscLimits[CTRL_OSC_GAIN].second,0.0,URID("/value-dial"),"gain"),
+    cb_waveform(WAVEFORM_STRINGS,1,URID("/combo-box"),"waveform"),
+    dial_detune_semi(0, -24, 24, 0.0, URID("/value-dial"),"detune-semitone"),
+    dial_detune_cents(0.0, -0.99, 0.99, 0.0, URID("/value-dial"),"detune-cents"),
+    dial_pan(0.5, OscLimits[CTRL_OSC_PAN].first, OscLimits[CTRL_OSC_PAN].second,0.0,URID("/value-dial"),"pan"),
+    cb_amp_mod({"None"},1,URID("/combo-box"),"amplitude-modulator"),
+    cb_freq_mod({"None"},1,URID("/combo-box"),"frequency-modulator"),
+    cb_phase_mod({"None"},1,URID("/combo-box"),"phase-modulator")
 {
     setDraggable(false);
     cb_waveform.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
