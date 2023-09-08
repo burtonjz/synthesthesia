@@ -36,7 +36,7 @@ public:
     * @brief virtual function to handle port events. Port index is relative to the object
    */
   virtual void port_event(int port, float value) = 0;
-   
+
 };
 
 

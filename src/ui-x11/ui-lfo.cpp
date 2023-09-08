@@ -10,9 +10,9 @@ LfoFrame::LfoFrame():
 
 LfoFrame::LfoFrame(const uint32_t urid, const std::string& title):
     ModuleFrame(urid,title),
-    slider_freq(0.1, LfoLimits[CTRL_LFO_FREQ].first, LfoLimits[CTRL_LFO_FREQ].second),
-    slider_depth(0.1, LfoLimits[CTRL_LFO_DEPTH].first, LfoLimits[CTRL_LFO_DEPTH].second),
-    cb_waveform(WAVEFORM_STRINGS,1)
+    slider_freq(0.1, LfoLimits[CTRL_LFO_FREQ].first, LfoLimits[CTRL_LFO_FREQ].second,0.0,URID("/value-slider"),"frequency"),
+    slider_depth(0.1, LfoLimits[CTRL_LFO_DEPTH].first, LfoLimits[CTRL_LFO_DEPTH].second,0.0,URID("/value-slider"),"depth"),
+    cb_waveform(WAVEFORM_STRINGS,1,URID("/combo-box"),"waveform")
 {
     setDraggable(false);
 

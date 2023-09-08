@@ -9,10 +9,10 @@ EnvelopeFrame::EnvelopeFrame():
 
 EnvelopeFrame::EnvelopeFrame(const uint32_t urid, const std::string& title):
     ModuleFrame(urid,title),
-    slider_attack(0.1, EnvLimits[CTRL_ENV_ATTACK].first, EnvLimits[CTRL_ENV_ATTACK].second),
-    slider_decay(0.1, EnvLimits[CTRL_ENV_DECAY].first, EnvLimits[CTRL_ENV_DECAY].second),
-    slider_sustain(0.1, EnvLimits[CTRL_ENV_SUSTAIN].first, EnvLimits[CTRL_ENV_SUSTAIN].second),
-    slider_release(0.1, EnvLimits[CTRL_ENV_RELEASE].first, EnvLimits[CTRL_ENV_RELEASE].second)
+    slider_attack(0.1, EnvLimits[CTRL_ENV_ATTACK].first, EnvLimits[CTRL_ENV_ATTACK].second,0.0,URID("/value-slider"),"attack"),
+    slider_decay(0.1, EnvLimits[CTRL_ENV_DECAY].first, EnvLimits[CTRL_ENV_DECAY].second,0.0,URID("/value-slider"),"attack"),
+    slider_sustain(0.1, EnvLimits[CTRL_ENV_SUSTAIN].first, EnvLimits[CTRL_ENV_SUSTAIN].second,0.0,URID("/value-slider"),"attack"),
+    slider_release(0.1, EnvLimits[CTRL_ENV_RELEASE].first, EnvLimits[CTRL_ENV_RELEASE].second,0.0,URID("/value-slider"),"attack")
 {
     setDraggable(false);
 

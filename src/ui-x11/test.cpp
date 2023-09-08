@@ -51,7 +51,7 @@ int main (){
         "Nimbus Sans",
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_NORMAL,
-        56.0,
+        24.0,
         BStyles::Font::TextAlign::center,
         BStyles::Font::TextVAlign::middle,
         1.5
@@ -80,6 +80,10 @@ int main (){
 			URID ("/value-slider"), 
 			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
 		},
+        // { // TODO: I think label isn't a separate URID and it's grabbing the sizing from the parent?
+		// 	URID ("/value-slider/label"), 
+		// 	BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+		// },
         {
 			URID ("/combo-box"), 
 			BStyles::Style({
@@ -99,6 +103,10 @@ int main (){
         for (const auto& cc: w->getChildren() ){
             BWidgets::Widget* wc = dynamic_cast<BWidgets::Widget*>(cc);
             std::cout << "    " << wc->getTitle() << ": " << wc->getFont().family << " (size = "  << wc->getFont().size << ")" << std::endl;
+            for (const auto& ccc: wc->getChildren() ){
+                BWidgets::Widget* wcc = dynamic_cast<BWidgets::Widget*>(ccc);
+                std::cout << "        " << wc->getTitle() << ": " << wc->getFont().family << " (size = "  << wc->getFont().size << ")" << std::endl;
+            }
         }
     }
 
