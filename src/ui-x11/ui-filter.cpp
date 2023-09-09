@@ -29,8 +29,9 @@ FilterFrame::FilterFrame(const uint32_t urid, const std::string& title):
     for(auto& element : widget) add(element);
 }
 
-void FilterFrame::configure(int x, int y){
-    moveTo(x,y);
+void FilterFrame::configure(int x_index, int y_index){
+    // configure frame positioning
+    set_position(x_index,y_index);
 
     cb_filter_type.moveTo(UI_FLT_BOX_TYPE_X,UI_FLT_BOX_TYPE_Y);
     slider_cutoff.moveTo(UI_FLT_SLIDER_CUTOFF_X,UI_FLT_SLIDER_CUTOFF_Y);

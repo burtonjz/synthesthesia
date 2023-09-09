@@ -26,8 +26,9 @@ LfoFrame::LfoFrame(const uint32_t urid, const std::string& title):
     for(auto& element : widget) add(element);
 }
 
-void LfoFrame::configure(int x, int y){
-    moveTo(x,y);
+void LfoFrame::configure(int x_index, int y_index){
+    // configure frame positioning
+    set_position(x_index,y_index);
 
     slider_freq.moveTo(UI_LFO_SLIDER_FREQ_X,UI_LFO_SLIDER_FREQ_Y);
     slider_depth.moveTo(UI_LFO_SLIDER_DEPTH_X,UI_LFO_SLIDER_DEPTH_Y);

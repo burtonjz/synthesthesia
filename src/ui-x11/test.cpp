@@ -32,11 +32,11 @@ int main (){
     BWidgets::Window window(BWIDGETS_DEFAULT_WINDOW_WIDTH,BWIDGETS_DEFAULT_WINDOW_HEIGHT,NULL,URID("/window"),"Synthesthesia",true);
 
     osc1.configure(0,0);
-    osc2.configure(0,UI_MODULE_HEIGHT);
-    osc3.configure(0,UI_MODULE_HEIGHT * 2.0);
-    env1.configure(0,UI_MODULE_HEIGHT * 3.0);
-    lfo1.configure(0,UI_MODULE_HEIGHT * 4.0);
-    flt1.configure(0,UI_MODULE_HEIGHT * 5.0);
+    osc2.configure(0,1);
+    osc3.configure(0,2);
+    env1.configure(0,3);
+    lfo1.configure(0,4);
+    flt1.configure(0,5);
 
 
     window.add(&osc1);
@@ -99,13 +99,13 @@ int main (){
     // child widget loop for verifying theme elements
     for (const auto& c : window.getChildren() ){
         BWidgets::Widget* w = dynamic_cast<BWidgets::Widget*>(c);
-        std::cout << w->getTitle() << ": " << std::endl;
+        std::cout << w->getTitle() << ": " << w->getLayer() << std::endl;
         for (const auto& cc: w->getChildren() ){
             BWidgets::Widget* wc = dynamic_cast<BWidgets::Widget*>(cc);
-            std::cout << "    " << wc->getTitle() << ": " << wc->getFont().family << " (size = "  << wc->getFont().size << ")" << std::endl;
+            std::cout << "    " << wc->getTitle() << ": " << wc->getLayer() << std::endl;
             for (const auto& ccc: wc->getChildren() ){
                 BWidgets::Widget* wcc = dynamic_cast<BWidgets::Widget*>(ccc);
-                std::cout << "        " << wc->getTitle() << ": " << wc->getFont().family << " (size = "  << wc->getFont().size << ")" << std::endl;
+                std::cout << "        " << wcc->getTitle() << ": " << wcc->getLayer() << std::endl;
             }
         }
     }

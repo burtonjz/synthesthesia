@@ -29,8 +29,9 @@ EnvelopeFrame::EnvelopeFrame(const uint32_t urid, const std::string& title):
     for(auto& element : widget) add(element);
 }
 
-void EnvelopeFrame::configure(int x, int y){
-    moveTo(x,y);
+void EnvelopeFrame::configure(int x_index, int y_index){
+    // configure frame positioning
+    set_position(x_index,y_index);
 
     slider_attack.moveTo(UI_ENV_SLIDER_ATTACK_X,UI_ENV_SLIDER_ATTACK_Y);
     slider_decay.moveTo(UI_ENV_SLIDER_DECAY_X,UI_ENV_SLIDER_DECAY_Y);

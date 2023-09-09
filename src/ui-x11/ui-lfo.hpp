@@ -35,10 +35,10 @@ public:
     /**
      * @brief position frame and widgets
      * 
-     * @param x integer top-left x coordinate
-     * @param y integer top-left y coordinate
+     * @param x_index frame x position index. Always 0 for full rack, 1 for half rack
+     * @param y_index frame y position index. 0 corresponds to the top left corner
     */
-    void configure(int x, int y) override;
+    void configure(int x_index, int y_index) override;
 
     /**
      * @brief update widgets based off port value changes

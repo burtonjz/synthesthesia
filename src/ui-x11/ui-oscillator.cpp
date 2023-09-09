@@ -50,9 +50,9 @@ OscillatorFrame::OscillatorFrame(const uint32_t urid, const std::string& title):
 
 }
 
-void OscillatorFrame::configure(int x, int y){
-    // Move frame
-    moveTo(x,y);
+void OscillatorFrame::configure(int x_index, int y_index){
+    // configure frame positioning
+    set_position(x_index,y_index);
 
     // Move widgets within frame
     switch_on.moveTo(UI_OSC_SWITCH_ON_X,UI_OSC_SWITCH_ON_Y);
