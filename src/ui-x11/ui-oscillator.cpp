@@ -24,8 +24,6 @@ OscillatorFrame::OscillatorFrame(const uint32_t urid, const std::string& title):
     cb_phase_mod({"None"},1,URID("/combo-box"),"phase-modulator")
 {
     setDraggable(false);
-    cb_waveform.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
-    dial_gain.setFont(BStyles::Font("sans",CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL,24.0,BStyles::Font::TextAlign::center,BStyles::Font::TextVAlign::middle,1.5));
 
     dial_gain.setClickable(false);
     dial_gain.setActivatable(false);

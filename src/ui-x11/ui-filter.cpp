@@ -10,9 +10,9 @@ FilterFrame::FilterFrame():
 
 FilterFrame::FilterFrame(const uint32_t urid, const std::string& title):
     ModuleFrame(urid,title),
-    cb_filter_type(FILTER_TYPE_STRINGS,1),
+    cb_filter_type(FILTER_TYPE_STRINGS,1,URID("/combo-box"),"filter-type"),
     slider_cutoff(0.1, FilterLimits[CTRL_FILTER_FREQ].first, FilterLimits[CTRL_FILTER_FREQ].second,0.0,URID("/value-slider"),"cutoff-frequency"),
-    dial_resonance(0.5, FilterLimits[CTRL_FILTER_RES].first, FilterLimits[CTRL_FILTER_RES].second,0.0,URID("/value-slider"),"cutoff-frequency"),
+    dial_resonance(0.5, FilterLimits[CTRL_FILTER_RES].first, FilterLimits[CTRL_FILTER_RES].second,0.0,URID("/value-dial"),"cutoff-frequency"),
     cb_mod_cutoff({"None"},1,URID("/combo-box"),"cutoff-modulator"),
     cb_mod_resonance({"None"},1,URID("/combo-box"),"cutoff-modulator")
 {

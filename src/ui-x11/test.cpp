@@ -17,6 +17,29 @@ for x in test ui-object ui-envelope ui-filter ui-lfo ui-oscillator; do g++ -fPIC
 g++ -LBWidgets/build src/ui-x11/*.o -lbwidgetscore -lpugl -lcairoplus -lfontconfig `pkg-config --libs x11 cairo` -o src/ui-x11/test
 
 */
+
+void widget_recurse(BWidgets::Widget* w, int depth){
+    // indentation
+    for (int i = 0; i < depth; ++i) {
+        std::cout << "  "; // Add indentation for nested widgets
+    }
+
+    std::cout << "{\"URID\": \"" << w->getUrid() << 
+        "\", \"URI\": \"" << BUtilities::Urid::uri(w->getUrid()) <<  
+        "\", \"Title\": \"" << w->getTitle() <<  
+        "\", \"Visible\": \"" << static_cast<int>(w->isVisible()) << 
+        "\", \"Layer\": \"" << w->getLayer() << 
+        "\", \"Width\": \"" << w->getWidth() << 
+        "\", \"Height\": \"" << w->getHeight() << 
+        "\", \"Font\": { \"Family\": \"" << w->getFont().family << "\", \"Size\": \"" << w->getFont().size << "\"}" 
+        << "} " << std::endl;
+
+    for(auto& child: w->getChildren()){
+        BWidgets::Widget* wc = dynamic_cast<BWidgets::Widget*>(child);
+        widget_recurse(wc,depth+1);
+    }
+}
+
 int main (){
 
     OscillatorFrame osc1(URID("/frame"),"oscillator-1");
@@ -52,7 +75,7 @@ int main (){
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_NORMAL,
         24.0,
-        BStyles::Font::TextAlign::center,
+        BStyles::Font::TextAlign::left,
         BStyles::Font::TextVAlign::middle,
         1.5
     );
@@ -73,42 +96,37 @@ int main (){
 			})
 		},
         {
-			URID ("/value-dial"), 
+			URID ("/value-dial/label"), 
 			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
 		},
         {
-			URID ("/value-slider"), 
+			URID ("/value-slider/label"), 
 			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
 		},
-        // { // TODO: I think label isn't a separate URID and it's grabbing the sizing from the parent?
-		// 	URID ("/value-slider/label"), 
-		// 	BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
-		// },
         {
 			URID ("/combo-box"), 
 			BStyles::Style({
-                {BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont)},
                 {BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::darkgreyFill)},
                 {BURID(BSTYLES_STYLEPROPERTY_BORDER_URI), BUtilities::makeAny<BStyles::Border>(BStyles::blackBorder1pt)}
             })
-		}
+		},
+        {
+            URID ("/combo-box/label"),
+            BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+        },
+        {
+            URID ("/combo-box/listbox/label"),
+            BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+        }
     };
-    
+     
     window.setTheme(theme);
 
-    // child widget loop for verifying theme elements
-    for (const auto& c : window.getChildren() ){
-        BWidgets::Widget* w = dynamic_cast<BWidgets::Widget*>(c);
-        std::cout << w->getTitle() << ": " << w->getLayer() << std::endl;
-        for (const auto& cc: w->getChildren() ){
-            BWidgets::Widget* wc = dynamic_cast<BWidgets::Widget*>(cc);
-            std::cout << "    " << wc->getTitle() << ": " << wc->getLayer() << std::endl;
-            for (const auto& ccc: wc->getChildren() ){
-                BWidgets::Widget* wcc = dynamic_cast<BWidgets::Widget*>(ccc);
-                std::cout << "        " << wcc->getTitle() << ": " << wcc->getLayer() << std::endl;
-            }
-        }
-    }
+    widget_recurse(dynamic_cast<BWidgets::Widget*>(&osc2),0);
 
     window.run();
 }
+
+
+
+

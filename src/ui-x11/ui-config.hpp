@@ -25,6 +25,7 @@
 #define BWIDGETS_DEFAULT_VALUEHSLIDER_WIDTH 160
 #define BWIDGETS_DEFAULT_VALUEHSLIDER_HEIGHT 60
 
+
 // WIDGET PARAMETERS
 
 constexpr int UI_MODULE_HEIGHT = 150; // all modules will have the same height
