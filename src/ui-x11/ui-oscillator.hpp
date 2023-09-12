@@ -6,6 +6,7 @@
 #include "ui-config.hpp"
 
 #include "ui-object.hpp"
+#include "ui-waveform.hpp"
 #include "../../BWidgets/BWidgets/HSwitch.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 #include "../../BWidgets/BWidgets/ValueDial.hpp"
@@ -24,7 +25,9 @@ private:
     BWidgets::ComboBox cb_freq_mod;
     BWidgets::ComboBox cb_amp_mod;
     BWidgets::ComboBox cb_phase_mod;
-    std::array<BWidgets::Widget*,9> widget;
+    WaveformImage image_waveform;
+    std::array<BWidgets::Widget*,10> widget;
+    
 public:
     /**
      * @brief OscillatorFrame constructor
@@ -56,7 +59,7 @@ public:
     */
     void port_event(int port, float value) override;
     
-    std::array<BWidgets::Widget*,9> getWidgetArray() const;
+    std::array<BWidgets::Widget*,10> getWidgetArray() const;
 };
 
 #endif // UI_OSC_WIDGETS_HPP_

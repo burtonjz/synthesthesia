@@ -1,13 +1,14 @@
 #ifndef UI_LFO_WIDGETS_HPP_
 #define UI_LFO_WIDGETS_HPP_
 
-#include <array>
 #include "ui-config.hpp"
 
 #include "ui-object.hpp"
+#include "ui-waveform.hpp"
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 
+#include <array>
 #include <string>
 #include <cstdint>
 
@@ -16,7 +17,8 @@ private:
     BWidgets::ValueHSlider slider_freq;
     BWidgets::ValueHSlider slider_depth;
     BWidgets::ComboBox cb_waveform;
-    std::array<BWidgets::Widget*,3> widget;
+    std::array<BWidgets::Widget*,4> widget;
+    WaveformImage image_waveform;
 public:
     /**
      * @brief LfoFrame constructor
@@ -48,7 +50,7 @@ public:
     */
     void port_event(int port, float value) override;
 
-    std::array<BWidgets::Widget*,3> getWidgetArray() const;
+    std::array<BWidgets::Widget*,4> getWidgetArray() const;
 };
 
 #endif // UI_LFO_WIDGETS_HPP_

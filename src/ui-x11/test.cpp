@@ -13,7 +13,7 @@
 /*
 BUILDING TEST:
 
-for x in test ui-object ui-envelope ui-filter ui-lfo ui-oscillator; do g++ -fPIC -DPIC `pkg-config --cflags x11 cairo` -IBWidgets/include src/ui-x11/${x}.cpp -c -o src/ui-x11/${x}.o; done
+for x in test ui-object ui-envelope ui-filter ui-lfo ui-oscillator ui-waveform; do g++ -fPIC -DPIC `pkg-config --cflags x11 cairo` -IBWidgets/include src/ui-x11/${x}.cpp -c -o src/ui-x11/${x}.o; done
 g++ -LBWidgets/build src/ui-x11/*.o -lbwidgetscore -lpugl -lcairoplus -lfontconfig `pkg-config --libs x11 cairo` -o src/ui-x11/test
 
 */
@@ -74,7 +74,7 @@ int main (){
         "Nimbus Sans",
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_NORMAL,
-        24.0,
+        18.0,
         BStyles::Font::TextAlign::left,
         BStyles::Font::TextVAlign::middle,
         1.5
@@ -96,26 +96,26 @@ int main (){
 			})
 		},
         {
-			URID ("/value-dial/label"), 
+			URID("/value-dial/label"), 
 			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
 		},
         {
-			URID ("/value-slider/label"), 
+			URID("/value-slider/label"), 
 			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
 		},
         {
-			URID ("/combo-box"), 
+			URID("/combo-box"), 
 			BStyles::Style({
                 {BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::darkgreyFill)},
                 {BURID(BSTYLES_STYLEPROPERTY_BORDER_URI), BUtilities::makeAny<BStyles::Border>(BStyles::blackBorder1pt)}
             })
 		},
         {
-            URID ("/combo-box/label"),
+            URID("/combo-box/label"),
             BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
         },
         {
-            URID ("/combo-box/listbox/label"),
+            URID("/combo-box/listbox/label"),
             BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
         }
     };

@@ -21,7 +21,8 @@ OscillatorFrame::OscillatorFrame(const uint32_t urid, const std::string& title):
     dial_pan(0.5, OscLimits[CTRL_OSC_PAN].first, OscLimits[CTRL_OSC_PAN].second,0.0,URID("/value-dial"),"pan"),
     cb_amp_mod({"None"},1,URID("/combo-box"),"amplitude-modulator"),
     cb_freq_mod({"None"},1,URID("/combo-box"),"frequency-modulator"),
-    cb_phase_mod({"None"},1,URID("/combo-box"),"phase-modulator")
+    cb_phase_mod({"None"},1,URID("/combo-box"),"phase-modulator"),
+    image_waveform(URID("/image"),"waveform-image")
 {
     setDraggable(false);
 
@@ -34,6 +35,9 @@ OscillatorFrame::OscillatorFrame(const uint32_t urid, const std::string& title):
     dial_detune_cents.setClickable(false);
     dial_detune_cents.setActivatable(false);
 
+    image_waveform.createImage(BStyles::Status::normal);
+    image_waveform.draw(static_cast<Waveform>(cb_waveform.getValue()-1));
+
     widget[0] = &switch_on;
     widget[1] = &cb_waveform;
     widget[2] = &dial_gain;
@@ -43,6 +47,7 @@ OscillatorFrame::OscillatorFrame(const uint32_t urid, const std::string& title):
     widget[6] = &cb_freq_mod;
     widget[7] = &cb_amp_mod;
     widget[8] = &cb_phase_mod;
+    widget[9] = &image_waveform;
 
     for(auto& element : widget) add(element);
 
@@ -62,15 +67,16 @@ void OscillatorFrame::configure(int x_index, int y_index){
     cb_freq_mod.moveTo(UI_OSC_BOX_MOD_FREQ_X,UI_OSC_BOX_MOD_FREQ_Y);
     cb_amp_mod.moveTo(UI_OSC_BOX_MOD_AMP_X,UI_OSC_BOX_MOD_AMP_Y);
     cb_phase_mod.moveTo(UI_OSC_BOX_MOD_PHASE_X,UI_OSC_BOX_MOD_PHASE_Y);
+    image_waveform.moveTo(UI_OSC_WAVEFORM_IMAGE_X,UI_OSC_WAVEFORM_IMAGE_Y);
 
     // fill in modulator lists
-    for(int i = 0; i < N_ENVELOPES; ++i){
+    for(int i = 1; i <= N_ENVELOPES; ++i){
         std::string s = "Env " + std::to_string(i);
         cb_freq_mod.addItem(s);
         cb_amp_mod.addItem(s);
         cb_phase_mod.addItem(s);
     }
-    for(int i = 0; i < N_LFOS; ++i){
+    for(int i = 1; i <= N_LFOS; ++i){
         std::string s = "LFO " + std::to_string(i);
         cb_freq_mod.addItem(s);
         cb_amp_mod.addItem(s);
@@ -112,6 +118,6 @@ void OscillatorFrame::port_event(int port, float value){
     }
 }
 
-std::array<BWidgets::Widget*,9> OscillatorFrame::getWidgetArray() const {
+std::array<BWidgets::Widget*,10> OscillatorFrame::getWidgetArray() const {
     return widget;
 }
