@@ -126,7 +126,6 @@ LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
 
 
 void SynthesthesiaUI::port_event(uint32_t port_index,uint32_t buffer_size,uint32_t format,const void *buffer){
-    return ;
     if(format == 0){
         const float value = *static_cast<const float*>(buffer);
         PortData port_data = PortHandler::get_port_data(port_index);
