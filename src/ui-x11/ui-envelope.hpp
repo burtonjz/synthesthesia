@@ -5,6 +5,9 @@
 
 #include "ui-config.hpp"
 #include "ui-object.hpp"
+#include "../module-type.hpp"
+
+#include "../../BWidgets/BEvents/Event.hpp"
 #include "../../BWidgets/BWidgets/ValueHSlider.hpp"
 
 #include <string>
@@ -16,7 +19,7 @@ private:
     BWidgets::ValueHSlider slider_decay;
     BWidgets::ValueHSlider slider_sustain;
     BWidgets::ValueHSlider slider_release;
-    std::array<BWidgets::Widget*,4> widget;
+
 public:
     /**
      * @brief EnvelopeFrame constructor
@@ -45,9 +48,20 @@ public:
      * @param port port index relative to frame
      * @param value update value for widget
     */
-    void port_event(int port, float value) override;
+    void port_event(uint32_t port, float value) override;
 
-    std::array<BWidgets::Widget*,4> getWidgetArray() const;
+    /**
+     * @brief get port_index and float value for specified widget
+     * 
+     * @param relative_index relative port index
+    */
+    std::pair<uint32_t,float> get_callback_data(const uint32_t relative_index) override;
+
+    /**
+     * @brief returns the frame ModuleType
+    */
+    const ModuleType get_module_type() override;
+
     
 };
 

@@ -1,7 +1,12 @@
 // Connectors to LV2 Interface
+
+#include "../config.hpp"
 #include "synthesthesia-ui.hpp"
 
-#define UI_PLUGIN_URI "https://github.com/burtonjz/synthesthesia#ui"
+#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
+#include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
+#include <iostream>
+#include <cstring>
 
 static LV2UI_Handle instantiate(
     const struct LV2UI_Descriptor *descriptor, 
@@ -13,8 +18,8 @@ static LV2UI_Handle instantiate(
     const LV2_Feature *const *features)
 {
     // make sure we're called by the right plugin
-    if(strcmp(plugin_uri,UI_PLUGIN_URI) != 0) return nullptr;
-
+    if(strcmp(plugin_uri,SYNTHESTHESIA_URI) != 0) return nullptr;
+    
     void* parentXWindow = nullptr;
     for (int i = 0; features[i]; ++i){
         if (strcmp (features[i]->URI, LV2_UI__parent) == 0) parentXWindow = features[i]->data;
@@ -32,9 +37,9 @@ static LV2UI_Handle instantiate(
         return nullptr;
     }
 
-    *widget = synth_ui->get_top_level_widget();
-    return static_cast<LV2UI_Handle> (synth_ui);
+    std::cout << "UI Instantiated..." << std::endl;
 
+    return static_cast<LV2UI_Handle> (synth_ui);
 }
 
 static void cleanup(LV2UI_Handle ui){
@@ -67,7 +72,7 @@ static const void *extension_data(const char *uri){
 
 static const LV2UI_Descriptor ui_descriptor =
 {
-    UI_PLUGIN_URI,
+    SYNTHESTHESIA_GUI_URI,
     instantiate,
     cleanup,
     port_event,

@@ -13,7 +13,7 @@
 /*
 BUILDING TEST:
 
-for x in test ui-object ui-envelope ui-filter ui-lfo ui-oscillator ui-waveform; do g++ -fPIC -DPIC `pkg-config --cflags x11 cairo` -IBWidgets/include src/ui-x11/${x}.cpp -c -o src/ui-x11/${x}.o; done
+for x in synthesthesia-ui ui-port-handler ui-object ui-envelope ui-filter ui-lfo ui-oscillator ui-waveform; do g++ -fPIC -DPIC `pkg-config --cflags lv2 x11 cairo` -IBWidgets/include src/ui-x11/${x}.cpp -c -o src/ui-x11/${x}.o; done
 g++ -LBWidgets/build src/ui-x11/*.o -lbwidgetscore -lpugl -lcairoplus -lfontconfig `pkg-config --libs x11 cairo` -o src/ui-x11/test
 
 */

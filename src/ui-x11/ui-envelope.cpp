@@ -1,10 +1,13 @@
 #include "ui-envelope.hpp"
+#include "ui-port-handler.hpp"
 #include "../port-info.hpp"
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
+// forward declaration (reqd for callback function)
+class SynthesthesiaUI;
 
 EnvelopeFrame::EnvelopeFrame():
-    EnvelopeFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+    EnvelopeFrame(URID("frame"),"")
 {}
 
 EnvelopeFrame::EnvelopeFrame(const uint32_t urid, const std::string& title):
@@ -21,12 +24,12 @@ EnvelopeFrame::EnvelopeFrame(const uint32_t urid, const std::string& title):
     slider_sustain.setActivatable(false);
     slider_release.setActivatable(false);
 
-    widget[0]=&slider_attack;
-    widget[1]=&slider_decay;
-    widget[2]=&slider_sustain;
-    widget[3]=&slider_release;
+    control_widget_.push_back(&slider_attack);
+    control_widget_.push_back(&slider_decay);
+    control_widget_.push_back(&slider_sustain);
+    control_widget_.push_back(&slider_release);
 
-    for(auto& element : widget) add(element);
+    for(auto& element : control_widget_) add(element);
 }
 
 void EnvelopeFrame::configure(int x_index, int y_index){
@@ -39,25 +42,33 @@ void EnvelopeFrame::configure(int x_index, int y_index){
     slider_release.moveTo(UI_ENV_SLIDER_RELEASE_X,UI_ENV_SLIDER_RELEASE_Y);
 }
 
-void EnvelopeFrame::port_event(int port, float value){
+void EnvelopeFrame::port_event(uint32_t port, float value){
     switch(port){
     case CTRL_ENV_CONNECTIONS:
         break; // connections are handled by the ui module they are connected to
     case CTRL_ENV_ATTACK:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_ENV_ATTACK])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_ENV_ATTACK])->setValue(value);
         break;
     case CTRL_ENV_DECAY:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_ENV_SUSTAIN])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_ENV_SUSTAIN])->setValue(value);
         break;
     case CTRL_ENV_SUSTAIN:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_ENV_DECAY])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_ENV_DECAY])->setValue(value);
         break;
     case CTRL_ENV_RELEASE:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_ENV_RELEASE])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_ENV_RELEASE])->setValue(value);
         break;
     }
 }
 
-std::array<BWidgets::Widget*,4> EnvelopeFrame::getWidgetArray() const {
-    return widget;
+std::pair<uint32_t,float> EnvelopeFrame::get_callback_data(const uint32_t relative_index){
+    std::pair<uint32_t,float> data;
+    data.first = PortHandler::get_port(get_module_type(),get_instance(),relative_index);
+    data.second = dynamic_cast<BWidgets::ValueableTyped<double>*>(control_widget_[relative_index])->getValue();
+    
+    return data;
 }
+
+const ModuleType EnvelopeFrame::get_module_type(){
+    return ModuleType::ENVELOPE;
+} 

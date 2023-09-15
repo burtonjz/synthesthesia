@@ -1,11 +1,15 @@
 #include "ui-filter.hpp"
+#include "ui-port-handler.hpp"
 #include "../port-info.hpp"
 #include "../filter-type.hpp"
 #include "../cfg-connection.hpp"
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
+// forward declaration (reqd for callback function)
+class SynthesthesiaUI;
+
 FilterFrame::FilterFrame():
-    FilterFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+    FilterFrame(URID("frame"),"")
 {}
 
 FilterFrame::FilterFrame(const uint32_t urid, const std::string& title):
@@ -20,13 +24,15 @@ FilterFrame::FilterFrame(const uint32_t urid, const std::string& title):
     dial_resonance.setClickable(false);
     dial_resonance.setActivatable(false);
 
-    widget[0] = &cb_filter_type;
-    widget[1] = &slider_cutoff;
-    widget[2] = &dial_resonance;
-    widget[3] = &cb_mod_cutoff;
-    widget[4] = &cb_mod_resonance;
+    control_widget_.push_back(&cb_filter_type);
+    control_widget_.push_back(&slider_cutoff);
+    control_widget_.push_back(&dial_resonance);
 
-    for(auto& element : widget) add(element);
+    connection_widget_.push_back(&cb_mod_cutoff);
+    connection_widget_.push_back(&cb_mod_resonance);
+
+    for (auto& element : control_widget_) add(element);
+    for (auto& element : connection_widget_) add(element);
 }
 
 void FilterFrame::configure(int x_index, int y_index){
@@ -52,16 +58,16 @@ void FilterFrame::configure(int x_index, int y_index){
     }
 }
 
-void FilterFrame::port_event(int port, float value){
+void FilterFrame::port_event(uint32_t port, float value){
     switch(port){
     case CTRL_FILTER_TYPE:
-        dynamic_cast<BWidgets::ValueableTyped<int>*>(widget[CTRL_FILTER_TYPE])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<int>*>(control_widget_[CTRL_FILTER_TYPE])->setValue(value);
         break;
     case CTRL_FILTER_FREQ:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_FILTER_FREQ])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_FILTER_FREQ])->setValue(value);
         break;
     case CTRL_FILTER_RES:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_FILTER_RES])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_FILTER_RES])->setValue(value);
         break;
     // mod connections
     case CTRL_FILTER_N + FILTER_CONNECT_FREQ:
@@ -75,6 +81,20 @@ void FilterFrame::port_event(int port, float value){
     }
 }
 
-std::array<BWidgets::Widget*,5> FilterFrame::getWidgetArray() const {
-    return widget;
+std::pair<uint32_t,float> FilterFrame::get_callback_data(const uint32_t relative_index){
+    std::pair<uint32_t,float> data;
+    data.first = PortHandler::get_port(get_module_type(),get_instance(),relative_index);
+    
+    if ( control_widget_[relative_index]->getUrid() == URID("/combo-box") ){
+        // combo box values need to be shifted by one as null takes 0
+        data.second = dynamic_cast<BWidgets::ValueableTyped<double>*>(control_widget_[relative_index])->getValue() - 1;
+    } else {
+        data.second = dynamic_cast<BWidgets::ValueableTyped<double>*>(control_widget_[relative_index])->getValue();
+    }
+
+    return data;
 }
+
+const ModuleType FilterFrame::get_module_type(){
+    return ModuleType::FILTER;
+} 

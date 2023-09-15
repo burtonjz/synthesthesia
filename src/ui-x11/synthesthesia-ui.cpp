@@ -2,72 +2,123 @@
 #include "cairo/cairo.h"
 
 #include "synthesthesia-ui.hpp"
-#include "../port-info.hpp"
 #include "../config.hpp"
+#include "../port-info.hpp"
+#include "../module-type.hpp"
+
+#include "../connection-manager.hpp"
+#include "../cfg-connection.hpp"
+#include "../config.hpp"
+
+#include "../../BWidgets/BStyles/Theme.hpp"
+
 #include <stdexcept>
-
-
-
+#include <utility>
+#include <vector>
 
 SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Controller controller, void* parentXWindow, std::string bundlePath):
-    Window(750, 600, reinterpret_cast<PuglNativeView>(parentXWindow),0, "Synthesthesia",false,PUGL_MODULE,0),
+    Window(BWIDGETS_DEFAULT_WINDOW_WIDTH, BWIDGETS_DEFAULT_WINDOW_HEIGHT, reinterpret_cast<PuglNativeView>(parentXWindow),0, "Synthesthesia",false,PUGL_MODULE,0),
     write_function(write_function),
     controller(controller),
-    frames_ptr{nullptr},
     oscillator(),
-    envelope(create_env_array()),
-    lfo(create_lfo_array()),
-    filter(create_filter_array())
+    envelope(),
+    lfo(),
+    filter()
 {
-    setBackground(BStyles::Fill(bundlePath + "/background.png"));
+    // THEMING
 
-    // configure frames
+    BStyles::Font defaultFont(
+        "Nimbus Sans",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL,
+        18.0,
+        BStyles::Font::TextAlign::left,
+        BStyles::Font::TextVAlign::middle,
+        1.5
+    );
+
+    BStyles::Theme theme = BStyles::Theme{
+		{
+			URID("/window"),
+			BStyles::Style({
+				{BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::Fill(bundlePath + "/background.png"))},
+				{BURID(BSTYLES_STYLEPROPERTY_BORDER_URI), BUtilities::makeAny<BStyles::Border>(BStyles::noBorder)}
+			})
+		},
+        {
+			URID("/frame"),
+			BStyles::Style({
+				{BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::noFill)},
+				{BURID(BSTYLES_STYLEPROPERTY_BORDER_URI), BUtilities::makeAny<BStyles::Border>(BStyles::noBorder)}
+			})
+		},
+        {
+			URID("/value-dial/label"), 
+			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+		},
+        {
+			URID("/value-slider/label"), 
+			BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+		},
+        {
+			URID("/combo-box"), 
+			BStyles::Style({
+                {BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::darkgreyFill)},
+                {BURID(BSTYLES_STYLEPROPERTY_BORDER_URI), BUtilities::makeAny<BStyles::Border>(BStyles::blackBorder1pt)}
+            })
+		},
+        {
+            URID("/combo-box/label"),
+            BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+        },
+        {
+            URID("/combo-box/listbox/label"),
+            BStyles::Style(BURID(BSTYLES_STYLEPROPERTY_FONT_URI), BUtilities::makeAny<BStyles::Font>(defaultFont))
+        }
+    };
+     
+    setTheme(theme);
+
+    // CONFIGURE FRAMES
+
     int iFrame = 0;
     for(size_t i = 0; i < oscillator.size(); ++i ){
-        frames_ptr[iFrame] = &oscillator[i];
+        oscillator[i].setTitle("oscillator-" + std::to_string(i+1));
+        oscillator[i].set_instance(i);
+        oscillator[i].configure(0,iFrame);
+        set_frame_callbacks(&oscillator[i]);
+        add(&oscillator[i]);
         iFrame += 1;
     }
     for(size_t i = 0; i < envelope.size(); ++i ){
-        frames_ptr[iFrame] = &envelope[i];
+        envelope[i].setTitle("envelope-" + std::to_string(i+1));
+        envelope[i].set_instance(i);
+        envelope[i].configure(0,iFrame);
+        add(&envelope[i]);
+        set_frame_callbacks(&envelope[i]);
         iFrame += 1;
     }
     for(size_t i = 0; i < lfo.size(); ++i ){
-        frames_ptr[iFrame] = &lfo[i];
+        lfo[i].setTitle("LFO-" + std::to_string(i+1));
+        lfo[i].set_instance(i);
+        lfo[i].configure(0,iFrame);
+        add(&lfo[i]);
+        set_frame_callbacks(&lfo[i]);
         iFrame += 1;
     }
     for(size_t i = 0; i < filter.size(); ++i ){
-        frames_ptr[iFrame] = &filter[i];
+        filter[i].setTitle("filter-" + std::to_string(i+1));
+        filter[i].set_instance(i);
+        filter[i].configure(0,iFrame);
+        add(&filter[i]);
+        set_frame_callbacks(&filter[i]);
         iFrame += 1;
     }
-
-    for(size_t i = 0; i < frames_ptr.size(); ++i){
-        frames_ptr[i]->configure(0,i*BWIDGETS_DEFAULT_FRAME_HEIGHT);
-    }
-
-        
-    // TODO: ADD INIT WIDGET FUNCTIONS
-    // dial.setClickable(false);
-    // dial.setCallbackFunction(BEvents::Event::EventType::valueChangedEvent, value_change_callback);
 }
 
 SynthesthesiaUI::~SynthesthesiaUI(){
 
 }
-
-std::array<OscillatorFrame,N_OSCILLATORS> SynthesthesiaUI::create_osc_array(){
-
-}
-
-std::array<EnvelopeFrame,N_ENVELOPES> SynthesthesiaUI::create_env_array(){
-
-}
-std::array<LfoFrame,N_LFOS> SynthesthesiaUI::create_lfo_array(){
-
-}
-std::array<FilterFrame,N_FILTERS> SynthesthesiaUI::create_filter_array(){
-
-}
-
 
 LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
     return reinterpret_cast<LV2UI_Widget>(puglGetNativeView(getView()));
@@ -77,39 +128,130 @@ LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
 void SynthesthesiaUI::port_event(uint32_t port_index,uint32_t buffer_size,uint32_t format,const void *buffer){
     if(format == 0){
         const float value = *static_cast<const float*>(buffer);
-        const int control_port = port_index - MIDI_N - AUDIO_OUT_N;
-        switch(port_index){
-            case 2: 
-                dial.setValue(value);
-                break;
-            default: break;
+        PortData port_data = PortHandler::get_port_data(port_index);
+
+        switch(port_data.module_type){
+        case ModuleType::OSCILLATOR:
+            oscillator[port_data.instance].port_event(port_data.index,value);
+            break;
+        case ModuleType::ENVELOPE:
+            if(port_data.index == CTRL_ENV_CONNECTIONS ) connection_port_event(port_data, value);
+            else envelope[port_data.instance].port_event(port_data.index,value);
+            break;
+        case ModuleType::LFO:
+            if(port_data.index == CTRL_LFO_CONNECTIONS ) connection_port_event(port_data, value);
+            else lfo[port_data.instance].port_event(port_data.index,value);
+            break;
+        case ModuleType::FILTER:
+            envelope[port_data.instance].port_event(port_data.index,value);
+            break;
+        default:
+            break;
         }
     }
 }
 
-void SynthesthesiaUI::value_change_callback(BEvents::Event* event){
-    BWidgets::ValueDial* d = dynamic_cast<BWidgets::ValueDial*>(event->getWidget());
-    SynthesthesiaUI* ui = dynamic_cast<SynthesthesiaUI*>(d->getMainWindow());
-    if (ui) {
-        float gain = d->getValue();
-        ui->write_function(ui->controller,2,sizeof(gain),0,&gain);
+void SynthesthesiaUI::control_widget_value_changed_callback(BEvents::Event* event){
+    int relative_index;
+    BWidgets::Widget* widget = event->getWidget();
+
+    SynthesthesiaUI* ui = dynamic_cast<SynthesthesiaUI*>(widget->getMainWindow());
+    if (!ui) return ;
+
+    // all widgets with callbacks belong to a ModuleFrame widget, which will be the parent widget
+    ModuleFrame* parent = dynamic_cast<ModuleFrame*>(widget->getParent());
+    if (!parent) return ;
+
+    int i = 0;
+    bool widget_found = false;
+    std::vector<Widget*> control_widgets = parent->get_control_widgets();
+    
+    for(i = 0; i < control_widgets.size(); ++i ){
+        if ( widget == control_widgets[i] ){
+            widget_found = true;
+            break;
+        }
+    }
+
+    if (widget_found){
+        std::pair<uint32_t,float> data = parent->get_callback_data(i);
+        ui->write_function(ui->controller, data.first, sizeof(data.second), 0, &data.second );
+        return ;
+    }
+
+}
+
+void SynthesthesiaUI::connection_widget_value_changed_callback(BEvents::Event* event){
+    std::array<ConnectionManager,N_MODULATORS> connection_manager;
+
+    BWidgets::Widget* widget = event->getWidget();
+    SynthesthesiaUI* ui = dynamic_cast<SynthesthesiaUI*>(widget->getMainWindow());
+    if (!ui) return ;
+
+    // loop through all modulatable widgets and add connections
+    
+    ModulatableType module_type = MODULATABLE_OSCILLATOR;
+    for (int instance = 0; instance < oscillator.size(); ++instance ){
+        std::vector<Widget*> widget = oscillator[instance].get_connection_widgets() ;
+        for (int port = 0; port < widget.size(); ++port ){
+            // subtract by two to account for null item and "none" item
+            int modulator = dynamic_cast<BWidgets::ValueableTyped<double>*>(widget[port])->getValue() - 2; 
+            if ( modulator >= 0 ){
+                connection_manager[modulator].add_connection(module_type,instance,port);
+            }
+        }
+    }
+
+    module_type = MODULATABLE_FILTER;
+    for (int instance = 0; instance < filter.size(); ++instance ){
+        std::vector<Widget*> widget = filter[instance].get_connection_widgets() ;
+        for (int port = 0; port < widget.size(); ++port ){
+            // subtract by two to account for null item and "none" item
+            int modulator = dynamic_cast<BWidgets::ValueableTyped<double>*>(widget[port])->getValue() - 2; 
+            if ( modulator >= 0 ){
+                connection_manager[modulator].add_connection(module_type,instance,port);
+            }
+        }
+    }
+
+    // set connections for each modulator
+    for (int i = 0; i < connection_manager.size(); ++i ){
+        if ( i < N_ENVELOPES ){
+            int port_index = PORT_ENV_RANGE.first + i * CTRL_ENV_N + CTRL_ENV_CONNECTIONS ;
+            float value = connection_manager[i].encode_as_float();
+            ui->write_function(ui->controller, port_index , sizeof(value), 0, &value );
+        }
     }
 }
 
 
-void SynthesthesiaUI::init_oscillator_widgets(OscillatorWidgets osc, const double x, const double y){
-    osc.button_on();
+void SynthesthesiaUI::set_frame_callbacks(ModuleFrame* frame){
+    for(auto& w : frame->get_control_widgets())
+        w->setCallbackFunction(
+            BEvents::Event::EventType::valueChangedEvent, 
+            [this](BEvents::Event* event) {control_widget_value_changed_callback(event); }
+        );
+    for(auto& w : frame->get_connection_widgets()) 
+        w->setCallbackFunction(
+            BEvents::Event::EventType::valueChangedEvent, 
+            [this](BEvents::Event* event) {connection_widget_value_changed_callback(event); }
+        );    
 }
 
-void SynthesthesiaUI::init_envelope_widgets(EnvelopeWidgets env, const double x, const double y){
+void SynthesthesiaUI::connection_port_event(PortData port_data, float value){
+    ConnectionManager connection_manager;
+    connection_manager.set_data_from_float(value);
 
+    for( Connection connection : connection_manager ){
+        switch(connection.modulatable_type){
+        case MODULATABLE_OSCILLATOR:
+            dynamic_cast<BWidgets::ValueableTyped<int>*>(&oscillator[connection.instance])->setValue(connection.port + 2);
+            break;
+        case MODULATABLE_FILTER:
+            dynamic_cast<BWidgets::ValueableTyped<int>*>(&filter[connection.instance])->setValue(connection.port + 2);
+            break;
+        default:
+            break;
+        }
+    }
 }
-
-void SynthesthesiaUI::init_lfo_widgets(LFOWidgets lfo, const double x, const double y){
-
-}
-
-void SynthesthesiaUI::init_filter_widgets(FilterWidgets filt, const double x, const double y){
-
-}
-

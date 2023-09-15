@@ -2,11 +2,25 @@
 #define CONNECTION_MANAGER_HPP_
 
 #include <cstdint>
+#include <cstddef>
 #include "cfg-connection.hpp"
+
+struct Connection {
+    ModulatableType modulatable_type;
+    int instance;
+    int port;
+};
 
 class ConnectionManager {
 private:
     uint32_t data_;
+
+    /**
+     * @brief returns Connection struct for Iteration
+     * 
+     * @param connection_value uint32_t data representing a single connection
+    */
+    Connection get_connection(uint32_t connection_value);
 
 public:
     ConnectionManager();
@@ -94,6 +108,40 @@ public:
      * @param connection the connection value
     */
     void remove_connection(uint32_t connection);
+
+    /**
+     * @brief iterator class to support looping through Connections
+    */
+    class Iterator {
+    private:
+        size_t index_;
+        ConnectionManager* manager_;
+
+    public:
+        Iterator(ConnectionManager* manager): index_(0), manager_(manager) {}
+
+        Iterator& operator++(){
+            index_++;
+            return *this;
+        }
+
+        bool operator!=(const Iterator& other) const {
+            return index_ != other.index_;
+        }
+
+        Connection operator*() const {
+            return manager_->get_connection(manager_->data_ >> (index_ * 6)); // (data_ >> (index_ * 6)) & 0x3F;
+        }
+            
+    };
+
+    Iterator begin() {
+        return Iterator(this);
+    }
+
+    Iterator end() {
+        return Iterator(this);
+    }
 };
 
 

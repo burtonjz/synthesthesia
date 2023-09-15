@@ -4,9 +4,11 @@
 #include <array>
 
 #include "ui-config.hpp"
-
 #include "ui-object.hpp"
 #include "ui-waveform.hpp"
+#include "../module-type.hpp"
+
+#include "../../BWidgets/BEvents/Event.hpp"
 #include "../../BWidgets/BWidgets/HSwitch.hpp"
 #include "../../BWidgets/BWidgets/ComboBox.hpp"
 #include "../../BWidgets/BWidgets/ValueDial.hpp"
@@ -26,7 +28,6 @@ private:
     BWidgets::ComboBox cb_amp_mod;
     BWidgets::ComboBox cb_phase_mod;
     WaveformImage image_waveform;
-    std::array<BWidgets::Widget*,10> widget;
     
 public:
     /**
@@ -57,9 +58,19 @@ public:
      * @param port port index relative to frame
      * @param value update value for widget
     */
-    void port_event(int port, float value) override;
+    void port_event(uint32_t port, float value) override;
+
+    /**
+     * @brief get port_index and float value for specified widget
+     * 
+     * @param relative_index relative port index
+    */
+    std::pair<uint32_t,float> get_callback_data(const uint32_t relative_index) override;
     
-    std::array<BWidgets::Widget*,10> getWidgetArray() const;
+    /**
+     * @brief returns the frame ModuleType
+    */
+    const ModuleType get_module_type() override;
 };
 
 #endif // UI_OSC_WIDGETS_HPP_

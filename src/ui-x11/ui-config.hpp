@@ -2,7 +2,7 @@
 #define UI_CONFIG_HPP_
 
 // URIs
-#define SYNTHESTHESIA_GUI_URI "https://github.com/burtonjz/synthesthesia#gui"
+#define SYNTHESTHESIA_GUI_URI "https://github.com/burtonjz/synthesthesia#ui"
 
 #define URID(x) (BURID(SYNTHESTHESIA_GUI_URI x)) /*> macro to convert text label to URID */
 

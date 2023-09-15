@@ -4,6 +4,14 @@
 
 ConnectionManager::ConnectionManager(){};
 
+Connection ConnectionManager::get_connection(uint32_t connection_value){
+    Connection connection;
+    connection.modulatable_type = static_cast<ModulatableType>((connection_value >> 4) & 0x3);
+    connection.instance = static_cast<int>((connection_value >> 2) & 0x3);
+    connection.port = static_cast<int>(connection_value & 0x3);
+    return connection;
+}
+
 float ConnectionManager::encode_as_float(){
     std::cerr << "About to encode data as float" << std::endl;
     static_assert(sizeof(float) == sizeof(uint32_t), "Size mismatch between float and uint32_t");
@@ -86,7 +94,7 @@ void ConnectionManager::add_connection(uint32_t connection){
         }
     }
 
-    if(!connection_added) std::cerr << "Error: Could not add new connection. Already have a max of 10 connections";
+    if(!connection_added) std::cerr << "Error: Could not add new connection. Already have a max of 5 connections";
 }
 
 void ConnectionManager::remove_connection(ModulatableType module, int instance, int port){

@@ -1,11 +1,14 @@
 #include "ui-lfo.hpp"
+#include "ui-port-handler.hpp"
 #include "../port-info.hpp"
 #include "../waveform.hpp"
 #include "../../BWidgets/BWidgets/Supports/ValueableTyped.hpp"
 
+// forward declaration (reqd for callback function)
+class SynthesthesiaUI;
 
 LfoFrame::LfoFrame():
-    LfoFrame(BUTILITIES_URID_UNKNOWN_URID,"")
+    LfoFrame(URID("frame"),"")
 {}
 
 LfoFrame::LfoFrame(const uint32_t urid, const std::string& title):
@@ -24,12 +27,12 @@ LfoFrame::LfoFrame(const uint32_t urid, const std::string& title):
     image_waveform.draw(static_cast<Waveform>(cb_waveform.getValue()-1));
 
     
-    widget[0] = &slider_freq;
-    widget[1] = &slider_depth;
-    widget[2] = &cb_waveform;
-    widget[3] = &image_waveform;
+    control_widget_.push_back(&slider_freq);
+    control_widget_.push_back(&slider_depth);
+    control_widget_.push_back(&cb_waveform);
+    control_widget_.push_back(&image_waveform);
 
-    for(auto& element : widget) add(element);
+    for(auto& element : control_widget_) add(element);
 }
 
 void LfoFrame::configure(int x_index, int y_index){
@@ -42,24 +45,38 @@ void LfoFrame::configure(int x_index, int y_index){
     image_waveform.moveTo(UI_LFO_WAVEFORM_IMAGE_X,UI_LFO_WAVEFORM_IMAGE_Y);
 }
 
-void LfoFrame::port_event(int port, float value){
+void LfoFrame::port_event(uint32_t port, float value){
     switch(port){
     case CTRL_LFO_CONNECTIONS:
         break; // connections will be handled by what they are connected to
     case CTRL_LFO_WAVEFORM:
-        dynamic_cast<BWidgets::ValueableTyped<int>*>(widget[CTRL_LFO_WAVEFORM])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<int>*>(control_widget_[CTRL_LFO_WAVEFORM])->setValue(value);
         break;
     case CTRL_LFO_FREQ:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_LFO_FREQ])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_LFO_FREQ])->setValue(value);
         break;
     case CTRL_LFO_DEPTH:
-        dynamic_cast<BWidgets::ValueableTyped<float>*>(widget[CTRL_LFO_DEPTH])->setValue(value);
+        dynamic_cast<BWidgets::ValueableTyped<float>*>(control_widget_[CTRL_LFO_DEPTH])->setValue(value);
         break;
     default:
         break;
     }
 }
 
-std::array<BWidgets::Widget*,4> LfoFrame::getWidgetArray() const {
-    return widget;
+std::pair<uint32_t,float> LfoFrame::get_callback_data(const uint32_t relative_index){
+    std::pair<uint32_t,float> data;
+    data.first = PortHandler::get_port(get_module_type(),get_instance(),relative_index);
+    
+    if ( control_widget_[relative_index]->getUrid() == URID("/combo-box") ){
+        // combo box values need to be shifted by one as null takes 0
+        data.second = dynamic_cast<BWidgets::ValueableTyped<double>*>(control_widget_[relative_index])->getValue() - 1;
+    } else {
+        data.second = dynamic_cast<BWidgets::ValueableTyped<double>*>(control_widget_[relative_index])->getValue();
+    }
+
+    return data;
 }
+
+const ModuleType LfoFrame::get_module_type(){
+    return ModuleType::LFO;
+} 
