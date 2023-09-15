@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Controller controller, void* parentXWindow, std::string bundlePath):
     Window(BWIDGETS_DEFAULT_WINDOW_WIDTH, BWIDGETS_DEFAULT_WINDOW_HEIGHT, reinterpret_cast<PuglNativeView>(parentXWindow),0, "Synthesthesia",false,PUGL_MODULE,0),
@@ -41,7 +42,7 @@ SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Contr
 		{
 			URID("/window"),
 			BStyles::Style({
-				{BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::Fill(bundlePath + "/background.png"))},
+				{BURID(BSTYLES_STYLEPROPERTY_BACKGROUND_URI), BUtilities::makeAny<BStyles::Fill>(BStyles::Fill(bundlePath + "/assets/background.png"))},
 				{BURID(BSTYLES_STYLEPROPERTY_BORDER_URI), BUtilities::makeAny<BStyles::Border>(BStyles::noBorder)}
 			})
 		},
@@ -117,7 +118,6 @@ SynthesthesiaUI::SynthesthesiaUI(LV2UI_Write_Function write_function,LV2UI_Contr
 }
 
 SynthesthesiaUI::~SynthesthesiaUI(){
-
 }
 
 LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
@@ -126,6 +126,7 @@ LV2UI_Widget SynthesthesiaUI::get_top_level_widget(){
 
 
 void SynthesthesiaUI::port_event(uint32_t port_index,uint32_t buffer_size,uint32_t format,const void *buffer){
+    return ;
     if(format == 0){
         const float value = *static_cast<const float*>(buffer);
         PortData port_data = PortHandler::get_port_data(port_index);
@@ -189,7 +190,7 @@ void SynthesthesiaUI::connection_widget_value_changed_callback(BEvents::Event* e
     if (!ui) return ;
 
     // loop through all modulatable widgets and add connections
-    
+
     ModulatableType module_type = MODULATABLE_OSCILLATOR;
     for (int instance = 0; instance < oscillator.size(); ++instance ){
         std::vector<Widget*> widget = oscillator[instance].get_connection_widgets() ;

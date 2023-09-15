@@ -91,6 +91,8 @@ target_include_directories(synthesthesia-ui PRIVATE
 # Link libraries
 target_link_libraries(synthesthesia-ui PRIVATE 
     ${LV2_LIBRARIES}
+    ${CAIRO_LIBRARIES}
+    ${X11_LIBRARIES}
     m
     stdc++
     -lbwidgetscore
