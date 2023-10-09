@@ -4,3 +4,4 @@ build
 assets/*.svg
 *.o
 test
+*.bak

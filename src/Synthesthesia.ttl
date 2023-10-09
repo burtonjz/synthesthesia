@@ -1,0 +1,51 @@
+@prefix lv2: <http://lv2plug.in/ns/lv2core#> .
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix pprops: <http://lv2plug.in/ns/ext/port-props#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix bufSize: <http://lv2plug.in/ns/ext/buf-size#> .
+@prefix options: <http://lv2plug.in/ns/ext/options#> .
+@prefix ui: <http://lv2plug.in/ns/extensions/ui#> .
+
+<https://github.com/burtonjz/synthesthesia> a lv2:Plugin, lv2:OscillatorPlugin, doap:Project ;
+    lv2:binary <Synthesthesia.so> ;
+    doap:name "Synthesthesia" ;
+    doap:license <https://opensource.org/licenses/isc> ; 
+    doap:maintainer 
+        [
+            a foaf:Person ;
+            foaf:name "Jared Burton" ;
+            foaf:mbox <mailto:jared.z.burton@gmail.com> ;
+        ] ;
+    lv2:requiredFeature urid:map ;
+    lv2:optionalFeature options:options ;
+    lv2:optionalFeature bufSize:maxBlockLength ;
+    lv2:optionalFeature lv2:hardRTCapable ;
+    lv2:minorVersion 1 ;
+    lv2:microVersion 0 ;
+    lv2:port
+        [
+            a lv2:InputPort , atom:AtomPort ;
+            lv2:index 0 ;
+            lv2:symbol "midi_in" ;
+            lv2:name "MIDI in" ;
+            atom:bufferType atom:Sequence ;
+            atom:supports midi:MidiEvent ;
+        ] ,
+        [
+            a lv2:OutputPort , lv2:AudioPort ;
+            lv2:index 1 ;
+            lv2:symbol "output_FL" ;
+            lv2:name "Output FL" ;
+        ] ,
+        [
+            a lv2:OutputPort , lv2:AudioPort ;
+            lv2:index 2 ;
+            lv2:symbol "output_FR" ;
+            lv2:name "Output FR" ;
+        ] .

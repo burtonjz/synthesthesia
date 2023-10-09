@@ -1,14 +1,8 @@
 #include <lv2.h>
 #include <iostream>
 
-#include "synthesthesia.hpp"
+#include "Synthesthesia.hpp"
 
-
-/*
-===========================================================
-=============== internal core methods =====================
-===========================================================
-*/ 
 static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sample_rate, const char *bundle_path, const LV2_Feature *const *features)
 {
     std::cout << "[" << SYNTHESTHESIA_URI << "]: Instantiating plugin." << std::endl;
