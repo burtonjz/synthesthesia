@@ -8,7 +8,6 @@
 #include <lv2/midi/midi.h>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/container/vector.hpp>
 #include <cstdint>
 
 
@@ -32,13 +31,17 @@ private:
     void setPitchbend(uint16_t pitchBendValue );
     void setSustain(uint8_t sustain );
 
+    static bool sortByTotalTimeSincePressed(const NoteInfo& a, const NoteInfo& b);
+
 public:
     KeyboardController();
 
     /**
      * @brief get all notes currently pressed or released within the RELEASE parameter type upper limit
+     * 
+     * the vector will contain all active notes by order of longest to shortest total time since pressed
     */
-    boost::container::vector<NoteInfo> get_active_notes();
+    const boost::container::flat_map<uint8_t,NoteInfo> get_active_notes();
 
     /**
      * @brief process midi message

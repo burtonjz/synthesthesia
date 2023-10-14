@@ -6,7 +6,7 @@
 #include "KeyboardController.hpp"
 #include "Wavetable.hpp"
 
-#include "Oscillator.hpp"
+#include "PolyOscillator.hpp"
 
 #include <cstdint>
 #include <array>
@@ -25,11 +25,9 @@ private:
     Urids urids;
 
     KeyboardController keyboardController_ ;
-    std::array<Oscillator,1> oscillator_ ;
-
+    std::array<PolyOscillator,1> oscillator_ ;
 
     double sampleRate_ ;
-    // uint32_t maxBlockSize_ ;
 
 public:
     Synthesthesia(const double sample_rate, const LV2_Feature *const *features);

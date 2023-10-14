@@ -16,12 +16,13 @@ template <typename T>
 class Parameter {
 private:
     ParameterType type_;
+    bool modulatable_;
     T value_;
     T instantaneousValue_;
     T defaultValue_;
     T minValue_;
     T maxValue_;
-    bool modulatable_;
+    
 
 public:
     Parameter(ParameterType typ, T defaultValue, bool modulatable):

@@ -6,6 +6,8 @@
 #include "IO.hpp"
 
 #include <array>
+#include <utility>
+
 
 /**
  * @brief basic Oscillator Module. Parameterized input, no output
@@ -23,21 +25,17 @@ public:
      * @brief instantiates an empty Oscillator module.
     */
     Oscillator(const double* sampleRate);
-
+    Oscillator();
+    
     /**
      * @brief Instantiate Oscillator module. Must be called before real-time processing begins
     */
     void activate() override;
 
     /**
-     * @brief set input buffer for specified channel
+     * @brief set output buffer for specified channel
     */
     void setOutputBuffer(float* buffer, size_t channel) override;
-
-    /**
-     * @brief validate whether all outputBuffer are set
-    */
-    bool isOutputBufferSet();
 
     /**
      * @brief process samples through the module
@@ -49,7 +47,12 @@ public:
     /**
      * @brief increment oscillator for next sample
     */
-    void tick();
+    void tick() override ;
+
+    /**
+     * @brief sets parameter value
+    */
+
 
 private:
     /**
@@ -57,6 +60,15 @@ private:
     */
     double wavetableLookup(float index);
 
+    /**
+     * @brief return pan values
+    */
+    std::pair<double,double> panSample(double sample_value);
+
+    /**
+     * @brief validate whether all outputBuffer are set
+    */
+    bool isOutputBufferSet();
 
 };
 

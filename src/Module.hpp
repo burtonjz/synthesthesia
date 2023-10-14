@@ -1,3 +1,6 @@
+#ifndef __MODULE_HPP_
+#define __MODULE_HPP_
+
 #include "config.hpp"
 #include "ParameterController.hpp"
 
@@ -12,8 +15,8 @@
 
 class Module {
 protected:
-    ParameterController parameterController_ ;
     const double* sampleRate_;
+    ParameterController parameterController_ ;
 
 public:
     /**
@@ -37,4 +40,32 @@ public:
     */
     virtual void setOutputBuffer(float* buffer, size_t channel) = 0;
 
+    /**
+     * @brief returns a read-only pointer to the module's sample rate
+    */
+    const double* getSampleRate(){
+        return sampleRate_ ;
+    }
+
+    /**
+     * @brief sets the pointer for the module's sample rate
+    */
+    void setSampleRate(const double* sampleRate){
+        sampleRate_ = sampleRate ;
+    }
+
+    /**
+     * @brief get a pointer to the parameterController
+    */
+    ParameterController* getParameterController(){
+        return &parameterController_ ;
+    }
+
+    /**
+     * @brief increment module for next sample
+    */
+    virtual void tick() = 0 ;
+
 };
+
+#endif // __MODULE_HPP_

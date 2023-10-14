@@ -13,9 +13,10 @@ class Note {
 private:
     uint8_t midi_note_ ;
     uint8_t midi_velocity_ ;
-    float frequency_ ;
+    double frequency_ ;
     bool is_note_pressed_ ;
-   double time_since_event_ ;
+    float time_since_pressed_ ;
+    float time_since_released_ ;
 
     void setFrequency(uint8_t midi_note);
 
@@ -28,7 +29,7 @@ public:
      * @param is_note_pressed the key press status
      * @param time_since_event time passed since the note was released. (-1 if note on)
     */
-    Note(uint8_t midi_note, uint8_t midi_velocity, bool is_note_pressed,double time_since_event);
+    Note(uint8_t midi_note, uint8_t midi_velocity, bool is_note_pressed, float time_since_event);
 
     /**
      * @brief Constructor for Note class
@@ -84,9 +85,14 @@ public:
     float getFrequency() const ;
 
     /**
-     * @brief gets the time since a MIDI note on/off event
+     * @brief gets the time since a MIDI note on event
     */
-    float getTimeSinceEvent() const ;
+    float getTimeSincePressed() const ;
+
+    /**
+     * @brief gets the time since a MIDI note off event
+    */
+    float getTimeSinceReleased() const ;
 
     /**
      * @brief resets the time since a MIDI note on/off event to 0

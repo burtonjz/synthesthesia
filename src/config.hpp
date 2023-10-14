@@ -3,6 +3,7 @@
 
 #define SYNTHESTHESIA_URI "https://github.com/burtonjz/synthesthesia"
 
+constexpr int CONFIG_OSCILLATOR_POLYPHONY_N = 24 ;
 constexpr int CONFIG_PITCHBEND_MAX_SHIFT = 2 ;
 
 constexpr int AUDIO_OUT_N = 2;

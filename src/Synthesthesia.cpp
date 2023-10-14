@@ -12,7 +12,7 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     audio_out{nullptr},
     keyboardController_(),
     sampleRate_(sample_rate),
-    oscillator_{Oscillator(&sampleRate_)}
+    oscillator_{PolyOscillator(&sampleRate_)}
 {
     const char* missing = lv2_features_query(
         features,
@@ -44,11 +44,9 @@ void Synthesthesia::activate(){
     std::cout << "Activating plugin..." << std::endl;
     Wavetable::generate();
 
-    oscillator_[0].activate() ;
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
-    std::cout << "Output buffer set on oscillator: " << oscillator_[0].isOutputBufferSet() << std::endl;
-
+    oscillator_[0].activate(&keyboardController_);
 }
 
 void Synthesthesia::run(const uint32_t sample_count){
@@ -75,11 +73,11 @@ void Synthesthesia::processMidi(LV2_Atom_Event* ev){
     const uint8_t* const msg = reinterpret_cast<const uint8_t*>(ev + 1);
     const LV2_Midi_Message_Type typ = lv2_midi_message_type(msg);
 
-    std::cout << "[Synthesthesia] Midi Message received of type " << std::to_string(typ) << " with data block containing: ";
-    for (int i = 0; i < 3; ++i){
-        std::cout << std::to_string(msg[i]) << ", ";
-    }
-    std::cout << "." << std::endl;
+    // std::cout << "[Synthesthesia] Midi Message received of type " << std::to_string(typ) << " with data block containing: ";
+    // for (int i = 0; i < 3; ++i){
+    //     std::cout << std::to_string(msg[i]) << ", ";
+    // }
+    // std::cout << "." << std::endl;
 
     keyboardController_.processMidi(typ, msg);
 }

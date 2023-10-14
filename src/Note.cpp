@@ -3,9 +3,10 @@
 #include <cmath>
 #include <iostream>
 
-Note::Note(uint8_t midi_note, uint8_t midi_velocity, bool is_note_pressed,double time_since_event):
+Note::Note(uint8_t midi_note, uint8_t midi_velocity, bool is_note_pressed, float time_since_pressed):
     is_note_pressed_(is_note_pressed),
-    time_since_event_(time_since_event)
+    time_since_pressed_(time_since_pressed),
+    time_since_released_(0.0f)
 {
     setNote(midi_note);
     setFrequency(midi_note_);
@@ -21,7 +22,7 @@ Note::Note():
 {}
 
 void Note::setFrequency(uint8_t midi_note){
-    frequency_ = pow(2.0, (static_cast<float>(midi_note) - 69.0) / 12.0) * 440.0 ;
+    frequency_ = pow(2.0, (static_cast<float>(midi_note) - 69.0) / 12.0) * 440.0 ; // TODO: support tunings other than equal temperment
 }
 
 uint8_t Note::getNote() const {
@@ -32,6 +33,8 @@ void Note::setNote(uint8_t note){
     if ( note > 127 ) note = 127 ;
     else midi_note_ = note ;
     setFrequency(midi_note_);
+
+    std::cout << "[Note] midi_note " << std::to_string(static_cast<int>(note)) << " frequency set to " << frequency_ << std::endl ;
 }
 
 uint8_t Note::getVelocity() const {
@@ -60,15 +63,21 @@ float Note::getFrequency() const {
     return frequency_ ;
 }
 
-float Note::getTimeSinceEvent() const {
-    return time_since_event_ ;
+float Note::getTimeSincePressed() const {
+    return time_since_pressed_ ;
+}
+
+float Note::getTimeSinceReleased() const {
+    return time_since_released_ ;
 }
 
 void Note::resetTimeSinceEvent(){
-    std::cout << "Note Time Reset from " << time_since_event_ << std::endl;
-    time_since_event_ = 0.0f ;
+    // std::cout << "[Note] midi_note=" << midi_note_ << ", status=" << is_note_pressed_ << ", time_since_pressed=" << time_since_pressed_ << ", time_since_released=" << time_since_released_ << std::endl;
+    if(is_note_pressed_) time_since_pressed_ = 0.0f;
+    else time_since_released_ = 0.0f;
 }
 
 void Note::tick(double time){
-    time_since_event_ += time ;
+    if(is_note_pressed_) time_since_pressed_ += time ;
+    else time_since_released_ += time ;
 }

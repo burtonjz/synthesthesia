@@ -4,13 +4,17 @@
 #include <cstdint>
 
 /**
- * @brief basic struct storing note information required for external Modules
+ * @brief basic struct storing note information required for external Modules.
+ * 
+ * This is different than a Note because the KeyboardController provides additional values (e.g., sustain, handles pitchbend into the frequency, etc.)
 */
 struct NoteInfo {
-    float frequency ;
+    bool pressed ;
+    double frequency ;
     uint8_t velocity ;
     uint8_t sustain ;
-   double time_since_event ;
+    float time_since_pressed ;
+    float time_since_released ;
 };
 
 #endif // __NOTE_INFO_HPP_

@@ -10,7 +10,7 @@
 #include <limits>
 #include <functional>
 #include <exception>
-
+#include <variant>
 
 /**
  * @brief Feature class to maintain control of module parameters
@@ -66,7 +66,7 @@ public:
     void setParameterValue(ParameterType param, T value ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            boost::any_cast<Parameter<T>>(it->second).setValue(value);
+            boost::any_cast<Parameter<T>&>(it->second).setValue(value);
         }
     }
 

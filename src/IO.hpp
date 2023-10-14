@@ -19,7 +19,7 @@ public:
         IOBuffers_{nullptr}
     {}
 
-    const IOType* get(size_t channel) const {
+    IOType* get(size_t channel) const {
         if (channel > NumChannels ) throw(std::runtime_error("IO Error: channel outside of range."));
         return IOBuffers_[channel] ;
     };

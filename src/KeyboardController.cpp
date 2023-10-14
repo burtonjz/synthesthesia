@@ -2,12 +2,14 @@
 #include "ParameterType.hpp"
 
 #include <cmath>
+#include <algorithm>
+#include <iostream>
 
 KeyboardController::KeyboardController():
     notes_(),
     active_note_ids_(),
-    pitchbend_frequency_scale_factor_(0),
-    sustain_(0)
+    pitchbend_frequency_scale_factor_(1.0f),
+    sustain_(0.0f)
 {}
 
 void KeyboardController::pressNote(uint8_t midi_note, float velocity){
@@ -33,7 +35,7 @@ void KeyboardController::setPitchbend(uint16_t pitchbend ){
     if ( pitchbend > 16383 ) pitchbend = 16383 ;
 
     // linear transformation to make value in  [-1.0f, 1.0f] * MAX PITCHBEND SHIFT
-    float shiftValue = ( (pitchbend - 8192.0f) / 16383 ) * CONFIG_PITCHBEND_MAX_SHIFT ;
+    float shiftValue = ( (pitchbend - 8192.0f) / 16383.0f ) * CONFIG_PITCHBEND_MAX_SHIFT ;
 
     pitchbend_frequency_scale_factor_ = std::pow(2.0f, (shiftValue / 12.0f));
 }
@@ -42,17 +44,25 @@ void KeyboardController::setSustain(uint8_t sustain ){
     if ( sustain > 127 ) sustain_ = 127 ;
     else sustain_ = sustain ;
 }
+
+bool KeyboardController::sortByTotalTimeSincePressed(const NoteInfo& a, const NoteInfo& b){
+    return (a.time_since_pressed + a.time_since_released) > (b.time_since_pressed + b.time_since_released);
+}
     
-boost::container::vector<NoteInfo> KeyboardController::get_active_notes(){
-    boost::container::vector<NoteInfo> note_info ;
+const boost::container::flat_map<uint8_t,NoteInfo> KeyboardController::get_active_notes(){
+    boost::container::flat_map<uint8_t,NoteInfo> note_info ;
     for (auto it = active_note_ids_.begin(); it != active_note_ids_.end(); ++it){
         NoteInfo n ;
+        n.pressed = notes_[*it].getIsPressed() ;
         n.frequency = notes_[*it].getFrequency() * getPitchbend();
-        n.sustain = sustain_ ;
-        n.time_since_event = notes_[*it].getTimeSinceEvent();
         n.velocity = notes_[*it].getVelocity() ;
-        note_info.push_back(n);
+        n.sustain = sustain_ ;
+        n.time_since_pressed = notes_[*it].getTimeSincePressed();
+        n.time_since_released = notes_[*it].getTimeSinceReleased();
+        
+        note_info[notes_[*it].getNote()] = n ;
     }
+
     return note_info ;
 }
 
@@ -82,7 +92,7 @@ void KeyboardController::tick(double time){
         notes_[*it].tick(time);
         if ( 
             !notes_[*it].getIsPressed() &&
-            ( notes_[*it].getTimeSinceEvent() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second )
+            ( notes_[*it].getTimeSinceReleased() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second )
         ){
             it = active_note_ids_.erase(it);
         } else ++it ;
