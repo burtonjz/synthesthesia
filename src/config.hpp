@@ -8,6 +8,6 @@ constexpr int CONFIG_PITCHBEND_MAX_SHIFT = 2 ;
 
 constexpr int AUDIO_OUT_N = 2;
 
-constexpr int WAVETABLE_SIZE = 256 ;
+constexpr int WAVETABLE_SIZE = 1024 ;
 
 #endif // __CONFIG_HPP_

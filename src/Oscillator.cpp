@@ -17,7 +17,7 @@ Oscillator::Oscillator(const double* sampleRate):
     increment_(0)
 {
     parameterController_.addParameter<bool>(ParameterType::STATUS,true,false);
-    parameterController_.addParameter<int>(ParameterType::WAVEFORM,static_cast<int>(Waveform::SQUARE),false);    
+    parameterController_.addParameter<int>(ParameterType::WAVEFORM,static_cast<int>(Waveform::SINE),false);    
     parameterController_.addParameter<double>(ParameterType::AMPLITUDE, 1.0, true);
     parameterController_.addParameter<double>(ParameterType::PHASE, 0.0, true);
     parameterController_.addParameter<double>(ParameterType::PAN, 0.0, true);
@@ -66,6 +66,9 @@ void Oscillator::processSample(uint32_t idx){
     frac = index - index_floor ;
 
     sample = (1.0 - frac) * (*wave_ptr)[index_floor] + frac * (*wave_ptr)[index_floor + 1];
+
+    // apply amplitude
+    sample *= parameterController_.getParameterValue<double>(ParameterType::AMPLITUDE);
 
     // add sample to buffer
     if(AUDIO_OUT_N == 2){
