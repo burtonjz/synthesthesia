@@ -5,6 +5,7 @@
 #include "Module.hpp"
 #include "Oscillator.hpp"
 #include "KeyboardController.hpp"
+#include "NoteInfo.hpp"
 #include "IO.hpp"
 
 #include <boost/container/flat_map.hpp>
@@ -54,9 +55,9 @@ private:
     /**
      * @brief update oscillators with data from KeyboardController
      * 
-     * @param active_notes active notes from the KeyboardController
+     * @param note_info NoteInfo struct from the KeyboardController
     */
-    void updateOscillators(const boost::container::flat_map<uint8_t,NoteInfo> active_notes);
+    void updateOscillators(const NoteInfo note_info);
 
     /**
      * @brief set child oscillator output buffer to same as this

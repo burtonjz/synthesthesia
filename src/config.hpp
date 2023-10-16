@@ -3,8 +3,10 @@
 
 #define SYNTHESTHESIA_URI "https://github.com/burtonjz/synthesthesia"
 
-constexpr int CONFIG_OSCILLATOR_POLYPHONY_N = 24 ;
-constexpr int CONFIG_PITCHBEND_MAX_SHIFT = 2 ;
+constexpr int CONFIG_PITCHBEND_MAX_SHIFT = 2 ; // max semitone shift for pitchbend
+
+constexpr float CONFIG_FADER_RELEASE_FADE_TIME = 0.1 ; // time after release for fader modulation to reach 0
+
 
 constexpr int AUDIO_OUT_N = 2;
 

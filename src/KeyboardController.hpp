@@ -20,9 +20,8 @@
 class KeyboardController {
 private:
     boost::container::flat_map<uint8_t, Note> notes_ ;
-    boost::container::flat_set<uint8_t> active_note_ids_ ;
 
-    float pitchbend_frequency_scale_factor_ ;
+    float pitchbend_scale_factor_ ;
     float sustain_ ;
 
     void pressNote(uint8_t midi_note, float velocity);
@@ -41,7 +40,7 @@ public:
      * 
      * the vector will contain all active notes by order of longest to shortest total time since pressed
     */
-    const boost::container::flat_map<uint8_t,NoteInfo> get_active_notes();
+    const NoteInfo get_active_notes();
 
     /**
      * @brief process midi message

@@ -1,10 +1,9 @@
 #include "PolyOscillator.hpp"
-#include "NoteInfo.hpp"
+#include "Note.hpp"
 #include "ParameterController.hpp"
 #include "ParameterType.hpp"
 
-#include <boost/container/vector.hpp>
-#include <iostream>
+#include <cstdint>
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
@@ -39,31 +38,31 @@ void PolyOscillator::tick(){
     }
 }
 
-void PolyOscillator::updateOscillators(const boost::container::flat_map<uint8_t,NoteInfo> active_notes){
+void PolyOscillator::updateOscillators(const NoteInfo note_info){
     // first, update oscillators with new information from active_notes
-    for (const auto& pair : active_notes ){
+    for (const auto& pair : *note_info.notes_ptr ){
         auto it = oscillator_.find(pair.first);
         if(it == oscillator_.end()){
             oscillator_.insert(std::make_pair(pair.first,Oscillator(sampleRate_)));
             ParameterController* p = oscillator_[pair.first].getParameterController();
             
             p->setParameterValue<bool>(ParameterType::STATUS,true);
-            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.frequency);
-            p->setParameterValue<double>(ParameterType::AMPLITUDE,pair.second.velocity / 127.0);
+            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * note_info.pitchbend_scale_factor);
+            p->setParameterValue<double>(ParameterType::AMPLITUDE,pair.second.getVelocity() / 127.0);
 
             updateChildOutputBuffers(pair.first);
 
         } else {
             ParameterController* p = oscillator_[pair.first].getParameterController();
 
-            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.frequency);
+            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * note_info.pitchbend_scale_factor);
 
         }
     }
 
     // remove oscillators that are not active_notes
     for (auto it = oscillator_.begin(); it != oscillator_.end(); ){
-        if (active_notes.find(it->first) == active_notes.end()){
+        if ( (*note_info.notes_ptr).find(it->first) == (*note_info.notes_ptr).end()){
             it = oscillator_.erase(it);
         } else {
             oscillator_[it->first].tick();
