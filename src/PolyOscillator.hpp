@@ -4,7 +4,6 @@
 #include "config.hpp"
 #include "Module.hpp"
 #include "Oscillator.hpp"
-#include "KeyboardController.hpp"
 #include "NoteInfo.hpp"
 #include "IO.hpp"
 
@@ -14,7 +13,6 @@
 class PolyOscillator : public Module {
 protected:
     boost::container::flat_map<uint8_t,Oscillator> oscillator_ ;
-    KeyboardController* keyboard_controller_ptr_ ;
     IO<float,AUDIO_OUT_N> outputBuffer_ ;
 
 public:
@@ -26,13 +24,6 @@ public:
      * Create all oscillator objects
     */
     void activate() override ;
-
-    /**
-     * @brief Activate the module. Must be called before real-time processing begins
-     * 
-     * Create all oscillator objects and connect keyboard controller
-    */
-    void activate(KeyboardController* controller);
 
     /**
      * @brief set output buffer for specified channel

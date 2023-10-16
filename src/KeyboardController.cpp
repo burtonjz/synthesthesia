@@ -5,11 +5,10 @@
 #include <algorithm>
 #include <iostream>
 
-KeyboardController::KeyboardController():
-    notes_(),
-    pitchbend_scale_factor_(1.0f),
-    sustain_(0.0f)
-{}
+// initialization of static class member variables
+boost::container::flat_map<uint8_t,Note> KeyboardController::notes_ ;
+float KeyboardController::pitchbend_scale_factor_ = 1.0f ;
+float KeyboardController::sustain_ = 0.0f ;
 
 void KeyboardController::pressNote(uint8_t midi_note, float velocity){
     if(notes_[midi_note].getNote() != midi_note ) notes_[midi_note].setNote(midi_note);
@@ -23,7 +22,7 @@ void KeyboardController::releaseNote(uint8_t midi_note){
     notes_[midi_note].setIsPressed(false);
 }
 
-float KeyboardController::getPitchbend() const {
+float KeyboardController::getPitchbend(){
     return pitchbend_scale_factor_ ;
 }
 

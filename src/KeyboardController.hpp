@@ -19,28 +19,25 @@
 */
 class KeyboardController {
 private:
-    boost::container::flat_map<uint8_t, Note> notes_ ;
+    static boost::container::flat_map<uint8_t, Note> notes_ ;
 
-    float pitchbend_scale_factor_ ;
-    float sustain_ ;
+    static float pitchbend_scale_factor_ ;
+    static float sustain_ ;
 
-    void pressNote(uint8_t midi_note, float velocity);
-    void releaseNote(uint8_t midi_note);
-    float getPitchbend() const ;
-    void setPitchbend(uint16_t pitchBendValue );
-    void setSustain(uint8_t sustain );
-
-    static bool sortByTotalTimeSincePressed(const NoteInfo& a, const NoteInfo& b);
+    static void pressNote(uint8_t midi_note, float velocity);
+    static void releaseNote(uint8_t midi_note);
+    static float getPitchbend() ;
+    static void setPitchbend(uint16_t pitchBendValue );
+    static void setSustain(uint8_t sustain );
 
 public:
-    KeyboardController();
 
     /**
      * @brief get all notes currently pressed or released within the RELEASE parameter type upper limit
      * 
      * the vector will contain all active notes by order of longest to shortest total time since pressed
     */
-    const NoteInfo get_active_notes();
+    static const NoteInfo get_active_notes();
 
     /**
      * @brief process midi message
@@ -48,12 +45,12 @@ public:
      * @param message_type LV2 Midi message type
      * @param msg The message block of the LV2 Atom
     */
-    void processMidi(LV2_Midi_Message_Type message_type, const uint8_t* const msg);
+    static void processMidi(LV2_Midi_Message_Type message_type, const uint8_t* const msg);
 
     /**
      * @brief tick all active components
     */
-    void tick(double time);
+    static void tick(double time);
 };
 
 

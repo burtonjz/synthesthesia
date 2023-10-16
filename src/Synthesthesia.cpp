@@ -1,6 +1,7 @@
 #include "Synthesthesia.hpp"
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
+#include "KeyboardController.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -12,7 +13,6 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     midi_in(nullptr),
     urid_map(nullptr),
     audio_out{nullptr},
-    keyboardController_(),
     sampleRate_(sample_rate),
     oscillator_{PolyOscillator(&sampleRate_)}
 {
@@ -51,7 +51,7 @@ void Synthesthesia::activate(){
     // activate modules and set buffers
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
-    oscillator_[0].activate(&keyboardController_);
+    oscillator_[0].activate();
 }
 
 void Synthesthesia::run(const uint32_t sample_count){
@@ -78,13 +78,7 @@ void Synthesthesia::processMidi(LV2_Atom_Event* ev){
     const uint8_t* const msg = reinterpret_cast<const uint8_t*>(ev + 1);
     const LV2_Midi_Message_Type typ = lv2_midi_message_type(msg);
 
-    // std::cout << "[Synthesthesia] Midi Message received of type " << std::to_string(typ) << " with data block containing: ";
-    // for (int i = 0; i < 3; ++i){
-    //     std::cout << std::to_string(msg[i]) << ", ";
-    // }
-    // std::cout << "." << std::endl;
-
-    keyboardController_.processMidi(typ, msg);
+    KeyboardController::processMidi(typ, msg);
 }
 
 
@@ -97,5 +91,5 @@ void Synthesthesia::play(const uint32_t start, const uint32_t end){
 
 void Synthesthesia::tick(double time){
     oscillator_[0].tick() ;
-    keyboardController_.tick(time);
+    KeyboardController::tick(time);
 }

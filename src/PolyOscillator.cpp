@@ -1,23 +1,17 @@
 #include "PolyOscillator.hpp"
 #include "Note.hpp"
 #include "ParameterController.hpp"
+#include "KeyboardController.hpp"
 #include "ParameterType.hpp"
 
 #include <cstdint>
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
-    oscillator_(),
-    keyboard_controller_ptr_(nullptr)
+    oscillator_()
 {}
 
-void PolyOscillator::activate(){
-}
-
-void PolyOscillator::activate(KeyboardController* controller){
-    keyboard_controller_ptr_ = controller ;
-    activate();
-}
+void PolyOscillator::activate(){}
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
     outputBuffer_.set(buffer,channel);
@@ -33,9 +27,7 @@ void PolyOscillator::processSample(uint32_t idx){
 }
 
 void PolyOscillator::tick(){
-    if(keyboard_controller_ptr_){
-        updateOscillators(keyboard_controller_ptr_->get_active_notes());
-    }
+    updateOscillators(KeyboardController::get_active_notes());
 }
 
 void PolyOscillator::updateOscillators(const NoteInfo note_info){

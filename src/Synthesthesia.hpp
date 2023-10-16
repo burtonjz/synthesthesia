@@ -3,7 +3,6 @@
 
 #include "config.hpp"
 #include "urids.hpp"
-#include "KeyboardController.hpp"
 #include "PolyOscillator.hpp"
 
 #include <cstdint>
@@ -22,7 +21,6 @@ private:
     LV2_URID_Map* urid_map ;
     Urids urids;
 
-    KeyboardController keyboardController_ ;
     std::array<PolyOscillator,1> oscillator_ ;
 
     double sampleRate_ ;
