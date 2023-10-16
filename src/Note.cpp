@@ -1,4 +1,5 @@
 #include "Note.hpp"
+#include "MidiNote.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -22,7 +23,7 @@ Note::Note():
 {}
 
 void Note::setFrequency(uint8_t midi_note){
-    frequency_ = pow(2.0, (static_cast<float>(midi_note) - 69.0) / 12.0) * 440.0 ; // TODO: support tunings other than equal temperment
+    frequency_ = MidiNote::getFrequency(midi_note) ;
 }
 
 uint8_t Note::getNote() const {

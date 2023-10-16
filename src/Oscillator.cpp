@@ -1,4 +1,3 @@
-#include "config.hpp"
 #include "Oscillator.hpp"
 #include "ParameterType.hpp"
 #include "Waveform.hpp"
@@ -87,6 +86,6 @@ void Oscillator::tick(){
 }
 
 std::pair<double,double> Oscillator::panSample(double sample_value){
-    double v = sample_value / 2.0 + 0.5 ;
-    return std::make_pair(v, 1.0 - v);
+    double v = parameterController_.getParameterValue<double>(ParameterType::PAN) / 2.0 + 0.5 ;
+    return std::make_pair(v * sample_value, (1.0 - v) * sample_value );
 }

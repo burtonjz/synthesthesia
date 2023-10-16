@@ -1,4 +1,6 @@
 #include "Synthesthesia.hpp"
+#include "Wavetable.hpp"
+#include "MidiNote.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -26,7 +28,6 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
 
 }
 
-
 void Synthesthesia::connectPort(const uint32_t port, void* data){
     if (port == 0){
         midi_in = static_cast<const LV2_Atom_Sequence*>(data);
@@ -42,8 +43,12 @@ void Synthesthesia::connectPort(const uint32_t port, void* data){
 
 void Synthesthesia::activate(){
     std::cout << "Activating plugin..." << std::endl;
-    Wavetable::generate();
 
+    // generate static data
+    Wavetable::generate();
+    MidiNote::generate();
+
+    // activate modules and set buffers
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
     oscillator_[0].activate(&keyboardController_);

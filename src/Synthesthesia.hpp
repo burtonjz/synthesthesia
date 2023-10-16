@@ -4,8 +4,6 @@
 #include "config.hpp"
 #include "urids.hpp"
 #include "KeyboardController.hpp"
-#include "Wavetable.hpp"
-
 #include "PolyOscillator.hpp"
 
 #include <cstdint>
@@ -30,6 +28,12 @@ private:
     double sampleRate_ ;
 
 public:
+    /**
+     * @brief Construct a new Synthesthesia object
+     * 
+     * @param sample_rate host sample rate
+     * @param features LV2 features array
+     */
     Synthesthesia(const double sample_rate, const LV2_Feature *const *features);
 
     // hooks for internal LV2 core functions
