@@ -47,6 +47,7 @@ void Synthesthesia::activate(){
     // generate static data
     Wavetable::generate();
     MidiNote::generate();
+    KeyboardController::generate();
 
     // activate modules and set buffers
     oscillator_[0].setOutputBuffer(audio_out[0],0);

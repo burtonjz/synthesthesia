@@ -3,12 +3,12 @@
 
 #include "config.hpp"
 #include "Note.hpp"
-#include "NoteInfo.hpp"
 
 #include <lv2/midi/midi.h>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 #include <cstdint>
+#include <array>
 
 
 /**
@@ -21,23 +21,25 @@ class KeyboardController {
 private:
     static boost::container::flat_map<uint8_t, Note> notes_ ;
 
-    static float pitchbend_scale_factor_ ;
-    static float sustain_ ;
-
-    static void pressNote(uint8_t midi_note, float velocity);
-    static void releaseNote(uint8_t midi_note);
-    static float getPitchbend() ;
-    static void setPitchbend(uint16_t pitchBendValue );
-    static void setSustain(uint8_t sustain );
+    static uint16_t pitchbend_value_ ;
+    static std::array<double,16384> pitchbend_scale_factor_ ;
+    static uint8_t sustain_ ;
 
 public:
+
+    /**
+     * @brief pre-compute values used in KeyboardController processing
+     * 
+     * Precomputed values: pitchbend scale factor
+    */
+    static void generate();
 
     /**
      * @brief get all notes currently pressed or released within the RELEASE parameter type upper limit
      * 
      * the vector will contain all active notes by order of longest to shortest total time since pressed
     */
-    static const NoteInfo get_active_notes();
+    static const boost::container::flat_map<uint8_t, Note>* get_active_notes();
 
     /**
      * @brief process midi message
@@ -51,6 +53,23 @@ public:
      * @brief tick all active components
     */
     static void tick(double time);
+
+    /**
+     * @brief get the pitchbend scale factor
+    */
+    static float getPitchbend() ;
+
+    /**
+     * @brief get the sustain value (between 0-127)
+    */
+    static uint8_t getSustain() ;
+
+private:
+    static void pressNote(uint8_t midi_note, float velocity);
+    static void releaseNote(uint8_t midi_note);
+    static void setPitchbend(uint16_t pitchBendValue );
+    static void setSustain(uint8_t sustain );
+
 };
 
 

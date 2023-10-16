@@ -7,8 +7,17 @@
 
 // initialization of static class member variables
 boost::container::flat_map<uint8_t,Note> KeyboardController::notes_ ;
-float KeyboardController::pitchbend_scale_factor_ = 1.0f ;
-float KeyboardController::sustain_ = 0.0f ;
+std::array<double,16384> KeyboardController::pitchbend_scale_factor_ ;
+uint16_t KeyboardController::pitchbend_value_ = 8192 ;
+uint8_t KeyboardController::sustain_ = 0 ;
+
+void KeyboardController::generate(){
+    float shiftValue ;
+    for(uint16_t i = 0; i < 16384; ++i){
+        shiftValue = ( i - 8192.0 ) / 16383.0 * CONFIG_PITCHBEND_MAX_SHIFT * 2.0 ; 
+        pitchbend_scale_factor_[i] = std::pow(2.0f, (shiftValue / 12.0f));
+    }
+}
 
 void KeyboardController::pressNote(uint8_t midi_note, float velocity){
     if(notes_[midi_note].getNote() != midi_note ) notes_[midi_note].setNote(midi_note);
@@ -23,17 +32,16 @@ void KeyboardController::releaseNote(uint8_t midi_note){
 }
 
 float KeyboardController::getPitchbend(){
-    return pitchbend_scale_factor_ ;
+    return pitchbend_scale_factor_[pitchbend_value_] ;
 }
 
 void KeyboardController::setPitchbend(uint16_t pitchbend ){
     if ( pitchbend > 16383 ) pitchbend = 16383 ;
+    pitchbend_value_ = pitchbend ;
+}
 
-    // linear transformation to make value in  [-1.0f, 1.0f] * MAX PITCHBEND SHIFT
-    float shiftValue = ( (pitchbend - 8192.0f) / 16383.0f ) * CONFIG_PITCHBEND_MAX_SHIFT ;
-
-    pitchbend_scale_factor_ = std::pow(2.0f, (shiftValue / 12.0f));
-    // TODO: precompute this
+uint8_t KeyboardController::getSustain(){
+    return sustain_ ;
 }
 
 void KeyboardController::setSustain(uint8_t sustain ){
@@ -41,14 +49,8 @@ void KeyboardController::setSustain(uint8_t sustain ){
     else sustain_ = sustain ;
 }
     
-const NoteInfo KeyboardController::get_active_notes(){
-    NoteInfo n ;
-
-    n.notes_ptr = &notes_ ;
-    n.pitchbend_scale_factor = pitchbend_scale_factor_ ;
-    n.sustain = sustain_ ;
-
-    return n ;
+const boost::container::flat_map<uint8_t,Note>* KeyboardController::get_active_notes(){
+    return &notes_ ;
 }
 
 void KeyboardController::processMidi(LV2_Midi_Message_Type message_type, const uint8_t* const msg){

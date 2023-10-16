@@ -27,19 +27,20 @@ void PolyOscillator::processSample(uint32_t idx){
 }
 
 void PolyOscillator::tick(){
-    updateOscillators(KeyboardController::get_active_notes());
+    updateOscillators();
 }
 
-void PolyOscillator::updateOscillators(const NoteInfo note_info){
+void PolyOscillator::updateOscillators(){
+    const boost::container::flat_map<uint8_t,Note>* notes_ptr = KeyboardController::get_active_notes();
     // first, update oscillators with new information from active_notes
-    for (const auto& pair : *note_info.notes_ptr ){
+    for (const auto& pair : *notes_ptr ){
         auto it = oscillator_.find(pair.first);
         if(it == oscillator_.end()){
             oscillator_.insert(std::make_pair(pair.first,Oscillator(sampleRate_)));
             ParameterController* p = oscillator_[pair.first].getParameterController();
             
             p->setParameterValue<bool>(ParameterType::STATUS,true);
-            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * note_info.pitchbend_scale_factor);
+            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * KeyboardController::getPitchbend());
             p->setParameterValue<double>(ParameterType::AMPLITUDE,pair.second.getVelocity() / 127.0);
 
             updateChildOutputBuffers(pair.first);
@@ -47,14 +48,14 @@ void PolyOscillator::updateOscillators(const NoteInfo note_info){
         } else {
             ParameterController* p = oscillator_[pair.first].getParameterController();
 
-            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * note_info.pitchbend_scale_factor);
+            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * KeyboardController::getPitchbend());
 
         }
     }
 
     // remove oscillators that are not active_notes
     for (auto it = oscillator_.begin(); it != oscillator_.end(); ){
-        if ( (*note_info.notes_ptr).find(it->first) == (*note_info.notes_ptr).end()){
+        if ( (*notes_ptr).find(it->first) == (*notes_ptr).end()){
             it = oscillator_.erase(it);
         } else {
             oscillator_[it->first].tick();

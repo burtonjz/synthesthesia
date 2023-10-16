@@ -4,7 +4,6 @@
 #include "config.hpp"
 #include "Module.hpp"
 #include "Oscillator.hpp"
-#include "NoteInfo.hpp"
 #include "IO.hpp"
 
 #include <boost/container/flat_map.hpp>
@@ -48,7 +47,7 @@ private:
      * 
      * @param note_info NoteInfo struct from the KeyboardController
     */
-    void updateOscillators(const NoteInfo note_info);
+    void updateOscillators();
 
     /**
      * @brief set child oscillator output buffer to same as this
