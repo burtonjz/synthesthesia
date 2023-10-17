@@ -69,7 +69,7 @@ private:
      * @brief validate whether all outputBuffer are set
     */
     bool isOutputBufferSet();
-
+    
 };
 
 #endif // __OSCILLATOR_HPP_

@@ -3,8 +3,14 @@
 #include "ParameterController.hpp"
 #include "KeyboardController.hpp"
 #include "ParameterType.hpp"
+#include "LinearFader.hpp"
+#include "ModulationParameter.hpp"
 
 #include <cstdint>
+
+#ifdef DEBUG
+#include <iostream>
+#endif
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
@@ -43,6 +49,15 @@ void PolyOscillator::updateOscillators(){
             p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * KeyboardController::getPitchbend());
             p->setParameterValue<double>(ParameterType::AMPLITUDE,pair.second.getVelocity() / 127.0);
 
+            boost::container::flat_map<ModulationParameter,double> amp_map ;
+            amp_map[ModulationParameter::MIDI_NOTE] = pair.first ;
+            
+            p->setParameterModulation<double>(
+                ParameterType::AMPLITUDE, 
+                LinearFader::modulate, 
+                amp_map
+            );
+
             updateChildOutputBuffers(pair.first);
 
         } else {
@@ -72,46 +87,51 @@ void PolyOscillator::updateChildOutputBuffers(uint8_t index){
 }
 
 
+#ifdef DEBUG
+#include "Wavetable.hpp"
+#include "MidiNote.hpp"
+#include <iostream>
+// gcc -DDEBUG -std=c++17 -o test MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
+int main() {
+    KeyboardController::generate();
+    MidiNote::generate();
 
-// #include "Wavetable.hpp"
-// // gcc -std=c++17 -o test Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
-// int main() {
-//     double sample_rate = 100 ;
-//     PolyOscillator p(&sample_rate);
-//     KeyboardController k ;
-
-//     uint8_t n_samples = 20 ;
-//     uint8_t midi_msg[3] = {0, 12, 127} ;
-
-//     float audio_buffer_L[n_samples] ;
-//     float audio_buffer_R[n_samples] ;
-
-//     for(int i = 0; i < n_samples; ++i){
-//         audio_buffer_L[i] = 0.0f ;
-//     }
-
-//     // activate stuff
-//     Wavetable::generate() ; 
-
-//     p.activate(&k);
-//     p.setOutputBuffer(audio_buffer_L, 0);
-//     p.setOutputBuffer(audio_buffer_R, 1);
-
-//     // give keyboard controller a midi message
+    double sample_rate = 10000 ;
+    PolyOscillator p(&sample_rate);
     
-//     k.processMidi(LV2_MIDI_MSG_NOTE_ON, midi_msg);
+    int n_samples = 1000 ;
+    uint8_t midi_msg[3] = {0, 69, 127} ;
 
-//     p.tick();
+    float audio_buffer_L[n_samples] ;
+    float audio_buffer_R[n_samples] ;
 
-//     for(uint8_t i = 0; i < n_samples; ++i ){
-//         p.processSample(i);
-//         p.tick();
-//         std::cout << "index=" << std::to_string(i) 
-//             << ", value_L=" << std::to_string(audio_buffer_L[i]) 
-//             << ", value_R=" << std::to_string(audio_buffer_R[i]) 
-//             << std::endl ;
-//     }
+    for(int i = 0; i < n_samples; ++i){
+        audio_buffer_L[i] = 0.0f ;
+        audio_buffer_R[i] = 0.0f ;
+    }
 
-//     return 0 ;
+    // activate stuff
+    Wavetable::generate() ; 
 
-// }
+    p.activate();
+    p.setOutputBuffer(audio_buffer_L, 0);
+    p.setOutputBuffer(audio_buffer_R, 1);
+
+    // give keyboard controller a midi message
+    KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_ON, midi_msg);
+    // p.tick();
+
+    for(int i = 0; i < n_samples; ++i ){
+        p.processSample(i);
+        p.tick();
+        KeyboardController::tick(1.0/sample_rate);
+        std::cout << std::to_string(i) 
+            << ", " << std::to_string(audio_buffer_L[i]) 
+            << ", " << std::to_string(audio_buffer_R[i]) 
+            << std::endl ;
+    }
+
+    return 0 ;
+
+}
+#endif

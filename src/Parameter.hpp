@@ -2,9 +2,16 @@
 #define __PARAMETER_HPP_
 
 #include "ParameterType.hpp"
+#include "ModulationParameter.hpp"
 
+#include <boost/container/flat_map.hpp>
 #include <limits>
 #include <functional>
+#include <algorithm>
+
+#ifdef DEBUG
+#include <iostream>
+#endif
 
 /**
  * @brief template class containing logic to define and manipulate a parameter
@@ -15,19 +22,32 @@
 template <typename T>
 class Parameter {
 private:
-    ParameterType type_;
-    bool modulatable_;
-    T value_;
-    T instantaneousValue_;
-    T defaultValue_;
-    T minValue_;
-    T maxValue_;
+    ParameterType type_ ;
+    bool modulatable_ ;
+    T value_ ;
+    T instantaneousValue_ ;
+    T defaultValue_ ;
+    T minValue_ ;
+    T maxValue_ ;
+    std::function<T(T, boost::container::flat_map<ModulationParameter, T>)> modulationFunction_ ;
+    boost::container::flat_map<ModulationParameter,T> modulationParameters_ ;
     
 
 public:
-    Parameter(ParameterType typ, T defaultValue, bool modulatable):
-        Parameter(typ,defaultValue,modulatable, parameterLimits[static_cast<int>(typ)].first, parameterLimits[static_cast<int>(typ)].second)
-    {}
+    Parameter(
+        ParameterType typ, T defaultValue, bool modulatable, T minValue, T maxValue,
+        std::function<T(T, boost::container::flat_map<ModulationParameter, T>)> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
+    ):
+        type_(typ),
+        modulatable_(modulatable),
+        minValue_(minValue),
+        maxValue_(maxValue),
+        modulationFunction_(modulationFunction),
+        modulationParameters_(modulationParameters)
+    {
+        defaultValue_ = limitToRange(defaultValue);
+        setValue(defaultValue_) ;
+    }
 
     Parameter(ParameterType typ, T defaultValue, bool modulatable, T minValue, T maxValue):
         type_(typ),
@@ -35,9 +55,40 @@ public:
         minValue_(minValue),
         maxValue_(maxValue)
     {
+        std::function<T(T, boost::container::flat_map<ModulationParameter, T>)> 
+            nullModulationFunction = [](T t, const boost::container::flat_map<ModulationParameter, T>& map) -> T {
+                return t ;
+            };
+        boost::container::flat_map<ModulationParameter, T> map ;
+
+        setModulationFunction(
+            nullModulationFunction,   
+            map    
+        );
+
         defaultValue_ = limitToRange(defaultValue);
-        value_ = defaultValue_ ;
+        setValue(defaultValue_);
     }
+
+    Parameter(ParameterType typ, T defaultValue, bool modulatable):
+        Parameter(typ,defaultValue,modulatable, parameterLimits[static_cast<int>(typ)].first, parameterLimits[static_cast<int>(typ)].second)
+    {}
+
+    Parameter(
+        ParameterType typ, T defaultValue, bool modulatable,
+        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
+    ):
+        type_(typ),
+        modulatable_(modulatable),
+        minValue_(parameterLimits[static_cast<int>(typ)].first),
+        maxValue_(parameterLimits[static_cast<int>(typ)].second),
+        modulationFunction_(modulationFunction),
+        modulationParameters_(modulationParameters)
+    {
+        defaultValue_ = limitToRange(defaultValue);
+        setValue(defaultValue_);
+    }
+
 
     /**
      * @brief set parameter value
@@ -46,6 +97,7 @@ public:
     */
     void setValue(T value){
         value_ = limitToRange(value);
+        setInstantaneousValue(value_);
     }
 
     /**
@@ -59,13 +111,20 @@ public:
      * @brief returns the parameter value
     */
     T getValue() const {
-        return value_;
+        return value_ ;
     }
 
     /**
      * @brief returns the parameter instantaneous (i.e., modulated) value
     */
     T getInstantaneousValue() const {
+        // #ifdef DEBUG
+        // if (type_ == ParameterType::AMPLITUDE ){
+        //     std::cout << "[Parameter] getInstantaneousValue: type=" << static_cast<int>(type_)
+        //         << ", value=" << value_
+        //         << ", inst_value=" << instantaneousValue_ << std::endl ;
+        // }
+        // #endif
         return instantaneousValue_ ;
     }
 
@@ -86,6 +145,17 @@ public:
     }
 
     /**
+     * @brief set the modulation function
+    */
+    void setModulationFunction(
+        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> func, 
+        boost::container::flat_map<ModulationParameter,T> modulationParameters
+    ){
+        modulationFunction_ = func ;
+        modulationParameters_ = modulationParameters ;
+    }
+
+    /**
      * @brief limit value to Parameter's range
      * 
      * @param value value
@@ -97,15 +167,29 @@ public:
     }
 
     /**
-     * @brief modulate the parameter with an external function
+     * @brief modulate the parameter with the set modulation function
      * 
-     * @param modulationFunction a function returning Type T, with two inputs (parameterValue, modulatorValue)
-     * @param modulatorValue the value to be the second parameter of the modulationFunction
+     * if not explicitly set, the modulation function will do nothing!
+     * 
     */
-    void modulate(std::function<T(T, T)> modulationFunction, T modulatorValue){
-        if(modulatable_) instantaneousValue_ = limitToRange(modulationFunction(value_, modulatorValue));
+    void modulate(){
+        if(!modulatable_) return ;
+        
+        setInstantaneousValue(modulationFunction_(value_, modulationParameters_));
     }
 
+private:
+
+    void setInstantaneousValue(T v){
+        instantaneousValue_ = v ;
+        // #ifdef DEBUG
+        // if (type_ == ParameterType::AMPLITUDE ){
+        //     std::cout << "[Parameter] setInstantaneousValue: type=" << static_cast<int>(type_)
+        //         << ", value=" << value_
+        //         << ", inst_value=" << instantaneousValue_ << std::endl ;
+        // }
+        // #endif
+    }
 };
 
 #endif // __PARAMETER_HPP_

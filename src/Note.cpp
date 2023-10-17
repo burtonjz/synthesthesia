@@ -2,7 +2,6 @@
 #include "MidiNote.hpp"
 
 #include <cmath>
-#include <iostream>
 
 Note::Note(uint8_t midi_note, uint8_t midi_velocity, bool is_note_pressed, float time_since_pressed):
     is_note_pressed_(is_note_pressed),
@@ -34,8 +33,6 @@ void Note::setNote(uint8_t note){
     if ( note > 127 ) note = 127 ;
     else midi_note_ = note ;
     setFrequency(midi_note_);
-
-    std::cout << "[Note] midi_note " << std::to_string(static_cast<int>(note)) << " frequency set to " << frequency_ << std::endl ;
 }
 
 uint8_t Note::getVelocity() const {

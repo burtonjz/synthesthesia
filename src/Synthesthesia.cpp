@@ -34,9 +34,11 @@ void Synthesthesia::connectPort(const uint32_t port, void* data){
         std::cout << "Connected port 0 to midi_in." << std::endl;
     } else if (port == 1){
         audio_out[0] = static_cast<float*>(data);
+        oscillator_[0].setOutputBuffer(audio_out[0],0);
         std::cout << "Connected port 1 to audio_out." << std::endl;
     } else if (port == 2){
         audio_out[1] = static_cast<float*>(data);
+        oscillator_[0].setOutputBuffer(audio_out[1],1);
         std::cout << "Connected port 2 to audio_out." << std::endl;
     }
 }
@@ -53,6 +55,8 @@ void Synthesthesia::activate(){
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
     oscillator_[0].activate();
+
+    std::cout << "Activated!" << std::endl; 
 }
 
 void Synthesthesia::run(const uint32_t sample_count){
