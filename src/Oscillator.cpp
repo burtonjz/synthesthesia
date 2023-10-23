@@ -71,13 +71,6 @@ void Oscillator::processSample(uint32_t idx){
     sample = (1.0 - frac) * (*wave_ptr)[index_floor] + frac * (*wave_ptr)[index_floor + 1];
 
     // apply amplitude
-    // #ifdef DEBUG
-    //     double v = parameterController_.getParameterInstantaneousValue<double>(ParameterType::AMPLITUDE) ;
-    //     std::cout << "[Oscillator] processSample: value=" << sample
-    //         << ", amplitude=" << v
-    //         << std::endl ;
-    // #endif
-
     sample *= parameterController_.getParameterInstantaneousValue<double>(ParameterType::AMPLITUDE);
 
     // add sample to buffer

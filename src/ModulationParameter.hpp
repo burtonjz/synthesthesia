@@ -8,7 +8,8 @@
  * extra variables may be exposed to the modulation function through this map
 */
 enum class ModulationParameter {
-    MIDI_NOTE
+    MIDI_NOTE,
+    LAST_SAMPLE
 };
 
 #endif // __MODULATION_PARAMETERS_HPP_

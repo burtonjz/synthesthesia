@@ -2,6 +2,7 @@
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
 #include "KeyboardController.hpp"
+#include "ADSREnvelope.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -52,6 +53,8 @@ void Synthesthesia::activate(){
     KeyboardController::generate();
 
     // activate modules and set buffers
+    ADSREnvelope::activate();
+
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
     oscillator_[0].activate();
@@ -95,6 +98,7 @@ void Synthesthesia::play(const uint32_t start, const uint32_t end){
 }
 
 void Synthesthesia::tick(double time){
-    oscillator_[0].tick() ;
+    ADSREnvelope::tick();
     KeyboardController::tick(time);
+    oscillator_[0].tick() ;
 }

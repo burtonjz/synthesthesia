@@ -42,4 +42,18 @@ constexpr std::array<std::pair<float, float>, static_cast<int>(ParameterType::PA
     std::make_pair(0.001f, 4.0f )                             // RELEASE
 });
 
+constexpr std::array<float, static_cast<int>(ParameterType::PARAMETER_N)> parameterDefaults({
+    0.0f,                               // STATUS
+    static_cast<float>(Waveform::SINE), // WAVEFORM
+    440.0f,                             // FREQUENCY
+    1.0f,                               // AMPLITUDE
+    0.0f,                               // PHASE
+    0.0f,                               // PAN
+    0.0f,                               // DETUNE
+    3.0f,                              // ATTACK
+    3.0f,                              // DECAY
+    0.2f,                               // SUSTAIN
+    3.0f                               // RELEASE
+});
+
 #endif // __PARAMETER_TYPE_HPP_

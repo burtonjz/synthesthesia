@@ -118,13 +118,6 @@ public:
      * @brief returns the parameter instantaneous (i.e., modulated) value
     */
     T getInstantaneousValue() const {
-        // #ifdef DEBUG
-        // if (type_ == ParameterType::AMPLITUDE ){
-        //     std::cout << "[Parameter] getInstantaneousValue: type=" << static_cast<int>(type_)
-        //         << ", value=" << value_
-        //         << ", inst_value=" << instantaneousValue_ << std::endl ;
-        // }
-        // #endif
         return instantaneousValue_ ;
     }
 
@@ -182,13 +175,6 @@ private:
 
     void setInstantaneousValue(T v){
         instantaneousValue_ = v ;
-        // #ifdef DEBUG
-        // if (type_ == ParameterType::AMPLITUDE ){
-        //     std::cout << "[Parameter] setInstantaneousValue: type=" << static_cast<int>(type_)
-        //         << ", value=" << value_
-        //         << ", inst_value=" << instantaneousValue_ << std::endl ;
-        // }
-        // #endif
     }
 };
 

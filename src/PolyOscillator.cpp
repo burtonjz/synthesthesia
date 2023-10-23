@@ -4,6 +4,7 @@
 #include "KeyboardController.hpp"
 #include "ParameterType.hpp"
 #include "LinearFader.hpp"
+#include "ADSREnvelope.hpp"
 #include "ModulationParameter.hpp"
 
 #include <cstdint>
@@ -51,10 +52,11 @@ void PolyOscillator::updateOscillators(){
 
             boost::container::flat_map<ModulationParameter,double> amp_map ;
             amp_map[ModulationParameter::MIDI_NOTE] = pair.first ;
+            amp_map[ModulationParameter::LAST_SAMPLE] = 0.0 ;
             
             p->setParameterModulation<double>(
                 ParameterType::AMPLITUDE, 
-                LinearFader::modulate, 
+                ADSREnvelope::modulate, 
                 amp_map
             );
 
@@ -91,16 +93,17 @@ void PolyOscillator::updateChildOutputBuffers(uint8_t index){
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
 #include <iostream>
-// gcc -DDEBUG -std=c++17 -o test MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
+// gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
 int main() {
     KeyboardController::generate();
     MidiNote::generate();
+    ADSREnvelope::activate();
 
-    double sample_rate = 10000 ;
+    double sample_rate = 10 ;
     PolyOscillator p(&sample_rate);
     
-    int n_samples = 1000 ;
-    uint8_t midi_msg[3] = {0, 69, 127} ;
+    int n_samples = 100 ;
+    uint8_t midi_msg[3] = {0, 69, 80} ;
 
     float audio_buffer_L[n_samples] ;
     float audio_buffer_R[n_samples] ;
@@ -121,15 +124,51 @@ int main() {
     KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_ON, midi_msg);
     // p.tick();
 
-    for(int i = 0; i < n_samples; ++i ){
+    for(int i = 0; i < 60; ++i ){
         p.processSample(i);
         p.tick();
         KeyboardController::tick(1.0/sample_rate);
-        std::cout << std::to_string(i) 
-            << ", " << std::to_string(audio_buffer_L[i]) 
-            << ", " << std::to_string(audio_buffer_R[i]) 
-            << std::endl ;
+        // std::cout << std::to_string(i) 
+        //     << ", " << std::to_string(audio_buffer_L[i]) 
+        //     << ", " << std::to_string(audio_buffer_R[i]) 
+        //     << std::endl ;
     }
+
+    // release note and refresh buffer
+    KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_OFF, midi_msg);
+    for(int i = 0; i < n_samples; ++i){
+        audio_buffer_L[i] = 0.0f ;
+        audio_buffer_R[i] = 0.0f ;
+    }
+
+    for(int i = 0; i < 15; ++i ){
+        p.processSample(i);
+        p.tick();
+        KeyboardController::tick(1.0/sample_rate);
+        // std::cout << std::to_string(i) 
+        //     << ", " << std::to_string(audio_buffer_L[i]) 
+        //     << ", " << std::to_string(audio_buffer_R[i]) 
+        //     << std::endl ;
+    }
+
+    // press note again & refresh buffer
+    KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_ON, midi_msg);
+    for(int i = 0; i < n_samples; ++i){
+        audio_buffer_L[i] = 0.0f ;
+        audio_buffer_R[i] = 0.0f ;
+    }
+
+    for(int i = 0; i < 15; ++i ){
+        p.processSample(i);
+        p.tick();
+        KeyboardController::tick(1.0/sample_rate);
+        // std::cout << std::to_string(i) 
+        //     << ", " << std::to_string(audio_buffer_L[i]) 
+        //     << ", " << std::to_string(audio_buffer_R[i]) 
+        //     << std::endl ;
+    }
+
+
 
     return 0 ;
 

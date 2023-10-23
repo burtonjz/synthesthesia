@@ -70,7 +70,6 @@ float Note::getTimeSinceReleased() const {
 }
 
 void Note::resetTimeSinceEvent(){
-    // std::cout << "[Note] midi_note=" << midi_note_ << ", status=" << is_note_pressed_ << ", time_since_pressed=" << time_since_pressed_ << ", time_since_released=" << time_since_released_ << std::endl;
     if(is_note_pressed_) time_since_pressed_ = 0.0f;
     else time_since_released_ = 0.0f;
 }
