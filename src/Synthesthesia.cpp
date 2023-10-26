@@ -53,7 +53,7 @@ void Synthesthesia::activate(){
     KeyboardController::generate();
 
     // activate modules and set buffers
-    ADSREnvelope::activate();
+    ADSREnvelope::activate(&sampleRate_);
 
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
@@ -98,7 +98,7 @@ void Synthesthesia::play(const uint32_t start, const uint32_t end){
 }
 
 void Synthesthesia::tick(double time){
+    oscillator_[0].tick();
     ADSREnvelope::tick();
     KeyboardController::tick(time);
-    oscillator_[0].tick() ;
 }

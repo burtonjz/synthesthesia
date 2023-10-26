@@ -50,10 +50,10 @@ constexpr std::array<float, static_cast<int>(ParameterType::PARAMETER_N)> parame
     0.0f,                               // PHASE
     0.0f,                               // PAN
     0.0f,                               // DETUNE
-    3.0f,                              // ATTACK
-    3.0f,                              // DECAY
+    3.0f,                               // ATTACK
+    3.0f,                               // DECAY
     0.2f,                               // SUSTAIN
-    3.0f                               // RELEASE
+    3.0f                                // RELEASE
 });
 
 #endif // __PARAMETER_TYPE_HPP_

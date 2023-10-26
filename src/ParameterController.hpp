@@ -159,7 +159,7 @@ public:
     template <typename T>
     void setParameterModulation(
         ParameterType param, 
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> modulationFunction, 
+        std::function<T(T, boost::container::flat_map<ModulationParameter,T>* )> modulationFunction, 
         boost::container::flat_map<ModulationParameter,T> modulationParameters
     ){
         auto it = parameters_.find(param);

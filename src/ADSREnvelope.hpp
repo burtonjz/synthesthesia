@@ -11,6 +11,7 @@
 class ADSREnvelope {
 private:
     static ParameterController params_ ;
+    static double* sample_rate_ ;
 
 
     /**
@@ -37,18 +38,25 @@ private:
      * @brief get modulated value for decay stage
      * 
      * @param value input value
-     * @param sustain sustain level (release stage will start here)
+     * @param sustain sustain level
+    */
+    static double getSustain(const double value, const double sustain);
+
+    /**
+     * @brief get modulated value for decay stage
+     * 
+     * @param start_level
      * @param time_release the time since release stage triggered
      * @param release the time duration in seconds for the release stage
     */
-    static double getRelease(const double value, const double sustain, const double time_release, const double release); 
+    static double getRelease(const double start_level, const double time_release, const double release); 
 
 public:
     /**
      * @brief activates the ADSR envelope
      * 
     */
-    static void activate();
+    static void activate(double* sample_rate);
 
     /**
      * @brief modulate function
@@ -59,7 +67,7 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map. Must contain MIDI_NOTE.
     */
-    static double modulate(double value, boost::container::flat_map<ModulationParameter,double> modp);
+    static double modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp);
 
     /**
      * @brief returns the value for an envelope parameter

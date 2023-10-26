@@ -1,14 +1,14 @@
 #include "ADSREnvelope.hpp"
 #include "KeyboardController.hpp"
 
-#ifdef DEBUG
 #include <iostream>
-#endif 
 
 ParameterController ADSREnvelope::params_ ;
+double* ADSREnvelope::sample_rate_ = nullptr ;
 
+void ADSREnvelope::activate(double* sample_rate){
+    sample_rate_ = sample_rate ;
 
-void ADSREnvelope::activate(){
     params_.addParameter<double>(
         ParameterType::ATTACK,
         parameterDefaults[static_cast<int>(ParameterType::ATTACK)],
@@ -39,16 +39,22 @@ double ADSREnvelope::getDecay(const double value, const double sustain, const do
     return value - (value - sustain * value) * ( time_decay / decay ) ;
 }
 
-double ADSREnvelope::getRelease(const double value, const double sustain, const double time_release, const double release){
-    return sustain * value - ( sustain * value * time_release ) / release ;
+double ADSREnvelope::getSustain(const double value, const double sustain){
+    return sustain * value ;
 }
 
-double ADSREnvelope::modulate(double value, boost::container::flat_map<ModulationParameter,double> modp){
-    // REQUIRED PARAMS
-    if ( modp.find(ModulationParameter::MIDI_NOTE) == modp.end() ) return value ;
-    if ( modp.find(ModulationParameter::LAST_SAMPLE) == modp.end() ) return value ;
+double ADSREnvelope::getRelease(const double start_level, const double time_release, const double release){
+    if (time_release > release) return 0.0 ;
+    return start_level - start_level * time_release  / release ;
+}
 
-    uint8_t midi_note = static_cast<uint8_t>(modp[ModulationParameter::MIDI_NOTE]);
+double ADSREnvelope::modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp){
+    // REQUIRED PARAMS
+    if ( modp->find(ModulationParameter::MIDI_NOTE) == modp->end() ) return value ;
+    if ( modp->find(ModulationParameter::INITIAL_VALUE) == modp->end() ) return value ;
+    if ( modp->find(ModulationParameter::LAST_VALUE) == modp->end() ) return value ;
+
+    uint8_t midi_note = static_cast<uint8_t>((*modp)[ModulationParameter::MIDI_NOTE]);
     const boost::container::flat_map<uint8_t, Note>* notes = KeyboardController::get_active_notes() ;
 
     auto it = notes->find(midi_note);
@@ -60,26 +66,32 @@ double ADSREnvelope::modulate(double value, boost::container::flat_map<Modulatio
     double r = params_.getParameterInstantaneousValue<double>(ParameterType::RELEASE);
     double rt = it->second.getTimeSinceReleased();
     double pt = it->second.getTimeSincePressed();
+    double output ;
 
     if ( it->second.getIsPressed() ){    
-        if ( pt < a ){
-            // if ( rt > 0 && rt < r) return getAttack(value, getRelease(1.0, s, rt, r), pt, a);
-            return getAttack(value,0.0,pt,a);
+        if (pt == 0.0 ){ // if press stage just started, calculate initial_value
+            // (*modp)[ModulationParameter::INITIAL_VALUE] = getRelease(value,(*modp)[ModulationParameter::INITIAL_VALUE],rt - 1.0 / *sample_rate_ ,r);
+            (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
         }
 
-        if ( pt < a + d ){
-            return getDecay(value, s, pt - a, d);
-        }
-
-        return value * s ;
+        if ( pt < a ) output = getAttack(value,(*modp)[ModulationParameter::INITIAL_VALUE],pt,a);
+        else if ( pt < a + d ) output = getDecay(value, s, pt - a, d);
+        else output = getSustain(value, s) ;
 
     } else {
-        if (rt > r) return 0.0 ;
-        if ( pt < a ) return getRelease(value, getAttack(1.0,0.0,pt,a), rt, r);
-        if ( pt < a + d ) return getRelease(value, getDecay(1.0, s, pt - a, d), rt, r);
+        if (rt == 0.0){ // if release stage just started, calculate initial_value
+            // if (pt < a ) (*modp)[ModulationParameter::INITIAL_VALUE] = getAttack(1.0,0.0, pt - 1.0 / *sample_rate_ ,a) ;
+            // else if (pt < a + d ) (*modp)[ModulationParameter::INITIAL_VALUE] = getDecay(1.0, s, pt - a - 1.0 / *sample_rate_, d) ;
+            // else (*modp)[ModulationParameter::INITIAL_VALUE] = s ;
+            (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
+        }
 
-        return getRelease(value, s, rt, r);
+        output = getRelease((*modp)[ModulationParameter::INITIAL_VALUE], rt, r);
     }    
+
+    (*modp)[ModulationParameter::LAST_VALUE] = output ;
+    return output ;
+
 }
 
 double ADSREnvelope::getValue(ParameterType param){

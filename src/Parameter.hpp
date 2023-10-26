@@ -29,14 +29,14 @@ private:
     T defaultValue_ ;
     T minValue_ ;
     T maxValue_ ;
-    std::function<T(T, boost::container::flat_map<ModulationParameter, T>)> modulationFunction_ ;
+    std::function<T(T, boost::container::flat_map<ModulationParameter, T>*)> modulationFunction_ ;
     boost::container::flat_map<ModulationParameter,T> modulationParameters_ ;
     
 
 public:
     Parameter(
         ParameterType typ, T defaultValue, bool modulatable, T minValue, T maxValue,
-        std::function<T(T, boost::container::flat_map<ModulationParameter, T>)> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
+        std::function<T(T, boost::container::flat_map<ModulationParameter, T>*)> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
     ):
         type_(typ),
         modulatable_(modulatable),
@@ -55,11 +55,10 @@ public:
         minValue_(minValue),
         maxValue_(maxValue)
     {
-        std::function<T(T, boost::container::flat_map<ModulationParameter, T>)> 
-            nullModulationFunction = [](T t, const boost::container::flat_map<ModulationParameter, T>& map) -> T {
-                return t ;
-            };
         boost::container::flat_map<ModulationParameter, T> map ;
+        auto nullModulationFunction = [](T value, boost::container::flat_map<ModulationParameter, T>* map) -> T {
+            return value;
+        };
 
         setModulationFunction(
             nullModulationFunction,   
@@ -76,7 +75,7 @@ public:
 
     Parameter(
         ParameterType typ, T defaultValue, bool modulatable,
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
+        std::function<T(T, boost::container::flat_map<ModulationParameter,T>* )> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
     ):
         type_(typ),
         modulatable_(modulatable),
@@ -141,7 +140,7 @@ public:
      * @brief set the modulation function
     */
     void setModulationFunction(
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> func, 
+        std::function<T(T, boost::container::flat_map<ModulationParameter,T>*)> func, 
         boost::container::flat_map<ModulationParameter,T> modulationParameters
     ){
         modulationFunction_ = func ;
@@ -167,8 +166,13 @@ public:
     */
     void modulate(){
         if(!modulatable_) return ;
-        
-        setInstantaneousValue(modulationFunction_(value_, modulationParameters_));
+        setInstantaneousValue(modulationFunction_(value_, &modulationParameters_));
+        #ifdef DEBUG
+            if (type_ == ParameterType::AMPLITUDE){
+                std::cout
+                    << ", inst_amp" << "=" << getInstantaneousValue() ;
+            }
+        #endif
     }
 
 private:
@@ -176,6 +180,7 @@ private:
     void setInstantaneousValue(T v){
         instantaneousValue_ = v ;
     }
+
 };
 
 #endif // __PARAMETER_HPP_

@@ -4,10 +4,6 @@
 #include <cmath>
 #include <algorithm>
 
-#ifdef DEBUG
-#include <iostream>
-#endif 
-
 // initialization of static class member variables
 boost::container::flat_map<uint8_t,Note> KeyboardController::notes_ ;
 std::array<double,16384> KeyboardController::pitchbend_scale_factor_ ;
@@ -26,12 +22,6 @@ void KeyboardController::pressNote(uint8_t midi_note, float velocity){
     if(notes_[midi_note].getNote() != midi_note ) notes_[midi_note].setNote(midi_note);
     notes_[midi_note].setIsPressed(true);
     notes_[midi_note].setVelocity(velocity);
-
-    #ifdef DEBUG
-        std::cout << "[KeyboardController] pressNote: midi_note=" << std::to_string(midi_note)
-            << ", frequency=" << notes_[midi_note].getFrequency() 
-            << ", velocity=" << velocity << std::endl ;
-    #endif
 }
 
 void KeyboardController::releaseNote(uint8_t midi_note){

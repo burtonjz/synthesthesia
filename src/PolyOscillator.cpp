@@ -52,7 +52,8 @@ void PolyOscillator::updateOscillators(){
 
             boost::container::flat_map<ModulationParameter,double> amp_map ;
             amp_map[ModulationParameter::MIDI_NOTE] = pair.first ;
-            amp_map[ModulationParameter::LAST_SAMPLE] = 0.0 ;
+            amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
+            amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
             
             p->setParameterModulation<double>(
                 ParameterType::AMPLITUDE, 
@@ -125,13 +126,13 @@ int main() {
     // p.tick();
 
     for(int i = 0; i < 60; ++i ){
+        std::cout << std::to_string(i) ;
         p.processSample(i);
         p.tick();
         KeyboardController::tick(1.0/sample_rate);
-        // std::cout << std::to_string(i) 
-        //     << ", " << std::to_string(audio_buffer_L[i]) 
-        //     << ", " << std::to_string(audio_buffer_R[i]) 
-        //     << std::endl ;
+        std::cout
+            << ", audio_out=" << std::to_string(audio_buffer_L[i]) 
+            << std::endl ;
     }
 
     // release note and refresh buffer
@@ -142,13 +143,13 @@ int main() {
     }
 
     for(int i = 0; i < 15; ++i ){
+        std::cout << std::to_string(i) ;
         p.processSample(i);
         p.tick();
         KeyboardController::tick(1.0/sample_rate);
-        // std::cout << std::to_string(i) 
-        //     << ", " << std::to_string(audio_buffer_L[i]) 
-        //     << ", " << std::to_string(audio_buffer_R[i]) 
-        //     << std::endl ;
+        std::cout
+            << ", audio_out=" << std::to_string(audio_buffer_L[i]) 
+            << std::endl ;
     }
 
     // press note again & refresh buffer
@@ -159,13 +160,13 @@ int main() {
     }
 
     for(int i = 0; i < 15; ++i ){
+        std::cout << std::to_string(i) ;
         p.processSample(i);
         p.tick();
         KeyboardController::tick(1.0/sample_rate);
-        // std::cout << std::to_string(i) 
-        //     << ", " << std::to_string(audio_buffer_L[i]) 
-        //     << ", " << std::to_string(audio_buffer_R[i]) 
-        //     << std::endl ;
+        std::cout
+            << ", audio_out=" << std::to_string(audio_buffer_L[i]) 
+            << std::endl ;
     }
 
 

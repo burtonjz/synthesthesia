@@ -9,7 +9,8 @@
 */
 enum class ModulationParameter {
     MIDI_NOTE,
-    LAST_SAMPLE
+    INITIAL_VALUE,
+    LAST_VALUE
 };
 
 #endif // __MODULATION_PARAMETERS_HPP_
