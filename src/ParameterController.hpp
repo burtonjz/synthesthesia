@@ -12,9 +12,7 @@
 #include <exception>
 #include <variant>
 
-#ifdef DEBUG
-#include <iostream>
-#endif
+#define TYPE_TRAIT(type) typename ParameterTypeTraits<type>::ValueType
 
 /**
  * @brief Feature class to maintain control of module parameters
@@ -49,16 +47,18 @@ public:
      * @param modulationFunction function to perform modulation
      * @param modulationParameters map of ModulationParameters
     */
-    template <typename T>
-    void addParameter(ParameterType param, T defaultValue, bool modulatable,
-        T minValue,
-        T maxValue,
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,T> modulationParameters
+    template <ParameterType param>
+    void addParameter(
+        TYPE_TRAIT(param) defaultValue, 
+        bool modulatable,
+        TYPE_TRAIT(param) minValue,
+        TYPE_TRAIT(param) maxValue,
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>)> modulationFunction, 
+        boost::container::flat_map<ModulationParameter,double> modulationParameters
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<T>(param, defaultValue, modulatable, minValue, maxValue, modulationFunction, modulationParameters);
+            parameters_[param] = Parameter<param>(defaultValue, modulatable, minValue, maxValue, modulationFunction, modulationParameters);
             keys_.insert(param);
             if (modulatable) modulatableParameters_.insert(param);
         }
@@ -73,11 +73,11 @@ public:
      * @param minValue minimum value limit [default: minimum for type]
      * @param maxValue maximum value limit [default: maximum for type]
     */
-    template <typename T>
-    void addParameter(ParameterType param, T defaultValue, bool modulatable, T minValue, T maxValue){
+    template <ParameterType param>
+    void addParameter(TYPE_TRAIT(param) defaultValue, bool modulatable, TYPE_TRAIT(param) minValue, TYPE_TRAIT(param) maxValue){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<T>(param, defaultValue, modulatable, minValue, maxValue);
+            parameters_[param] = Parameter<param>(defaultValue, modulatable, minValue, maxValue);
             keys_.insert(param);
             if (modulatable) modulatableParameters_.insert(param);
         }
@@ -92,14 +92,16 @@ public:
      * @param modulationFunction function to perform modulation
      * @param modulationParameters map of ModulationParameters
     */
-    template <typename T>
-    void addParameter(ParameterType param, T defaultValue, bool modulatable,
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>)> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,T> modulationParameters
+    template <ParameterType param>
+    void addParameter(
+        TYPE_TRAIT(param) defaultValue, 
+        bool modulatable,
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>)> modulationFunction, 
+        boost::container::flat_map<ModulationParameter,double> modulationParameters
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<T>(param, defaultValue, modulatable, modulationFunction, modulationParameters);
+            parameters_[param] = Parameter<param>(defaultValue, modulatable, modulationFunction, modulationParameters);
             keys_.insert(param);
             if (modulatable) modulatableParameters_.insert(param);
         }
@@ -112,11 +114,11 @@ public:
      * @param defaultValue default value to reset value to
      * @param modulatable set the parameter to be modulatable
     */
-    template <typename T>
-    void addParameter(ParameterType param, T defaultValue, bool modulatable){
+    template <ParameterType param>
+    void addParameter(TYPE_TRAIT(param) defaultValue, bool modulatable){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<T>(param, defaultValue, modulatable);
+            parameters_[param] = Parameter<param>(defaultValue, modulatable);
             keys_.insert(param);
             if (modulatable) modulatableParameters_.insert(param);
         }
@@ -128,43 +130,42 @@ public:
      * @param param Id for the parameter
      * @param value value to set
     */
-    template <typename T>
-    void setParameterValue(ParameterType param, T value ){
+    template <ParameterType param>
+    void setParameterValue(TYPE_TRAIT(param) value ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            boost::any_cast<Parameter<T>&>(it->second).setValue(value);
+            boost::any_cast<Parameter<param>&>(it->second).setValue(value);
         }
     }
 
-    template <typename T>
-    T getParameterValue(ParameterType param) const {
+    template <ParameterType param>
+    TYPE_TRAIT(param) getParameterValue() const {
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            return boost::any_cast<Parameter<T>>(it->second).getValue();
-        }
-
-        throw std::runtime_error("ParameterController: requested parameter does not exist in controller");
-    }
-
-    template <typename T>
-    T getParameterInstantaneousValue(ParameterType param) const {
-        auto it = parameters_.find(param);
-        if (it != parameters_.end() ){
-            return boost::any_cast<Parameter<T>>(it->second).getInstantaneousValue();
+            return boost::any_cast<Parameter<param>>(it->second).getValue();
         }
 
         throw std::runtime_error("ParameterController: requested parameter does not exist in controller");
     }
 
-    template <typename T>
+    template <ParameterType param>
+    TYPE_TRAIT(param) getParameterInstantaneousValue() const {
+        auto it = parameters_.find(param);
+        if (it != parameters_.end() ){
+            return boost::any_cast<Parameter<param>>(it->second).getInstantaneousValue();
+        }
+
+        throw std::runtime_error("ParameterController: requested parameter does not exist in controller");
+    }
+
+    template <ParameterType param>
     void setParameterModulation(
-        ParameterType param, 
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>* )> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,T> modulationParameters
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>* )> modulationFunction, 
+        boost::container::flat_map<ModulationParameter,double> modulationParameters
     ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            boost::any_cast<Parameter<T>&>(it->second).setModulationFunction(modulationFunction,modulationParameters);
+            boost::any_cast<Parameter<param>&>(it->second).setModulationFunction(modulationFunction,modulationParameters);
         }
     }
 
@@ -180,11 +181,11 @@ public:
      * 
      * @param param Id for the parameter
     */
-    template <typename T>
-    void modulateParameter(ParameterType param){
+    template <ParameterType param>
+    void modulateParameter(){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            boost::any_cast<Parameter<T>&>(it->second).modulate();
+            boost::any_cast<Parameter<param>&>(it->second).modulate();
         }
     }
 

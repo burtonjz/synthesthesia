@@ -9,23 +9,19 @@ double* ADSREnvelope::sample_rate_ = nullptr ;
 void ADSREnvelope::activate(double* sample_rate){
     sample_rate_ = sample_rate ;
 
-    params_.addParameter<double>(
-        ParameterType::ATTACK,
+    params_.addParameter<ParameterType::ATTACK>(
         parameterDefaults[static_cast<int>(ParameterType::ATTACK)],
         true
     );
-    params_.addParameter<double>(
-        ParameterType::DECAY,
+    params_.addParameter<ParameterType::DECAY>(
         parameterDefaults[static_cast<int>(ParameterType::DECAY)],
         true
     );
-    params_.addParameter<double>(
-        ParameterType::SUSTAIN,
+    params_.addParameter<ParameterType::SUSTAIN>(
         parameterDefaults[static_cast<int>(ParameterType::SUSTAIN)],
         true
     );
-    params_.addParameter<double>(
-        ParameterType::RELEASE,
+    params_.addParameter<ParameterType::RELEASE>(
         parameterDefaults[static_cast<int>(ParameterType::RELEASE)],
         true
     );
@@ -60,10 +56,10 @@ double ADSREnvelope::modulate(double value, boost::container::flat_map<Modulatio
     auto it = notes->find(midi_note);
     if ( it == notes->end() ) return value ;
 
-    double a = params_.getParameterInstantaneousValue<double>(ParameterType::ATTACK);
-    double d = params_.getParameterInstantaneousValue<double>(ParameterType::DECAY);
-    double s = params_.getParameterInstantaneousValue<double>(ParameterType::SUSTAIN);
-    double r = params_.getParameterInstantaneousValue<double>(ParameterType::RELEASE);
+    TYPE_TRAIT(ParameterType::ATTACK) a = params_.getParameterInstantaneousValue<ParameterType::ATTACK>();
+    TYPE_TRAIT(ParameterType::DECAY) d = params_.getParameterInstantaneousValue<ParameterType::DECAY>();
+    TYPE_TRAIT(ParameterType::SUSTAIN) s = params_.getParameterInstantaneousValue<ParameterType::SUSTAIN>();
+    TYPE_TRAIT(ParameterType::RELEASE) r = params_.getParameterInstantaneousValue<ParameterType::RELEASE>();
     double rt = it->second.getTimeSinceReleased();
     double pt = it->second.getTimeSincePressed();
     double output ;
@@ -94,17 +90,13 @@ double ADSREnvelope::modulate(double value, boost::container::flat_map<Modulatio
 
 }
 
-double ADSREnvelope::getValue(ParameterType param){
-    return params_.getParameterValue<double>(param);
-}
-
-void ADSREnvelope::setParameter(ParameterType param, double value){
-    params_.setParameterValue<double>(param,value);
+ParameterController* ADSREnvelope::getParameterController(){
+    return &params_ ;
 }
 
 void ADSREnvelope::tick(){
-    params_.modulateParameter<double>(ParameterType::ATTACK);
-    params_.modulateParameter<double>(ParameterType::DECAY);
-    params_.modulateParameter<double>(ParameterType::SUSTAIN);
-    params_.modulateParameter<double>(ParameterType::RELEASE);
+    params_.modulateParameter<ParameterType::ATTACK>();
+    params_.modulateParameter<ParameterType::DECAY>();
+    params_.modulateParameter<ParameterType::SUSTAIN>();
+    params_.modulateParameter<ParameterType::RELEASE>();
 }

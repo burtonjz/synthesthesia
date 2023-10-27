@@ -63,6 +63,14 @@ private:
      * @param time in seconds
     */
     void tick(double time);
+
+
+    /**
+     * @brief make connections for control ports
+     * 
+     * @param port the LV2 port index
+    */
+    void connectControlPort(const uint32_t port);
 };
 
 #endif // __SYNTHESTHESIA_HPP_

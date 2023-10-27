@@ -9,36 +9,39 @@
 #include <functional>
 #include <algorithm>
 
-#ifdef DEBUG
-#include <iostream>
-#endif
-
 /**
  * @brief template class containing logic to define and manipulate a parameter
  * 
  * See ParameterType.hpp for a list of parameter types, 
 */
 
-template <typename T>
+template <ParameterType Type>
 class Parameter {
+public:
+    using ValueType = typename ParameterTypeTraits<Type>::ValueType ;
+
 private:
     ParameterType type_ ;
     bool modulatable_ ;
-    T value_ ;
-    T instantaneousValue_ ;
-    T defaultValue_ ;
-    T minValue_ ;
-    T maxValue_ ;
-    std::function<T(T, boost::container::flat_map<ModulationParameter, T>*)> modulationFunction_ ;
-    boost::container::flat_map<ModulationParameter,T> modulationParameters_ ;
+    ValueType value_ ;
+    ValueType instantaneousValue_ ;
+    ValueType defaultValue_ ;
+    ValueType minValue_ ;
+    ValueType maxValue_ ;
+    std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter, double>*)> modulationFunction_ ;
+    boost::container::flat_map<ModulationParameter,double> modulationParameters_ ;
     
 
 public:
     Parameter(
-        ParameterType typ, T defaultValue, bool modulatable, T minValue, T maxValue,
-        std::function<T(T, boost::container::flat_map<ModulationParameter, T>*)> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
+        ValueType defaultValue, 
+        bool modulatable, 
+        ValueType minValue, 
+        ValueType maxValue,
+        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter, double>*)> modulationFunction, 
+        boost::container::flat_map<ModulationParameter,double> modulationParameters
     ):
-        type_(typ),
+        type_(Type),
         modulatable_(modulatable),
         minValue_(minValue),
         maxValue_(maxValue),
@@ -49,14 +52,19 @@ public:
         setValue(defaultValue_) ;
     }
 
-    Parameter(ParameterType typ, T defaultValue, bool modulatable, T minValue, T maxValue):
-        type_(typ),
+    Parameter(
+        ValueType defaultValue, 
+        bool modulatable, 
+        ValueType minValue, 
+        ValueType maxValue
+    ):
+        type_(Type),
         modulatable_(modulatable),
         minValue_(minValue),
         maxValue_(maxValue)
     {
-        boost::container::flat_map<ModulationParameter, T> map ;
-        auto nullModulationFunction = [](T value, boost::container::flat_map<ModulationParameter, T>* map) -> T {
+        boost::container::flat_map<ModulationParameter, double> map ;
+        auto nullModulationFunction = [](ValueType value, boost::container::flat_map<ModulationParameter, double>* map) -> ValueType {
             return value;
         };
 
@@ -69,18 +77,25 @@ public:
         setValue(defaultValue_);
     }
 
-    Parameter(ParameterType typ, T defaultValue, bool modulatable):
-        Parameter(typ,defaultValue,modulatable, parameterLimits[static_cast<int>(typ)].first, parameterLimits[static_cast<int>(typ)].second)
+    Parameter(ValueType defaultValue, bool modulatable):
+        Parameter(
+            defaultValue,
+            modulatable, 
+            static_cast<ValueType>(parameterLimits[static_cast<int>(Type)].first), 
+            static_cast<ValueType>(parameterLimits[static_cast<int>(Type)].second)
+        )
     {}
 
     Parameter(
-        ParameterType typ, T defaultValue, bool modulatable,
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>* )> modulationFunction, boost::container::flat_map<ModulationParameter,T> modulationParameters
+        ValueType defaultValue, 
+        bool modulatable,
+        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>* )> modulationFunction, 
+        boost::container::flat_map<ModulationParameter,double> modulationParameters
     ):
-        type_(typ),
+        type_(Type),
         modulatable_(modulatable),
-        minValue_(parameterLimits[static_cast<int>(typ)].first),
-        maxValue_(parameterLimits[static_cast<int>(typ)].second),
+        minValue_(parameterLimits[static_cast<int>(type_)].first),
+        maxValue_(parameterLimits[static_cast<int>(type_)].second),
         modulationFunction_(modulationFunction),
         modulationParameters_(modulationParameters)
     {
@@ -94,7 +109,7 @@ public:
      * 
      * @param value new value
     */
-    void setValue(T value){
+    void setValue(ValueType value){
         value_ = limitToRange(value);
         setInstantaneousValue(value_);
     }
@@ -109,14 +124,14 @@ public:
     /**
      * @brief returns the parameter value
     */
-    T getValue() const {
+    ValueType getValue() const {
         return value_ ;
     }
 
     /**
      * @brief returns the parameter instantaneous (i.e., modulated) value
     */
-    T getInstantaneousValue() const {
+    ValueType getInstantaneousValue() const {
         return instantaneousValue_ ;
     }
 
@@ -140,8 +155,8 @@ public:
      * @brief set the modulation function
     */
     void setModulationFunction(
-        std::function<T(T, boost::container::flat_map<ModulationParameter,T>*)> func, 
-        boost::container::flat_map<ModulationParameter,T> modulationParameters
+        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>*)> func, 
+        boost::container::flat_map<ModulationParameter,double> modulationParameters
     ){
         modulationFunction_ = func ;
         modulationParameters_ = modulationParameters ;
@@ -152,7 +167,7 @@ public:
      * 
      * @param value value
     */
-    T limitToRange(T value) const {
+    ValueType limitToRange(ValueType value) const {
         if ( value < minValue_ ) return minValue_ ;
         if ( value > maxValue_ ) return maxValue_ ;
         return value ;
@@ -167,17 +182,11 @@ public:
     void modulate(){
         if(!modulatable_) return ;
         setInstantaneousValue(modulationFunction_(value_, &modulationParameters_));
-        #ifdef DEBUG
-            if (type_ == ParameterType::AMPLITUDE){
-                std::cout
-                    << ", inst_amp" << "=" << getInstantaneousValue() ;
-            }
-        #endif
     }
 
 private:
 
-    void setInstantaneousValue(T v){
+    void setInstantaneousValue(ValueType v){
         instantaneousValue_ = v ;
     }
 

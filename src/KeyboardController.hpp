@@ -70,6 +70,8 @@ private:
     static void setPitchbend(uint16_t pitchBendValue );
     static void setSustain(uint8_t sustain );
 
+    static void computePitchbendScaleFactor();
+
 };
 
 

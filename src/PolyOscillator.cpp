@@ -18,6 +18,21 @@ PolyOscillator::PolyOscillator(const double* sampleRate):
     oscillator_()
 {}
 
+uint32_t PolyOscillator::getNumControlPorts(){
+    return 6 ; 
+}
+
+std::array<ParameterType,6> PolyOscillator::getControlPorts(){
+    return {
+        ParameterType::STATUS,
+        ParameterType::WAVEFORM,
+        ParameterType::AMPLITUDE,
+        ParameterType::PHASE,
+        ParameterType::PAN,
+        ParameterType::DETUNE
+    } ;
+}
+
 void PolyOscillator::activate(){}
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
@@ -46,17 +61,16 @@ void PolyOscillator::updateOscillators(){
             oscillator_.insert(std::make_pair(pair.first,Oscillator(sampleRate_)));
             ParameterController* p = oscillator_[pair.first].getParameterController();
             
-            p->setParameterValue<bool>(ParameterType::STATUS,true);
-            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * KeyboardController::getPitchbend());
-            p->setParameterValue<double>(ParameterType::AMPLITUDE,pair.second.getVelocity() / 127.0);
+            p->setParameterValue<ParameterType::STATUS>(true);
+            p->setParameterValue<ParameterType::FREQUENCY>(pair.second.getFrequency() * KeyboardController::getPitchbend());
+            p->setParameterValue<ParameterType::AMPLITUDE>(pair.second.getVelocity() / 127.0);
 
             boost::container::flat_map<ModulationParameter,double> amp_map ;
             amp_map[ModulationParameter::MIDI_NOTE] = pair.first ;
             amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
             amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
             
-            p->setParameterModulation<double>(
-                ParameterType::AMPLITUDE, 
+            p->setParameterModulation<ParameterType::AMPLITUDE>( 
                 ADSREnvelope::modulate, 
                 amp_map
             );
@@ -66,8 +80,8 @@ void PolyOscillator::updateOscillators(){
         } else {
             ParameterController* p = oscillator_[pair.first].getParameterController();
 
-            p->setParameterValue<double>(ParameterType::FREQUENCY,pair.second.getFrequency() * KeyboardController::getPitchbend());
-
+            p->setParameterValue<ParameterType::FREQUENCY>(pair.second.getFrequency() * KeyboardController::getPitchbend());
+            p->setParameterValue<ParameterType::AMPLITUDE>(pair.second.getVelocity() / 127.0);
         }
     }
 

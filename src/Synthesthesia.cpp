@@ -3,6 +3,7 @@
 #include "MidiNote.hpp"
 #include "KeyboardController.hpp"
 #include "ADSREnvelope.hpp"
+#include "portInfo.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -30,17 +31,24 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
 }
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
-    if (port == 0){
+    switch(port){
+    case MidiPorts::MIDI_IN:
         midi_in = static_cast<const LV2_Atom_Sequence*>(data);
-        std::cout << "Connected port 0 to midi_in." << std::endl;
-    } else if (port == 1){
-        audio_out[0] = static_cast<float*>(data);
-        oscillator_[0].setOutputBuffer(audio_out[0],0);
-        std::cout << "Connected port 1 to audio_out." << std::endl;
-    } else if (port == 2){
-        audio_out[1] = static_cast<float*>(data);
-        oscillator_[0].setOutputBuffer(audio_out[1],1);
-        std::cout << "Connected port 2 to audio_out." << std::endl;
+        break ;
+    case AudioPorts::AUDIO_L + MidiPorts::MIDI_N:
+    case AudioPorts::AUDIO_R + MidiPorts::MIDI_N:
+        audio_out[port - MidiPorts::MIDI_N] = static_cast<float*>(data);
+        break ;
+    default:
+        // connectControlPort(port - MidiPorts::N - AudioPorts::N);
+        break ;
+    }
+}
+
+void Synthesthesia::connectControlPort(const uint32_t port){ // TODO:
+    if (port < PolyOscillator::getNumControlPorts()){
+        auto oscillator_ports = PolyOscillator::getControlPorts();
+        oscillator_[0].getParameterController();
     }
 }
 

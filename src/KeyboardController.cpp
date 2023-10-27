@@ -11,6 +11,10 @@ uint16_t KeyboardController::pitchbend_value_ = 8192 ;
 uint8_t KeyboardController::sustain_ = 0 ;
 
 void KeyboardController::generate(){
+    computePitchbendScaleFactor();
+}
+
+void KeyboardController::computePitchbendScaleFactor(){
     float shiftValue ;
     for(uint16_t i = 0; i < 16384; ++i){
         shiftValue = ( i - 8192.0 ) / 16383.0 * CONFIG_PITCHBEND_MAX_SHIFT * 2.0 ; 
@@ -26,7 +30,6 @@ void KeyboardController::pressNote(uint8_t midi_note, float velocity){
 
 void KeyboardController::releaseNote(uint8_t midi_note){
     if ( midi_note > 127 ) midi_note = 127 ;
-
     notes_[midi_note].setIsPressed(false);
 }
 

@@ -28,6 +28,24 @@ enum class ParameterType {
     PARAMETER_N
 };
 
+/**
+ * @brief define value variable type for each ParameterType
+*/
+template <ParameterType Type>
+struct ParameterTypeTraits;
+
+template <> struct ParameterTypeTraits<ParameterType::STATUS>    {using ValueType = bool;};
+template <> struct ParameterTypeTraits<ParameterType::WAVEFORM>  {using ValueType = int;};
+template <> struct ParameterTypeTraits<ParameterType::FREQUENCY> {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::AMPLITUDE> {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::PHASE>     {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::PAN>       {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::DETUNE>    {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::ATTACK>    {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::DECAY>     {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::SUSTAIN>   {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::RELEASE>   {using ValueType = float;};
+
 constexpr std::array<std::pair<float, float>, static_cast<int>(ParameterType::PARAMETER_N)> parameterLimits({
     std::make_pair(0.0f, 1.0f),                               // STATUS
     std::make_pair(0.0f,static_cast<float>(Waveform::N)),     // WAVEFORM
@@ -44,16 +62,16 @@ constexpr std::array<std::pair<float, float>, static_cast<int>(ParameterType::PA
 
 constexpr std::array<float, static_cast<int>(ParameterType::PARAMETER_N)> parameterDefaults({
     0.0f,                               // STATUS
-    static_cast<float>(Waveform::SINE), // WAVEFORM
+    static_cast<float>(Waveform::SAW), // WAVEFORM
     440.0f,                             // FREQUENCY
     1.0f,                               // AMPLITUDE
     0.0f,                               // PHASE
     0.0f,                               // PAN
     0.0f,                               // DETUNE
-    3.0f,                               // ATTACK
-    3.0f,                               // DECAY
-    0.2f,                               // SUSTAIN
-    3.0f                                // RELEASE
+    0.01f,                               // ATTACK
+    0.01f,                               // DECAY
+    0.8f,                               // SUSTAIN
+    0.3f                                // RELEASE
 });
 
 #endif // __PARAMETER_TYPE_HPP_

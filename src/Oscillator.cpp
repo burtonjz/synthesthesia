@@ -18,16 +18,16 @@ Oscillator::Oscillator(const double* sampleRate):
     outputBuffer_(),
     phase_(0),
     increment_(0)
-{
-    parameterController_.addParameter<bool>(ParameterType::STATUS,true,false);
-    parameterController_.addParameter<int>(ParameterType::WAVEFORM,static_cast<int>(Waveform::SINE),false);    
-    parameterController_.addParameter<double>(ParameterType::AMPLITUDE, 1.0, true);
-    parameterController_.addParameter<double>(ParameterType::PHASE, 0.0, true);
-    parameterController_.addParameter<double>(ParameterType::PAN, 0.0, true);
-    parameterController_.addParameter<double>(ParameterType::DETUNE, 0.0, true);
+{    
+    parameterController_.addParameter<ParameterType::STATUS>(true,false);
+    parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
+    parameterController_.addParameter<ParameterType::AMPLITUDE>(1.0, true);
+    parameterController_.addParameter<ParameterType::PHASE>(0.0, true);
+    parameterController_.addParameter<ParameterType::PAN>(0.0, true);
+    parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
 
-    if(sampleRate_) parameterController_.addParameter<double>(ParameterType::FREQUENCY,440.0,true,0.0, *sampleRate_/2.0);
-    else parameterController_.addParameter<double>(ParameterType::FREQUENCY, 440.0,true);
+    if(sampleRate_) parameterController_.addParameter<ParameterType::FREQUENCY>(440.0,true,0.0, *sampleRate_/2.0);
+    else parameterController_.addParameter<ParameterType::FREQUENCY>(440.0,true);
 }
 
 Oscillator::Oscillator():
@@ -50,7 +50,7 @@ bool Oscillator::isOutputBufferSet(){
 
 void Oscillator::processSample(uint32_t idx){
     // only process sample if output buffer exists and module has status
-    if(!parameterController_.getParameterValue<bool>(ParameterType::STATUS)) return ;
+    if(!parameterController_.getParameterValue<ParameterType::STATUS>()) return ;
     if(!isOutputBufferSet()) return ;
 
     const std::array<double,WAVETABLE_SIZE>* wave_ptr;
@@ -60,10 +60,10 @@ void Oscillator::processSample(uint32_t idx){
     double frac ;
     double sample ;
 
-    wave_ptr = Wavetable::getWavetable(static_cast<Waveform>(parameterController_.getParameterValue<int>(ParameterType::WAVEFORM)));
+    wave_ptr = Wavetable::getWavetable(static_cast<Waveform>(parameterController_.getParameterValue<ParameterType::WAVEFORM>()));
 
     // get linear interpolation of wavetable value
-    p = std::fmod(phase_ + parameterController_.getParameterInstantaneousValue<double>(ParameterType::PHASE),1.0);
+    p = std::fmod(phase_ + parameterController_.getParameterInstantaneousValue<ParameterType::PHASE>(),1.0);
     index = p * (WAVETABLE_SIZE - 1);
     index_floor = static_cast<int>(std::floor(index));
     frac = index - index_floor ;
@@ -71,7 +71,7 @@ void Oscillator::processSample(uint32_t idx){
     sample = (1.0 - frac) * (*wave_ptr)[index_floor] + frac * (*wave_ptr)[index_floor + 1];
 
     // apply amplitude
-    sample *= parameterController_.getParameterInstantaneousValue<double>(ParameterType::AMPLITUDE);
+    sample *= parameterController_.getParameterInstantaneousValue<ParameterType::AMPLITUDE>();
 
     // add sample to buffer
     if(AUDIO_OUT_N == 2){
@@ -85,16 +85,16 @@ void Oscillator::processSample(uint32_t idx){
 }
 
 void Oscillator::tick(){
-    increment_ = parameterController_.getParameterInstantaneousValue<double>(ParameterType::FREQUENCY) / *sampleRate_ ;
+    increment_ = parameterController_.getParameterInstantaneousValue<ParameterType::FREQUENCY>() / *sampleRate_ ;
     phase_ = std::fmod(phase_ + increment_, 1.0);
-    parameterController_.modulateParameter<double>(ParameterType::FREQUENCY);
-    parameterController_.modulateParameter<double>(ParameterType::AMPLITUDE);
-    parameterController_.modulateParameter<double>(ParameterType::PHASE);
-    parameterController_.modulateParameter<double>(ParameterType::PAN);
-    parameterController_.modulateParameter<double>(ParameterType::DETUNE);
+    parameterController_.modulateParameter<ParameterType::FREQUENCY>();
+    parameterController_.modulateParameter<ParameterType::AMPLITUDE>();
+    parameterController_.modulateParameter<ParameterType::PHASE>();
+    parameterController_.modulateParameter<ParameterType::PAN>();
+    parameterController_.modulateParameter<ParameterType::DETUNE>();
 }
 
 std::pair<double,double> Oscillator::panSample(double sample_value){
-    double v = parameterController_.getParameterInstantaneousValue<double>(ParameterType::PAN) / 2.0 + 0.5 ;
+    double v = parameterController_.getParameterInstantaneousValue<ParameterType::PAN>() / 2.0 + 0.5 ;
     return std::make_pair(v * sample_value, (1.0 - v) * sample_value );
 }

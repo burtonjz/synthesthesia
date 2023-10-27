@@ -70,19 +70,9 @@ public:
     static double modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp);
 
     /**
-     * @brief returns the value for an envelope parameter
-     * 
-     * @param param must be one of { ATTACK, DECAY, SUSTAIN, RELEASE }
+     * @brief returns a pointer to the ParameterController
     */
-    static double getValue(ParameterType param);
-
-    /**
-     * @brief sets the value for an envelope parameter
-     * 
-     * @param param must be one of { ATTACK, DECAY, SUSTAIN, RELEASE }
-     * @param value value to set. Note -- will be clamped within ParameterLimit
-    */
-    static void setParameter(ParameterType param, double value);
+    static ParameterController* getParameterController();
 
     /**
      * @brief tick envelope to next sample

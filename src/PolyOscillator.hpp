@@ -8,6 +8,7 @@
 
 #include <boost/container/flat_map.hpp>
 #include <cstddef>
+#include <array>
 
 class PolyOscillator : public Module {
 protected:
@@ -16,6 +17,16 @@ protected:
 
 public:
     PolyOscillator(const double* sampleRate);
+
+    /**
+     * @brief gets Oscillator Control Port count
+    */
+    static uint32_t getNumControlPorts();
+
+    /**
+     * @brief returns array of Oscillator Control Ports
+    */
+    static std::array<ParameterType,6> getControlPorts();
 
     /**
      * @brief Activate the module. Must be called before real-time processing begins

@@ -49,11 +49,6 @@ public:
     */
     void tick() override ;
 
-    /**
-     * @brief sets parameter value
-    */
-
-
 private:
     /**
      * @brief get value from lookup table
