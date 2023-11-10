@@ -17,10 +17,10 @@ void ControlPortManager::initialize(){
     // set module start indices and total n_ports
     module_start_index_[ModuleType::PolyOscillator] = start_index_ ;
     module_start_index_[ModuleType::ADSREnvelope] = 
-        module_start_index_[ModuleType::PolyOscillator] + PolyOscillator::getNumControlPorts() * N_POLY_OSCILLATORS - 1;
+        module_start_index_[ModuleType::PolyOscillator] + PolyOscillator::getNumControlPorts() * N_POLY_OSCILLATORS ;
 
     n_ports_ = 
-        module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getNumControlPorts() * N_ENVELOPES - 1;
+        module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getNumControlPorts() * N_ENVELOPES ;
 
 }
 
@@ -98,6 +98,9 @@ void ControlPortManager::setParameterValue(ParameterController* params, Paramete
             break ;
         case ParameterType::AMPLITUDE:
             params->setParameterValue<ParameterType::AMPLITUDE>(v);
+            break ;
+        case ParameterType::GAIN:
+            params->setParameterValue<ParameterType::GAIN>(v);
             break ;
         case ParameterType::PHASE:
             params->setParameterValue<ParameterType::PHASE>(v);

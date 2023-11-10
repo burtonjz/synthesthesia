@@ -2,15 +2,17 @@
 #define __PARAMETER_CONTROLLER_HPP_
 
 #include "ParameterType.hpp"
+#include "ParameterBase.hpp"
 #include "Parameter.hpp"
 
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/any.hpp>
 #include <limits>
 #include <functional>
-#include <exception>
 #include <variant>
+
+#include <stdexcept>
+#include <sstream>
 
 #define TYPE_TRAIT(type) typename ParameterTypeTraits<type>::ValueType
 
@@ -23,17 +25,15 @@
 */
 class ParameterController {
 private:
-    boost::container::flat_map<ParameterType,boost::any> parameters_ ;
-    boost::container::flat_set<ParameterType> modulatableParameters_ ;
-    boost::container::flat_set<ParameterType> keys_ ;
+    boost::container::flat_map<ParameterType,ParameterBase*> parameters_ ;
+    boost::container::flat_set<ParameterType> reference_parameters_ ;
 
 public:
     /**
      * @brief constructor for ParameterController
     */
     ParameterController():
-        parameters_(),
-        modulatableParameters_()
+        parameters_()
     {}
 
     /**
@@ -58,9 +58,8 @@ public:
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<param>(defaultValue, modulatable, minValue, maxValue, modulationFunction, modulationParameters);
-            keys_.insert(param);
-            if (modulatable) modulatableParameters_.insert(param);
+            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, minValue, maxValue, modulationFunction, modulationParameters);
+            parameters_[param] = p ;
         }
     }
 
@@ -77,9 +76,8 @@ public:
     void addParameter(TYPE_TRAIT(param) defaultValue, bool modulatable, TYPE_TRAIT(param) minValue, TYPE_TRAIT(param) maxValue){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<param>(defaultValue, modulatable, minValue, maxValue);
-            keys_.insert(param);
-            if (modulatable) modulatableParameters_.insert(param);
+            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, minValue, maxValue);
+            parameters_[param] = p ;
         }
     }
 
@@ -101,9 +99,8 @@ public:
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<param>(defaultValue, modulatable, modulationFunction, modulationParameters);
-            keys_.insert(param);
-            if (modulatable) modulatableParameters_.insert(param);
+            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, modulationFunction, modulationParameters);
+            parameters_[param] = p ;
         }
     }
 
@@ -118,9 +115,8 @@ public:
     void addParameter(TYPE_TRAIT(param) defaultValue, bool modulatable){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            parameters_[param] = Parameter<param>(defaultValue, modulatable);
-            keys_.insert(param);
-            if (modulatable) modulatableParameters_.insert(param);
+            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable);
+            parameters_[param] = p ;
         }
     }
 
@@ -131,10 +127,10 @@ public:
     */
     void addReferences(ParameterController& other){
         const auto& otherParams = other.getParameters();
-
         for (const auto& pair : otherParams ){
-            const auto& p = pair.second ;
-            addRefParameter(pair.first, p) ;
+            auto it = parameters_.find(pair.first);
+            parameters_[pair.first] = pair.second ;
+            reference_parameters_.insert(pair.first);
         }
     }
 
@@ -148,7 +144,7 @@ public:
     void setParameterValue(TYPE_TRAIT(param) value ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            boost::any_cast<Parameter<param>&>(it->second).setValue(value);
+            dynamic_cast<Parameter<param>*>(it->second)->setValue(value);
         }
     }
 
@@ -156,20 +152,26 @@ public:
     TYPE_TRAIT(param) getParameterValue() const {
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            return boost::any_cast<Parameter<param>>(it->second).getValue();
+            return dynamic_cast<Parameter<param>*>(it->second)->getValue();
         }
 
-        throw std::runtime_error("ParameterController: requested parameter does not exist in controller");
+        std::stringstream errorMessage ;
+        errorMessage << "ParameterController: requested parameter " << static_cast<int>(param)
+                     << " does not exist in controller." ;
+        throw std::runtime_error(errorMessage.str());
     }
 
     template <ParameterType param>
     TYPE_TRAIT(param) getParameterInstantaneousValue() const {
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            return boost::any_cast<Parameter<param>>(it->second).getInstantaneousValue();
+            return dynamic_cast<Parameter<param>*>(it->second)->getInstantaneousValue();
         }
 
-        throw std::runtime_error("ParameterController: requested parameter does not exist in controller");
+        std::stringstream errorMessage ;
+        errorMessage << "ParameterController: requested parameter " << static_cast<int>(param)
+                     << " does not exist in controller." ;
+        throw std::runtime_error(errorMessage.str());
     }
 
     template <ParameterType param>
@@ -179,14 +181,14 @@ public:
     ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            boost::any_cast<Parameter<param>&>(it->second).setModulationFunction(modulationFunction,modulationParameters);
+            dynamic_cast<Parameter<param>*>(it->second)->setModulationFunction(modulationFunction,modulationParameters);
         }
     }
 
     /**
      * @brief get a read-only copy of the parameters map
     */
-    const boost::container::flat_map<ParameterType, boost::any>& getParameters() const {
+    boost::container::flat_map<ParameterType, ParameterBase*> getParameters(){
         return parameters_;
     }
 
@@ -198,27 +200,17 @@ public:
     template <ParameterType param>
     void modulateParameter(){
         auto it = parameters_.find(param);
-        if (it != parameters_.end() ){
-            boost::any_cast<Parameter<param>&>(it->second).modulate();
+        if (it != parameters_.end() && !isReferenceParameter(param) ){
+            dynamic_cast<Parameter<param>*>(it->second)->modulate();
         }
     }
 
 private:
-    /**
-     * @brief add references to parameters of another controller
-     * 
-     * Each parameter not already present in the current controller instance will be added
-     *
-     * @param typ parameter type
-     * @param p parameter object reference
-    */
-    void addRefParameter(ParameterType typ, const boost::any& p){
-        auto it = parameters_.find(typ);
-        if (it == parameters_.end()){
-            parameters_[typ] = p ;
-        }
-    }
 
+    bool isReferenceParameter(ParameterType param){
+        auto it = reference_parameters_.find(param);
+        return it != reference_parameters_.end();
+    }
 };
 
 #endif // __PARAMETER_CONTROLLER_HPP_

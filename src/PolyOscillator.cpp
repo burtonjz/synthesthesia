@@ -23,10 +23,9 @@ PolyOscillator::PolyOscillator(const double* sampleRate):
 {
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
-    parameterController_.addParameter<ParameterType::AMPLITUDE>(1.0, true);
-    parameterController_.addParameter<ParameterType::PHASE>(0.0, true);
-    parameterController_.addParameter<ParameterType::PAN>(0.0, true);
+    parameterController_.addParameter<ParameterType::GAIN>(1.0, false);
     parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
+    parameterController_.addParameter<ParameterType::PAN>(0.0, true);
 }
 
 uint32_t PolyOscillator::getNumControlPorts(){
@@ -40,10 +39,9 @@ const boost::container::vector<ParameterType>* PolyOscillator::getControlPorts()
 void PolyOscillator::static_activate(){
     control_params_.push_back(ParameterType::STATUS);
     control_params_.push_back(ParameterType::WAVEFORM);
-    control_params_.push_back(ParameterType::AMPLITUDE);
-    control_params_.push_back(ParameterType::PHASE);
-    control_params_.push_back(ParameterType::PAN);
+    control_params_.push_back(ParameterType::GAIN);
     control_params_.push_back(ParameterType::DETUNE);
+    control_params_.push_back(ParameterType::PAN);
 }
 
 void PolyOscillator::activate(){    
@@ -64,6 +62,11 @@ void PolyOscillator::processSample(uint32_t idx){
 
 void PolyOscillator::tick(){
     updateOscillators();
+
+    // modulate parameters
+    parameterController_.modulateParameter<ParameterType::PAN>();
+    parameterController_.modulateParameter<ParameterType::DETUNE>();
+
 }
 
 void PolyOscillator::updateOscillators(){
@@ -72,10 +75,9 @@ void PolyOscillator::updateOscillators(){
     for (const auto& pair : *notes_ptr ){
         auto it = oscillator_.find(pair.first);
         if(it == oscillator_.end()){
-            oscillator_.insert(std::make_pair(pair.first,Oscillator(sampleRate_)));
+            oscillator_.insert(std::make_pair(pair.first,Oscillator(sampleRate_,parameterController_)));
             ParameterController* p = oscillator_[pair.first].getParameterController();
             
-            p->setParameterValue<ParameterType::STATUS>(true);
             p->setParameterValue<ParameterType::FREQUENCY>(pair.second.getFrequency() * KeyboardController::getPitchbend());
             p->setParameterValue<ParameterType::AMPLITUDE>(pair.second.getVelocity() / 127.0);
 
@@ -108,7 +110,6 @@ void PolyOscillator::updateOscillators(){
             ++it ;
         }
     }
-
 }
 
 void PolyOscillator::updateChildOutputBuffers(uint8_t index){
@@ -124,15 +125,16 @@ void PolyOscillator::updateChildOutputBuffers(uint8_t index){
 #include <iostream>
 // gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
 int main() {
-    KeyboardController::generate();
-    MidiNote::generate();
-    ADSREnvelope::activate();
-
     double sample_rate = 10 ;
-    PolyOscillator p(&sample_rate);
-    
     int n_samples = 100 ;
     uint8_t midi_msg[3] = {0, 69, 80} ;
+
+    KeyboardController::generate();
+    MidiNote::generate();
+    ADSREnvelope::activate(&sample_rate);
+
+    PolyOscillator p(&sample_rate);
+    
 
     float audio_buffer_L[n_samples] ;
     float audio_buffer_R[n_samples] ;

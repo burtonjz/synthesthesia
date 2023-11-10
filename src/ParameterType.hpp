@@ -18,6 +18,7 @@ enum class ParameterType {
     WAVEFORM,
     FREQUENCY,
     AMPLITUDE,
+    GAIN,
     PHASE,
     PAN,
     DETUNE,
@@ -36,6 +37,7 @@ template <> struct ParameterTypeTraits<ParameterType::STATUS>    {using ValueTyp
 template <> struct ParameterTypeTraits<ParameterType::WAVEFORM>  {using ValueType = int;};
 template <> struct ParameterTypeTraits<ParameterType::FREQUENCY> {using ValueType = double;};
 template <> struct ParameterTypeTraits<ParameterType::AMPLITUDE> {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::GAIN>      {using ValueType = double;};
 template <> struct ParameterTypeTraits<ParameterType::PHASE>     {using ValueType = double;};
 template <> struct ParameterTypeTraits<ParameterType::PAN>       {using ValueType = float;};
 template <> struct ParameterTypeTraits<ParameterType::DETUNE>    {using ValueType = float;};
@@ -52,6 +54,7 @@ constexpr std::array<std::pair<float, float>, static_cast<int>(ParameterType::PA
     std::make_pair(0.0f,static_cast<float>(Waveform::N)),     // WAVEFORM
     std::make_pair(0.0f, std::numeric_limits<float>::max()),  // FREQUENCY
     std::make_pair(0.0f, 1.0f),                               // AMPLITUDE
+    std::make_pair(0.0f, 1.0f),                               // GAIN
     std::make_pair(0.0f, 1.0f),                               // PHASE
     std::make_pair(-1.0f, 1.0f),                              // PAN
     std::make_pair(-24.5f, 24.5f),                            // DETUNE
@@ -69,6 +72,7 @@ constexpr std::array<float, static_cast<int>(ParameterType::PARAMETER_N)> parame
     static_cast<float>(Waveform::SINE), // WAVEFORM
     440.0f,                             // FREQUENCY
     1.0f,                               // AMPLITUDE
+    1.0f,                               // GAIN
     0.0f,                               // PHASE
     0.0f,                               // PAN
     0.0f,                               // DETUNE

@@ -22,6 +22,7 @@ Oscillator::Oscillator(const double* sampleRate):
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
     parameterController_.addParameter<ParameterType::AMPLITUDE>(1.0, true);
+    parameterController_.addParameter<ParameterType::GAIN>(1.0, true);
     parameterController_.addParameter<ParameterType::PHASE>(0.0, true);
     parameterController_.addParameter<ParameterType::PAN>(0.0, true);
     parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
@@ -35,7 +36,7 @@ Oscillator::Oscillator():
 {}
 
 Oscillator::Oscillator(const double* sampleRate, ParameterController& params):
-    Module(sampleRate)
+    Oscillator(sampleRate)
 {
     parameterController_.addReferences(params) ;
 }
@@ -79,6 +80,7 @@ void Oscillator::processSample(uint32_t idx){
     sample = (1.0 - frac) * (*wave_ptr)[index_floor] + frac * (*wave_ptr)[index_floor + 1];
 
     sample *= parameterController_.getParameterInstantaneousValue<ParameterType::AMPLITUDE>();
+    sample *= parameterController_.getParameterInstantaneousValue<ParameterType::GAIN>();
     panSample(sample,idx);
 
 }
@@ -88,6 +90,7 @@ void Oscillator::tick(){
     phase_ = std::fmod(phase_ + increment_, 1.0);
     parameterController_.modulateParameter<ParameterType::FREQUENCY>();
     parameterController_.modulateParameter<ParameterType::AMPLITUDE>();
+    parameterController_.modulateParameter<ParameterType::GAIN>();
     parameterController_.modulateParameter<ParameterType::PHASE>();
     parameterController_.modulateParameter<ParameterType::PAN>();
     parameterController_.modulateParameter<ParameterType::DETUNE>();

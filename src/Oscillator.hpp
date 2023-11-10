@@ -64,11 +64,6 @@ public:
 
 private:
     /**
-     * @brief get value from lookup table
-    */
-    double wavetableLookup(float index);
-
-    /**
      * @brief pans the sample and adds to respective output buffers
      * 
      * @param sample_value calculated sample value
