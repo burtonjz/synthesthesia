@@ -33,7 +33,7 @@ public:
      * Modules override this virtual function to perform initialization and setup of the
      * module.
     */
-    virtual void activate() = 0 ;
+    // virtual void activate() = 0 ;
 
     /**
      * @brief set output buffer for channel. All modules must have at least one output

@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "urids.hpp"
 #include "PolyOscillator.hpp"
+#include "portInfo.hpp"
 
 #include <cstdint>
 #include <array>
@@ -16,7 +17,7 @@
 class Synthesthesia {
 private:
     const LV2_Atom_Sequence* midi_in ;
-    std::array<float*,AUDIO_OUT_N> audio_out ;
+    std::array<float*,AudioPorts::AUDIO_N> audio_out ;
 
     LV2_URID_Map* urid_map ;
     Urids urids;
@@ -64,13 +65,11 @@ private:
     */
     void tick(double time);
 
-
     /**
-     * @brief make connections for control ports
-     * 
-     * @param port the LV2 port index
+     * @brief for each module, update parameters with host control port data
     */
-    void connectControlPort(const uint32_t port);
+    void updateControlPorts();
+
 };
 
 #endif // __SYNTHESTHESIA_HPP_

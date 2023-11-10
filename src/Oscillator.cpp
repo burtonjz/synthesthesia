@@ -34,15 +34,23 @@ Oscillator::Oscillator():
     Oscillator(nullptr)
 {}
 
-void Oscillator::activate(){
+Oscillator::Oscillator(const double* sampleRate, ParameterController& params):
+    Module(sampleRate)
+{
+    parameterController_.addReferences(params) ;
 }
+
+void Oscillator::activate(const double* sampleRate){
+    sampleRate_ = sampleRate ;
+}
+
 
 void Oscillator::setOutputBuffer(float* buffer, size_t channel){
     outputBuffer_.set(buffer,channel);
 }
 
 bool Oscillator::isOutputBufferSet(){
-    for (size_t i = 0; i < AUDIO_OUT_N; ++i ){
+    for (size_t i = 0; i < AudioPorts::AUDIO_N; ++i ){
         if(outputBuffer_.get(i) == nullptr) return false ;
     }
     return true ;
@@ -70,17 +78,8 @@ void Oscillator::processSample(uint32_t idx){
 
     sample = (1.0 - frac) * (*wave_ptr)[index_floor] + frac * (*wave_ptr)[index_floor + 1];
 
-    // apply amplitude
     sample *= parameterController_.getParameterInstantaneousValue<ParameterType::AMPLITUDE>();
-
-    // add sample to buffer
-    if(AUDIO_OUT_N == 2){
-        std::pair<double,double> panned_sample = panSample(sample);
-        outputBuffer_.addToBuffer(panned_sample.first,idx,0);
-        outputBuffer_.addToBuffer(panned_sample.second,idx,1);
-    } else {
-        outputBuffer_.addToBuffer(sample,idx,0);
-    }
+    panSample(sample,idx);
 
 }
 
@@ -94,7 +93,17 @@ void Oscillator::tick(){
     parameterController_.modulateParameter<ParameterType::DETUNE>();
 }
 
-std::pair<double,double> Oscillator::panSample(double sample_value){
-    double v = parameterController_.getParameterInstantaneousValue<ParameterType::PAN>() / 2.0 + 0.5 ;
-    return std::make_pair(v * sample_value, (1.0 - v) * sample_value );
+void Oscillator::panSample(double sample_value, uint32_t idx){
+    if (AudioPorts::AUDIO_N == 1) outputBuffer_.addToBuffer(sample_value, idx, AudioPorts::AUDIO_L );
+
+    if (AudioPorts::AUDIO_N == 2 ){
+        double v = parameterController_.getParameterInstantaneousValue<ParameterType::PAN>() / 2.0 + 0.5 ;
+        outputBuffer_.addToBuffer(v * sample_value, idx, AudioPorts::AUDIO_L );
+        outputBuffer_.addToBuffer((1.0 - v) * sample_value, idx, AudioPorts::AUDIO_R );
+    }
+    
+    else {
+        throw std::invalid_argument("Only 1 or 2 Audio Outputs are currently supported.");
+    }
+
 }

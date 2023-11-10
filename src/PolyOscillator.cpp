@@ -13,27 +13,41 @@
 #include <iostream>
 #endif
 
+// define static variables
+boost::container::vector<ParameterType> PolyOscillator::control_params_ ;
+
+
 PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
     oscillator_()
-{}
+{
+    parameterController_.addParameter<ParameterType::STATUS>(true,false);
+    parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
+    parameterController_.addParameter<ParameterType::AMPLITUDE>(1.0, true);
+    parameterController_.addParameter<ParameterType::PHASE>(0.0, true);
+    parameterController_.addParameter<ParameterType::PAN>(0.0, true);
+    parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
+}
 
 uint32_t PolyOscillator::getNumControlPorts(){
-    return 6 ; 
+    return control_params_.size() ;
 }
 
-std::array<ParameterType,6> PolyOscillator::getControlPorts(){
-    return {
-        ParameterType::STATUS,
-        ParameterType::WAVEFORM,
-        ParameterType::AMPLITUDE,
-        ParameterType::PHASE,
-        ParameterType::PAN,
-        ParameterType::DETUNE
-    } ;
+const boost::container::vector<ParameterType>* PolyOscillator::getControlPorts(){
+    return &control_params_ ;
 }
 
-void PolyOscillator::activate(){}
+void PolyOscillator::static_activate(){
+    control_params_.push_back(ParameterType::STATUS);
+    control_params_.push_back(ParameterType::WAVEFORM);
+    control_params_.push_back(ParameterType::AMPLITUDE);
+    control_params_.push_back(ParameterType::PHASE);
+    control_params_.push_back(ParameterType::PAN);
+    control_params_.push_back(ParameterType::DETUNE);
+}
+
+void PolyOscillator::activate(){    
+}
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
     outputBuffer_.set(buffer,channel);
@@ -98,7 +112,7 @@ void PolyOscillator::updateOscillators(){
 }
 
 void PolyOscillator::updateChildOutputBuffers(uint8_t index){
-    for(int i = 0; i < AUDIO_OUT_N; ++i ){
+    for(int i = 0; i < AudioPorts::AUDIO_N; ++i ){
         oscillator_[index].setOutputBuffer(outputBuffer_.get(i),i);
     }
 }

@@ -125,6 +125,20 @@ public:
     }
 
     /**
+     * @brief add all parameters from other as references to this controller
+     * 
+     * @param other other ParameterController object reference
+    */
+    void addReferences(ParameterController& other){
+        const auto& otherParams = other.getParameters();
+
+        for (const auto& pair : otherParams ){
+            const auto& p = pair.second ;
+            addRefParameter(pair.first, p) ;
+        }
+    }
+
+    /**
      * @brief set value for parameter
      * 
      * @param param Id for the parameter
@@ -170,10 +184,10 @@ public:
     }
 
     /**
-     * @brief get a read-only copy of all ParameterTypes
+     * @brief get a read-only copy of the parameters map
     */
-    const boost::container::flat_set<ParameterType>* getAllParameterTypes() const {
-        return &keys_ ;
+    const boost::container::flat_map<ParameterType, boost::any>& getParameters() const {
+        return parameters_;
     }
 
     /**
@@ -186,6 +200,22 @@ public:
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
             boost::any_cast<Parameter<param>&>(it->second).modulate();
+        }
+    }
+
+private:
+    /**
+     * @brief add references to parameters of another controller
+     * 
+     * Each parameter not already present in the current controller instance will be added
+     *
+     * @param typ parameter type
+     * @param p parameter object reference
+    */
+    void addRefParameter(ParameterType typ, const boost::any& p){
+        auto it = parameters_.find(typ);
+        if (it == parameters_.end()){
+            parameters_[typ] = p ;
         }
     }
 

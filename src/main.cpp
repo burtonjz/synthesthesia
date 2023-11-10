@@ -5,23 +5,23 @@
 
 static LV2_Handle instantiate(const struct LV2_Descriptor *descriptor, double sample_rate, const char *bundle_path, const LV2_Feature *const *features)
 {
-    std::cout << "[" << SYNTHESTHESIA_URI << "]: Instantiating plugin." << std::endl;
+    std::cout << "[" << SYNTHESTHESIA_URI << "]: Instantiating plugin." << std::endl ;
 
-    Synthesthesia* m = nullptr;
+    Synthesthesia* m = nullptr ;
     try {
         m = new Synthesthesia(sample_rate, features);
     } 
     catch(const std::invalid_argument& ia){
-        std::cerr << ia.what() << std::endl;
-        return nullptr;
+        std::cerr << ia.what() << std::endl ;
+        return nullptr ;
     }
     catch(const std::bad_alloc& ba){
-        std::cerr << "Failed to allocate memory. Aborting." << std::endl;
-        return nullptr;
+        std::cerr << "Failed to allocate memory. Aborting." << std::endl ;
+        return nullptr ;
     }
     
-    std::cout << "[" << SYNTHESTHESIA_URI << "]: Plugin Instantiated." << std::endl;
-    return m;
+    std::cout << "[" << SYNTHESTHESIA_URI << "]: Plugin Instantiated." << std::endl ;
+    return m ;
 }
 
 static void connect_port(LV2_Handle instance, uint32_t port, void *data){
@@ -47,11 +47,11 @@ static void deactivate (LV2_Handle instance){
 
 static void cleanup (LV2_Handle instance){
     Synthesthesia* m = static_cast <Synthesthesia*> (instance);
-    if (m) delete m;
+    if (m) delete m ;
 }
 
 static const void* extension_data(const char *uri){
-    return NULL;
+    return NULL ;
 }
 
 // descriptor
@@ -68,6 +68,6 @@ static LV2_Descriptor const descriptor = {
 
 // interface
 LV2_SYMBOL_EXPORT const LV2_Descriptor* lv2_descriptor(uint32_t index){
-    if (index == 0) return &descriptor;
-    return NULL;
+    if (index == 0) return &descriptor ;
+    return NULL ;
 };

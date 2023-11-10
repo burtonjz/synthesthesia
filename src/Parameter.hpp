@@ -1,6 +1,7 @@
 #ifndef __PARAMETER_HPP_
 #define __PARAMETER_HPP_
 
+#include "ParameterBase.hpp"
 #include "ParameterType.hpp"
 #include "ModulationParameter.hpp"
 
@@ -16,21 +17,17 @@
 */
 
 template <ParameterType Type>
-class Parameter {
+class Parameter : public ParameterBase {
 public:
     using ValueType = typename ParameterTypeTraits<Type>::ValueType ;
 
 private:
-    ParameterType type_ ;
-    bool modulatable_ ;
     ValueType value_ ;
     ValueType instantaneousValue_ ;
     ValueType defaultValue_ ;
     ValueType minValue_ ;
     ValueType maxValue_ ;
     std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter, double>*)> modulationFunction_ ;
-    boost::container::flat_map<ModulationParameter,double> modulationParameters_ ;
-    
 
 public:
     Parameter(
@@ -41,12 +38,10 @@ public:
         std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter, double>*)> modulationFunction, 
         boost::container::flat_map<ModulationParameter,double> modulationParameters
     ):
-        type_(Type),
-        modulatable_(modulatable),
+        ParameterBase(Type,modulatable,modulationParameters),
         minValue_(minValue),
         maxValue_(maxValue),
-        modulationFunction_(modulationFunction),
-        modulationParameters_(modulationParameters)
+        modulationFunction_(modulationFunction)
     {
         defaultValue_ = limitToRange(defaultValue);
         setValue(defaultValue_) ;
@@ -58,20 +53,15 @@ public:
         ValueType minValue, 
         ValueType maxValue
     ):
-        type_(Type),
-        modulatable_(modulatable),
+        ParameterBase(Type,modulatable),
         minValue_(minValue),
         maxValue_(maxValue)
     {
-        boost::container::flat_map<ModulationParameter, double> map ;
         auto nullModulationFunction = [](ValueType value, boost::container::flat_map<ModulationParameter, double>* map) -> ValueType {
             return value;
         };
 
-        setModulationFunction(
-            nullModulationFunction,   
-            map    
-        );
+        setModulationFunction(nullModulationFunction);
 
         defaultValue_ = limitToRange(defaultValue);
         setValue(defaultValue_);
@@ -92,12 +82,10 @@ public:
         std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>* )> modulationFunction, 
         boost::container::flat_map<ModulationParameter,double> modulationParameters
     ):
-        type_(Type),
-        modulatable_(modulatable),
+        ParameterBase(Type,modulatable,modulationParameters),
         minValue_(parameterLimits[static_cast<int>(type_)].first),
         maxValue_(parameterLimits[static_cast<int>(type_)].second),
-        modulationFunction_(modulationFunction),
-        modulationParameters_(modulationParameters)
+        modulationFunction_(modulationFunction)
     {
         defaultValue_ = limitToRange(defaultValue);
         setValue(defaultValue_);
@@ -117,7 +105,7 @@ public:
     /**
      * @brief sets parameter's value back to default
     */
-    void resetValue(){
+    void resetValue() override {
         setValue(defaultValue_);
     }
 
@@ -140,14 +128,14 @@ public:
      * 
      * @param modulatable boolean true if modulatable
     */
-    void setModulatable(bool modulatable){
+    void setModulatable(bool modulatable) override {
         modulatable_ = modulatable ;
     }
 
     /**
      * @brief returns whether the parameter is modulatable
     */
-    bool isModulatable() const {
+    bool isModulatable() const override {
         return modulatable_ ;
     }
 
@@ -160,6 +148,15 @@ public:
     ){
         modulationFunction_ = func ;
         modulationParameters_ = modulationParameters ;
+    }
+
+    /**
+     * @brief set the modulation function
+    */
+    void setModulationFunction(
+        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>*)> func
+    ){
+        modulationFunction_ = func ;
     }
 
     /**
@@ -179,7 +176,7 @@ public:
      * if not explicitly set, the modulation function will do nothing!
      * 
     */
-    void modulate(){
+    void modulate() override {
         if(!modulatable_) return ;
         setInstantaneousValue(modulationFunction_(value_, &modulationParameters_));
     }

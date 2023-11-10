@@ -3,7 +3,7 @@
 #include "MidiNote.hpp"
 #include "KeyboardController.hpp"
 #include "ADSREnvelope.hpp"
-#include "portInfo.hpp"
+#include "ControlPortManager.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -28,6 +28,11 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
 
     urids.initialize(urid_map);
 
+    // Note: this must happen before connect port, which happens before activate...
+    ADSREnvelope::activate(&sampleRate_);
+    PolyOscillator::static_activate();
+    ControlPortManager::initialize();
+
 }
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
@@ -40,15 +45,8 @@ void Synthesthesia::connectPort(const uint32_t port, void* data){
         audio_out[port - MidiPorts::MIDI_N] = static_cast<float*>(data);
         break ;
     default:
-        // connectControlPort(port - MidiPorts::N - AudioPorts::N);
+        ControlPortManager::connectPort(port,data);
         break ;
-    }
-}
-
-void Synthesthesia::connectControlPort(const uint32_t port){ // TODO:
-    if (port < PolyOscillator::getNumControlPorts()){
-        auto oscillator_ports = PolyOscillator::getControlPorts();
-        oscillator_[0].getParameterController();
     }
 }
 
@@ -61,8 +59,6 @@ void Synthesthesia::activate(){
     KeyboardController::generate();
 
     // activate modules and set buffers
-    ADSREnvelope::activate(&sampleRate_);
-
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
     oscillator_[0].activate();
@@ -71,6 +67,9 @@ void Synthesthesia::activate(){
 }
 
 void Synthesthesia::run(const uint32_t sample_count){
+
+    updateControlPorts();
+
     uint32_t last_frame = 0;
 
     LV2_ATOM_SEQUENCE_FOREACH(midi_in, ev){
@@ -109,4 +108,9 @@ void Synthesthesia::tick(double time){
     oscillator_[0].tick();
     ADSREnvelope::tick();
     KeyboardController::tick(time);
+}
+
+void Synthesthesia::updateControlPorts(){
+    ControlPortManager::updateModuleParameters(oscillator_[0].getParameterController(),ModuleType::PolyOscillator,0);
+    ControlPortManager::updateModuleParameters(ADSREnvelope::getParameterController(),ModuleType::ADSREnvelope,0);
 }

@@ -7,13 +7,57 @@
 #include "ModulationParameter.hpp"
 
 #include <boost/container/flat_map.hpp>
+#include <boost/container/vector.hpp>
+#include <cstdint>
 
 class ADSREnvelope {
 private:
     static ParameterController params_ ;
     static double* sample_rate_ ;
+    static boost::container::vector<ParameterType> control_params_ ;
 
+public:
+    /**
+     * @brief activates the ADSR envelope
+     * 
+    */
+    static void activate(double* sample_rate);
 
+    /**
+     * @brief returns number of control ports present in an ADSREnvelope
+     * 
+    */
+    static uint32_t getNumControlPorts();
+
+    /**
+     * @brief returns a pointer to a vector of all Parameter controlPorts
+    */
+    static const boost::container::vector<ParameterType>* getControlPorts();
+
+    /**
+     * @brief modulate function
+     * 
+     * This function is given to a Parameter to modulate its value and store the result in the
+     * parameter's instantaneousValue.
+     * 
+     * @param value value to modulate (the Parameter value)
+     * @param modp ModulationParameter map. Must contain MIDI_NOTE.
+    */
+    static double modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp);
+
+    /**
+     * @brief returns a pointer to the ParameterController
+    */
+    static ParameterController* getParameterController();
+
+    /**
+     * @brief tick envelope to next sample
+     * 
+     * Ticks envelope to next sample, which will modulate the ADSR values if modulation is set
+    */
+    static void tick();
+
+private:
     /**
      * @brief get modulated value for attack stage
      * 
@@ -50,36 +94,6 @@ private:
      * @param release the time duration in seconds for the release stage
     */
     static double getRelease(const double start_level, const double time_release, const double release); 
-
-public:
-    /**
-     * @brief activates the ADSR envelope
-     * 
-    */
-    static void activate(double* sample_rate);
-
-    /**
-     * @brief modulate function
-     * 
-     * This function is given to a Parameter to modulate its value and store the result in the
-     * parameter's instantaneousValue.
-     * 
-     * @param value value to modulate (the Parameter value)
-     * @param modp ModulationParameter map. Must contain MIDI_NOTE.
-    */
-    static double modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp);
-
-    /**
-     * @brief returns a pointer to the ParameterController
-    */
-    static ParameterController* getParameterController();
-
-    /**
-     * @brief tick envelope to next sample
-     * 
-     * Ticks envelope to next sample, which will modulate the ADSR values if modulation is set
-    */
-    static void tick();
 };
 
 #endif // __ADSR_ENVELOPE_HPP_

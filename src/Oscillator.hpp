@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "Module.hpp"
 #include "IO.hpp"
+#include "portInfo.hpp"
 
 #include <array>
 #include <utility>
@@ -16,21 +17,33 @@
 */
 class Oscillator : public Module {
 protected:
-    IO<float,AUDIO_OUT_N> outputBuffer_ ;
+    IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     double phase_ ;
     double increment_ ;
 
 public:
     /**
-     * @brief instantiates an empty Oscillator module.
+     * @brief construct a default Oscillator module.
     */
     Oscillator(const double* sampleRate);
+    /**
+     * @brief construct an empty Oscillator module. Must be activated.
+    */
     Oscillator();
+    /**
+     * @brief construct a child Oscillator module
+     * 
+     * @param sampleRate synth sample rate
+     * @param params reference to parent's parameterController
+     * 
+     * Child oscillators hold reference's to their parent's parameterController
+    */
+    Oscillator(const double* sampleRate, ParameterController& params);
     
     /**
-     * @brief Instantiate Oscillator module. Must be called before real-time processing begins
+     * @brief Instantiate Oscillator module. Must be called if oscillator constructed without sample rate
     */
-    void activate() override;
+    void activate(const double* sampleRate);
 
     /**
      * @brief set output buffer for specified channel
@@ -56,9 +69,12 @@ private:
     double wavetableLookup(float index);
 
     /**
-     * @brief return pan values
+     * @brief pans the sample and adds to respective output buffers
+     * 
+     * @param sample_value calculated sample value
+     * @param idx output buffer index
     */
-    std::pair<double,double> panSample(double sample_value);
+    void panSample(double sample_value, uint32_t idx);
 
     /**
      * @brief validate whether all outputBuffer are set
