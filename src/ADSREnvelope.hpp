@@ -57,6 +57,11 @@ public:
     */
     static void tick();
 
+    /**
+     * @brief returns the currently set release time
+    */
+    static double getReleaseTime();
+
 private:
     /**
      * @brief get modulated value for attack stage

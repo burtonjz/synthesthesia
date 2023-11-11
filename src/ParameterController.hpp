@@ -128,7 +128,6 @@ public:
     void addReferences(ParameterController& other){
         const auto& otherParams = other.getParameters();
         for (const auto& pair : otherParams ){
-            auto it = parameters_.find(pair.first);
             parameters_[pair.first] = pair.second ;
             reference_parameters_.insert(pair.first);
         }
@@ -190,6 +189,16 @@ public:
     */
     boost::container::flat_map<ParameterType, ParameterBase*> getParameters(){
         return parameters_;
+    }
+
+    /**
+     * @brief returns whether the given parameter exists in the controller
+     * 
+     * @param param parameter type to search
+    */
+    bool parameterExists(ParameterType param){
+        auto it = parameters_.find(param);
+        return it != parameters_.end();
     }
 
     /**

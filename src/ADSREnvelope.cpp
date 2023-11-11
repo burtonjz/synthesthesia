@@ -114,3 +114,11 @@ void ADSREnvelope::tick(){
     params_.modulateParameter<ParameterType::SUSTAIN>();
     params_.modulateParameter<ParameterType::RELEASE>();
 }
+
+double ADSREnvelope::getReleaseTime(){
+    if(params_.parameterExists(ParameterType::RELEASE)){
+        return params_.getParameterInstantaneousValue<ParameterType::RELEASE>();
+    }
+
+    return parameterLimits[static_cast<int>(ParameterType::RELEASE)].second ;
+}

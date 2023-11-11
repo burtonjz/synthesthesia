@@ -1,5 +1,6 @@
 #include "KeyboardController.hpp"
 #include "ParameterType.hpp"
+#include "ADSREnvelope.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -80,7 +81,8 @@ void KeyboardController::tick(double time){
         it->second.tick(time);
         if (
             !it->second.getIsPressed() &&
-            it->second.getTimeSinceReleased() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second
+            // it->second.getTimeSinceReleased() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second
+            it->second.getTimeSinceReleased() > ADSREnvelope::getReleaseTime()
         ){
             it = notes_.erase(it) ;
         } else {
