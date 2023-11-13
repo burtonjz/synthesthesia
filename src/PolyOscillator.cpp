@@ -1,5 +1,4 @@
 #include "PolyOscillator.hpp"
-#include "Note.hpp"
 #include "ParameterController.hpp"
 #include "KeyboardController.hpp"
 #include "ParameterType.hpp"
@@ -75,24 +74,7 @@ void PolyOscillator::updateOscillators(){
     for (const auto& pair : *notes_ptr ){
         auto it = oscillator_.find(pair.first);
         if(it == oscillator_.end()){
-            oscillator_.insert(std::make_pair(pair.first,Oscillator(sampleRate_,parameterController_)));
-            ParameterController* p = oscillator_[pair.first].getParameterController();
-            
-            p->setParameterValue<ParameterType::FREQUENCY>(pair.second.getFrequency() * KeyboardController::getPitchbend());
-            p->setParameterValue<ParameterType::AMPLITUDE>(pair.second.getVelocity() / 127.0);
-
-            boost::container::flat_map<ModulationParameter,double> amp_map ;
-            amp_map[ModulationParameter::MIDI_NOTE] = pair.first ;
-            amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
-            amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
-            
-            p->setParameterModulation<ParameterType::AMPLITUDE>( 
-                ADSREnvelope::modulate, 
-                amp_map
-            );
-
-            updateChildOutputBuffers(pair.first);
-
+            createChildOscillator(pair.first,pair.second);
         } else {
             ParameterController* p = oscillator_[pair.first].getParameterController();
 
@@ -110,6 +92,31 @@ void PolyOscillator::updateOscillators(){
             ++it ;
         }
     }
+}
+
+void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
+    oscillator_.insert(std::make_pair(midi_note,Oscillator(sampleRate_,parameterController_)));
+    ParameterController* p = oscillator_[midi_note].getParameterController();
+    
+    // frequency will be a combination of the note, detune value, and any midi pitchbend
+    p->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
+    p->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
+
+    boost::container::flat_map<ModulationParameter,double> amp_map ;
+    amp_map[ModulationParameter::MIDI_NOTE] = midi_note ;
+    amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
+    amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
+    
+    p->setParameterModulation<ParameterType::AMPLITUDE>( 
+        ADSREnvelope::modulate, 
+        amp_map
+    );
+    
+    p->setParameterModulation<ParameterType::FREQUENCY>(KeyboardController::pitchbendModulation);
+
+
+
+    updateChildOutputBuffers(midi_note);
 }
 
 void PolyOscillator::updateChildOutputBuffers(uint8_t index){

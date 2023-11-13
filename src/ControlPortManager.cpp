@@ -60,7 +60,7 @@ void ControlPortManager::connectPort(uint32_t port, void* data){
     control_values_[port] = static_cast<const float*>(data) ;
 }
 
-void ControlPortManager::updateModuleParameters(ParameterController* params, ModuleType m, uint32_t instance ){
+void ControlPortManager::updateModuleParameters(ParameterController* params, ModuleType m, uint32_t instance){
     const boost::container::vector<ParameterType>* control_params ;
     if(m == ModuleType::PolyOscillator) control_params = PolyOscillator::getControlPorts();
     else if (m == ModuleType::ADSREnvelope) control_params = ADSREnvelope::getControlPorts();
@@ -80,12 +80,13 @@ void ControlPortManager::updateModuleParameters(ParameterController* params, Mod
     
 }
 
-void ControlPortManager::setParameterValue(ParameterController* params, ParameterType pt, uint32_t port ){
+void ControlPortManager::setParameterValue(ParameterController* params, ParameterType pt, uint32_t port){
     float v ;
-    if(control_values_[port]){
+
+    if (control_values_[port]){
         v = *control_values_[port];
     } else return ;
-    
+
     switch(pt){
         case ParameterType::STATUS:
             params->setParameterValue<ParameterType::STATUS>(v);

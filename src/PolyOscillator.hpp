@@ -6,6 +6,7 @@
 #include "Oscillator.hpp"
 #include "IO.hpp"
 #include "portInfo.hpp"
+#include "Note.hpp"
 
 #include <boost/container/flat_map.hpp>
 #include <boost/container/vector.hpp>
@@ -68,6 +69,12 @@ private:
     */
     void updateOscillators();
 
+    /**
+     * @brief create child oscillator
+     * 
+     * @param
+    */
+    void createChildOscillator(uint8_t midi_note, const Note note);
     /**
      * @brief set child oscillator output buffer to same as this
     */

@@ -90,3 +90,7 @@ void KeyboardController::tick(double time){
         }
     }
 }
+
+double KeyboardController::pitchbendModulation(double value, boost::container::flat_map<ModulationParameter,double>* modp){
+    return value * getPitchbend();
+}

@@ -184,6 +184,16 @@ public:
         }
     }
 
+    template <ParameterType param>
+    void setParameterModulation(
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>* )> modulationFunction
+    ){
+        auto it = parameters_.find(param);
+        if (it != parameters_.end() ){
+            dynamic_cast<Parameter<param>*>(it->second)->setModulationFunction(modulationFunction);
+        }
+    }
+
     /**
      * @brief get a read-only copy of the parameters map
     */

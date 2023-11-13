@@ -3,6 +3,7 @@
 
 #include "config.hpp"
 #include "Note.hpp"
+#include "ModulationParameter.hpp"
 
 #include <lv2/midi/midi.h>
 #include <boost/container/flat_map.hpp>
@@ -63,6 +64,14 @@ public:
      * @brief get the sustain value (between 0-127)
     */
     static uint8_t getSustain() ;
+
+    /**
+     * @brief modulation function for applying pitchbend
+     * 
+     * @param value value to modulate (the Parameter value)
+     * @param modp ModulationParameter map.
+    */
+    static double pitchbendModulation(double value, boost::container::flat_map<ModulationParameter,double>* modp);
 
 private:
     static void pressNote(uint8_t midi_note, float velocity);

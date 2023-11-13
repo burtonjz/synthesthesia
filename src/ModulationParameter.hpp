@@ -4,8 +4,8 @@
 /**
  * @brief valid key values for handling additional modulation variables
  * 
- * the Parameter class sets a modulation function of type std::function<T(T,boost::container::flat_map<ModulationParameter,T>).
- * extra variables may be exposed to the modulation function through this map
+ * The parameter class stores a modulation function in it that can receive a map as a parameter so that additional context can be given to modulators
+ * while still allowing the modulation function definition to be standardized. These keys define various modulation function variables.
 */
 enum class ModulationParameter {
     MIDI_NOTE,
