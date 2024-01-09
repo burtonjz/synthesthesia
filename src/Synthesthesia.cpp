@@ -4,6 +4,7 @@
 #include "KeyboardController.hpp"
 #include "ADSREnvelope.hpp"
 #include "ControlPortManager.hpp"
+#include "Detune.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -57,6 +58,7 @@ void Synthesthesia::activate(){
     Wavetable::generate();
     MidiNote::generate();
     KeyboardController::generate();
+    Detune::generate();
 
     // activate modules and set buffers
     oscillator_[0].setOutputBuffer(audio_out[0],0);

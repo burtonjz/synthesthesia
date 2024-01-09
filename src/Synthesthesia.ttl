@@ -86,11 +86,12 @@
         [
             a lv2:InputPort , lv2:ControlPort ;
             lv2:index 6 ;
+            lv2:portProperty lv2:integer
             lv2:symbol "osc_detune" ;
             lv2:name "OSC Detune" ;
-            lv2:default 0.0 ;
-            lv2:minimum -24.5 ;
-            lv2:maximum 24.5 ;
+            lv2:default 0 ;
+            lv2:minimum -1250 ;
+            lv2:maximum 1250 ;
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;

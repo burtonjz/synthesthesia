@@ -5,6 +5,7 @@
 #include "LinearFader.hpp"
 #include "ADSREnvelope.hpp"
 #include "ModulationParameter.hpp"
+#include "Detune.hpp"
 
 #include <cstdint>
 
@@ -77,8 +78,6 @@ void PolyOscillator::updateOscillators(){
             createChildOscillator(pair.first,pair.second);
         } else {
             ParameterController* p = oscillator_[pair.first].getParameterController();
-
-            p->setParameterValue<ParameterType::FREQUENCY>(pair.second.getFrequency() * KeyboardController::getPitchbend());
             p->setParameterValue<ParameterType::AMPLITUDE>(pair.second.getVelocity() / 127.0);
         }
     }
@@ -98,10 +97,10 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     oscillator_.insert(std::make_pair(midi_note,Oscillator(sampleRate_,parameterController_)));
     ParameterController* p = oscillator_[midi_note].getParameterController();
     
-    // frequency will be a combination of the note, detune value, and any midi pitchbend
     p->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
     p->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
 
+    // set amplitude modulation (currently hard-coded to ADSR envelope)
     boost::container::flat_map<ModulationParameter,double> amp_map ;
     amp_map[ModulationParameter::MIDI_NOTE] = midi_note ;
     amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
@@ -112,9 +111,13 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
         amp_map
     );
     
-    p->setParameterModulation<ParameterType::FREQUENCY>(KeyboardController::pitchbendModulation);
-
-
+    // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
+    boost::container::flat_map<ModulationParameter,double> freq_map ;
+    freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
+    p->setParameterModulation<ParameterType::FREQUENCY>(
+        Detune::modulate,
+        freq_map
+    );
 
     updateChildOutputBuffers(midi_note);
 }

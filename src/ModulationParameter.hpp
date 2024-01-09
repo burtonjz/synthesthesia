@@ -9,8 +9,9 @@
 */
 enum class ModulationParameter {
     MIDI_NOTE,
-    INITIAL_VALUE,
-    LAST_VALUE
+    INITIAL_VALUE, 
+    LAST_VALUE,
+    DETUNE_CENTS,
 };
 
 #endif // __MODULATION_PARAMETERS_HPP_

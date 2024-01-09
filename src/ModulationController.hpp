@@ -25,7 +25,7 @@ public:
      * @param param the ParameterType to be modulated
      * @param mod the specified modulation source
     */
-    static void setModulation(ParameterController* controller, ParameterType param, ModulatorType mod);
+    static void setModulation(ParameterController* controller, ParameterType param);
 };
 
 #endif // __MODULATION_CONTROLLER_HPP_
