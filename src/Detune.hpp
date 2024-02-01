@@ -2,9 +2,9 @@
 #define __DETUNE_HPP_
 
 #include "config.hpp"
+#include "Parameter.hpp"
 #include "ModulationParameter.hpp"
 
-#include <boost/container/flat_map.hpp>
 #include <array>
 
 /**
@@ -31,7 +31,7 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map. Must contain DETUNE_CENTS
     */
-    static double modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp);
+    static double modulate(double value, ParameterModMap* modp);
 
 };
 

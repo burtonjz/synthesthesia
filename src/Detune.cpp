@@ -20,7 +20,7 @@ void Detune::generate(){
     }
 }
 
-double Detune::modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp){
+double Detune::modulate(double value, ParameterModMap* modp){
     if ( modp->find(ModulationParameter::DETUNE_CENTS) == modp->end() ) return value * KeyboardController::getPitchbend() ;
 
     return value * KeyboardController::getPitchbend() * getDetuneFactor((*modp)[ModulationParameter::DETUNE_CENTS]);

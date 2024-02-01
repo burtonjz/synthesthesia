@@ -5,10 +5,12 @@
 #include "ParameterType.hpp"
 #include "ModulationParameter.hpp"
 
-#include <boost/container/flat_map.hpp>
+#include "BMap.hpp"
 #include <limits>
 #include <functional>
 #include <algorithm>
+
+using ParameterModMap = BMap<ModulationParameter, double, N_MODULATION_PARAMETERS> ;
 
 /**
  * @brief template class containing logic to define and manipulate a parameter
@@ -20,14 +22,15 @@ template <ParameterType Type>
 class Parameter : public ParameterBase {
 public:
     using ValueType = typename ParameterTypeTraits<Type>::ValueType ;
-
+    using ParameterModFunc = std::function<ValueType( ValueType, ParameterModMap* )> ;
+    
 private:
     ValueType value_ ;
     ValueType instantaneousValue_ ;
     ValueType defaultValue_ ;
     ValueType minValue_ ;
     ValueType maxValue_ ;
-    std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter, double>*)> modulationFunction_ ;
+    ParameterModFunc modulationFunction_ ;
 
 public:
     Parameter(
@@ -35,8 +38,8 @@ public:
         bool modulatable, 
         ValueType minValue, 
         ValueType maxValue,
-        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter, double>*)> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        ParameterModFunc modulationFunction, 
+        ParameterModMap modulationParameters
     ):
         ParameterBase(Type,modulatable,modulationParameters),
         minValue_(minValue),
@@ -57,7 +60,7 @@ public:
         minValue_(minValue),
         maxValue_(maxValue)
     {
-        auto nullModulationFunction = [](ValueType value, boost::container::flat_map<ModulationParameter, double>* map) -> ValueType {
+        auto nullModulationFunction = [](ValueType value, ParameterModMap* map) -> ValueType {
             return value;
         };
 
@@ -79,8 +82,8 @@ public:
     Parameter(
         ValueType defaultValue, 
         bool modulatable,
-        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>* )> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        ParameterModFunc modulationFunction, 
+        ParameterModMap modulationParameters
     ):
         ParameterBase(Type,modulatable,modulationParameters),
         minValue_(parameterLimits[static_cast<int>(type_)].first),
@@ -143,8 +146,8 @@ public:
      * @brief set the modulation function
     */
     void setModulationFunction(
-        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>*)> func, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        std::function<ValueType(ValueType, ParameterModMap*)> func, 
+        ParameterModMap modulationParameters
     ){
         modulationFunction_ = func ;
         modulationParameters_ = modulationParameters ;
@@ -154,7 +157,7 @@ public:
      * @brief set the modulation function
     */
     void setModulationFunction(
-        std::function<ValueType(ValueType, boost::container::flat_map<ModulationParameter,double>*)> func
+        std::function<ValueType(ValueType, ParameterModMap*)> func
     ){
         modulationFunction_ = func ;
     }

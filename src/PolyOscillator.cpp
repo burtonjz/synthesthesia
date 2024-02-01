@@ -7,6 +7,7 @@
 #include "ModulationParameter.hpp"
 #include "Detune.hpp"
 
+#include "BMap.hpp"
 #include <cstdint>
 
 #ifdef DEBUG
@@ -99,7 +100,7 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     p->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
 
     // set amplitude modulation (currently hard-coded to ADSR envelope)
-    boost::container::flat_map<ModulationParameter,double> amp_map ;
+    ParameterModMap amp_map ;
     amp_map[ModulationParameter::MIDI_NOTE] = midi_note ;
     amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
     amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
@@ -110,7 +111,7 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     );
     
     // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
-    boost::container::flat_map<ModulationParameter,double> freq_map ;
+    ParameterModMap freq_map ;
     freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
     p->setParameterModulation<ParameterType::FREQUENCY>(
         Detune::modulate,

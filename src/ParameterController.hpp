@@ -5,7 +5,7 @@
 #include "ParameterBase.hpp"
 #include "Parameter.hpp"
 
-#include <boost/container/flat_map.hpp>
+#include "BMap.hpp"
 #include <boost/container/flat_set.hpp>
 #include <limits>
 #include <functional>
@@ -25,7 +25,7 @@
 */
 class ParameterController {
 private:
-    boost::container::flat_map<ParameterType,ParameterBase*> parameters_ ;
+    BMap<ParameterType,ParameterBase*,N_PARAMETER_TYPES> parameters_ ;
     boost::container::flat_set<ParameterType> reference_parameters_ ;
 
 public:
@@ -53,8 +53,8 @@ public:
         bool modulatable,
         TYPE_TRAIT(param) minValue,
         TYPE_TRAIT(param) maxValue,
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>)> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction, 
+        ParameterModMap modulationParameters
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
@@ -94,8 +94,8 @@ public:
     void addParameter(
         TYPE_TRAIT(param) defaultValue, 
         bool modulatable,
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>)> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction, 
+        ParameterModMap modulationParameters
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
@@ -175,8 +175,8 @@ public:
 
     template <ParameterType param>
     void setParameterModulation(
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>* )> modulationFunction, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction, 
+        ParameterModMap modulationParameters
     ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
@@ -186,7 +186,7 @@ public:
 
     template <ParameterType param>
     void setParameterModulation(
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), boost::container::flat_map<ModulationParameter,TYPE_TRAIT(param)>* )> modulationFunction
+        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction
     ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
@@ -197,7 +197,7 @@ public:
     /**
      * @brief get a read-only copy of the parameters map
     */
-    boost::container::flat_map<ParameterType, ParameterBase*> getParameters(){
+    BMap<ParameterType, ParameterBase*, N_PARAMETER_TYPES> getParameters(){
         return parameters_;
     }
 

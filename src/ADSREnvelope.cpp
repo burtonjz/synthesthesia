@@ -56,7 +56,7 @@ double ADSREnvelope::getRelease(const double start_level, const double time_rele
     return start_level - start_level * time_release  / release ;
 }
 
-double ADSREnvelope::modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp){
+double ADSREnvelope::modulate(double value, ParameterModMap* modp){
     // REQUIRED PARAMS
     if ( modp->find(ModulationParameter::MIDI_NOTE) == modp->end() ) return value ;
     if ( modp->find(ModulationParameter::INITIAL_VALUE) == modp->end() ) return value ;

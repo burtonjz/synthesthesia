@@ -5,18 +5,19 @@
 #include "ModulationParameter.hpp"
 
 #include <boost/container/flat_map.hpp>
+#include "BMap.hpp"
 
 class ParameterBase {
 protected:
     ParameterType type_ ;
     bool modulatable_ ;
-    boost::container::flat_map<ModulationParameter,double> modulationParameters_ ;
-
+    BMap<ModulationParameter,double,N_MODULATION_PARAMETERS> modulationParameters_ ;
+    
 public:
     ParameterBase(
         ParameterType typ, 
         bool modulatable, 
-        boost::container::flat_map<ModulationParameter,double> modulationParameters
+        BMap<ModulationParameter,double,N_MODULATION_PARAMETERS> modulationParameters
     ):
         type_(typ),
         modulatable_(modulatable),

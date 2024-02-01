@@ -29,8 +29,10 @@ enum class ParameterType {
     FILTER_TYPE,
     CUTOFF,
     Q_FACTOR,
-    PARAMETER_N
+    N_PARAMETERS
 };
+
+constexpr int N_PARAMETER_TYPES = static_cast<int>(ParameterType::N_PARAMETERS) ;
 
 /**
  * @brief define value variable type for each ParameterType
@@ -56,7 +58,7 @@ template <> struct ParameterTypeTraits<ParameterType::Q_FACTOR>    {using ValueT
 /**
  * @brief a std::pair containing the min and max for each parameter type
 */
-constexpr std::array<std::pair<float, float>, static_cast<int>(ParameterType::PARAMETER_N)> parameterLimits({
+constexpr std::array<std::pair<float, float>, N_PARAMETER_TYPES> parameterLimits({
     std::make_pair(0.0f, 1.0f),                                        // STATUS
     std::make_pair(0.0f,static_cast<float>(Waveform::N)),              // WAVEFORM
     std::make_pair(0.0f, std::numeric_limits<float>::max()),           // FREQUENCY
@@ -77,7 +79,7 @@ constexpr std::array<std::pair<float, float>, static_cast<int>(ParameterType::PA
 /**
  * @brief a std::array containing the defaults for each parameter type
 */
-constexpr std::array<float, static_cast<int>(ParameterType::PARAMETER_N)> parameterDefaults({
+constexpr std::array<float, N_PARAMETER_TYPES> parameterDefaults({
     0.0f,                               // STATUS
     static_cast<float>(Waveform::SINE), // WAVEFORM
     440.0f,                             // FREQUENCY

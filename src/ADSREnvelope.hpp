@@ -2,6 +2,7 @@
 #define __ADSR_ENVELOPE_HPP_
 
 #include "config.hpp"
+#include "Parameter.hpp"
 #include "ParameterController.hpp"
 #include "ParameterType.hpp"
 #include "ModulationParameter.hpp"
@@ -38,7 +39,7 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map. Must contain MIDI_NOTE.
     */
-    static double modulate(double value, boost::container::flat_map<ModulationParameter,double>* modp);
+    static double modulate(double value, ParameterModMap* modp);
 
     /**
      * @brief returns a pointer to the ParameterController
