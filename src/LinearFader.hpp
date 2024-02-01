@@ -18,7 +18,7 @@ public:
         if ( params.find(ModulationParameter::MIDI_NOTE) == params.end() ) return value ;
 
         uint8_t midi_note = static_cast<uint8_t>(params[ModulationParameter::MIDI_NOTE]);
-        const boost::container::flat_map<uint8_t, Note>* notes = KeyboardController::get_active_notes() ;
+        const KeyboardMap* notes = KeyboardController::get_active_notes() ;
 
         auto it = notes->find(midi_note);
         if ( it == notes->end() ) return value ;

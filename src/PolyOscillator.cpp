@@ -69,7 +69,7 @@ void PolyOscillator::tick(){
 }
 
 void PolyOscillator::updateOscillators(){
-    const boost::container::flat_map<uint8_t,Note>* notes_ptr = KeyboardController::get_active_notes();
+    const KeyboardMap* notes_ptr = KeyboardController::get_active_notes();
     // first, update oscillators with new information from active_notes
     for (const auto& pair : *notes_ptr ){
         auto it = oscillator_.find(pair.first);

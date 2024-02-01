@@ -8,7 +8,7 @@
 #include "portInfo.hpp"
 #include "Note.hpp"
 
-#include <boost/container/flat_map.hpp>
+#include "BMap.hpp"
 #include <array>
 #include <utility>
 #include <cstddef>
@@ -16,7 +16,7 @@
 
 class PolyOscillator : public Module {
 protected:
-    boost::container::flat_map<uint8_t,Oscillator> oscillator_ ;
+    BMap<uint8_t,Oscillator, 128> oscillator_ ;
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     static std::array<ParameterType, 5> control_params_ ;
 

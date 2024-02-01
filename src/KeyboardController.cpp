@@ -6,7 +6,7 @@
 #include <algorithm>
 
 // initialization of static class member variables
-boost::container::flat_map<uint8_t,Note> KeyboardController::notes_ ;
+KeyboardMap KeyboardController::notes_ ;
 std::array<double,16384> KeyboardController::pitchbend_scale_factor_ ;
 uint16_t KeyboardController::pitchbend_value_ = 8192 ;
 uint8_t KeyboardController::sustain_ = 0 ;
@@ -52,7 +52,7 @@ void KeyboardController::setSustain(uint8_t sustain ){
     else sustain_ = sustain ;
 }
     
-const boost::container::flat_map<uint8_t,Note>* KeyboardController::get_active_notes(){
+const KeyboardMap* KeyboardController::get_active_notes(){
     return &notes_ ;
 }
 
@@ -91,6 +91,6 @@ void KeyboardController::tick(double time){
     }
 }
 
-double KeyboardController::pitchbendModulation(double value, boost::container::flat_map<ModulationParameter,double>* modp){
+double KeyboardController::pitchbendModulation(double value, ParameterModMap* modp){
     return value * getPitchbend();
 }

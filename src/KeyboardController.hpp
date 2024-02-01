@@ -3,14 +3,15 @@
 
 #include "config.hpp"
 #include "Note.hpp"
+#include "Parameter.hpp"
 #include "ModulationParameter.hpp"
+#include "BMap.hpp"
 
 #include <lv2/midi/midi.h>
-#include <boost/container/flat_map.hpp>
-#include <boost/container/flat_set.hpp>
 #include <cstdint>
 #include <array>
 
+using KeyboardMap = BMap<uint8_t, Note, 128> ;
 
 /**
  * @brief Feature class to handle midi information
@@ -20,8 +21,7 @@
 */
 class KeyboardController {
 private:
-    static boost::container::flat_map<uint8_t, Note> notes_ ;
-
+    static KeyboardMap notes_ ;
     static uint16_t pitchbend_value_ ;
     static std::array<double,16384> pitchbend_scale_factor_ ;
     static uint8_t sustain_ ;
@@ -40,7 +40,7 @@ public:
      * 
      * the vector will contain all active notes by order of longest to shortest total time since pressed
     */
-    static const boost::container::flat_map<uint8_t, Note>* get_active_notes();
+    static const KeyboardMap* get_active_notes();
 
     /**
      * @brief process midi message
@@ -71,7 +71,7 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map.
     */
-    static double pitchbendModulation(double value, boost::container::flat_map<ModulationParameter,double>* modp);
+    static double pitchbendModulation(double value, ParameterModMap* modp);
 
 private:
     static void pressNote(uint8_t midi_note, float velocity);
