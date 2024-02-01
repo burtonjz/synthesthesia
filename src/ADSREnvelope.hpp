@@ -7,7 +7,6 @@
 #include "ParameterType.hpp"
 #include "ModulationParameter.hpp"
 
-#include <boost/container/flat_map.hpp>
 #include <array>
 #include <utility>
 #include <cstdint>

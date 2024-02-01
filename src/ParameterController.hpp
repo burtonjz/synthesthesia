@@ -6,7 +6,6 @@
 #include "Parameter.hpp"
 
 #include "BMap.hpp"
-#include <boost/container/flat_set.hpp>
 #include <limits>
 #include <functional>
 #include <variant>
