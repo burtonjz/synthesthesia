@@ -9,7 +9,8 @@
 #include "Note.hpp"
 
 #include <boost/container/flat_map.hpp>
-#include <boost/container/vector.hpp>
+#include <array>
+#include <utility>
 #include <cstddef>
 #include <array>
 
@@ -17,20 +18,15 @@ class PolyOscillator : public Module {
 protected:
     boost::container::flat_map<uint8_t,Oscillator> oscillator_ ;
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
-    static boost::container::vector<ParameterType> control_params_ ;
+    static std::array<ParameterType, 5> control_params_ ;
 
 public:
     PolyOscillator(const double* sampleRate);
 
     /**
-     * @brief gets Oscillator Control Port count
-    */
-    static uint32_t getNumControlPorts();
-
-    /**
      * @brief returns pointer to vector of Oscillator Control Ports
     */
-    static const boost::container::vector<ParameterType>* getControlPorts();
+    static std::pair<const ParameterType*, size_t> getControlPorts();
 
     /**
      * @brief Activate the static components of the module. Must be called before real-time processing begins

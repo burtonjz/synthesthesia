@@ -23,7 +23,7 @@ protected:
 
 public:
     /**
-     * @brief construct a default Oscillator module.
+     * @brief construct an Oscillator module.
     */
     Oscillator(const double* sampleRate);
     /**

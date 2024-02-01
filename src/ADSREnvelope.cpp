@@ -5,7 +5,7 @@
 
 ParameterController ADSREnvelope::params_ ;
 double* ADSREnvelope::sample_rate_ = nullptr ;
-boost::container::vector<ParameterType> ADSREnvelope::control_params_ ;
+std::array<ParameterType,4> ADSREnvelope::control_params_ ;
 
 void ADSREnvelope::activate(double* sample_rate){
     sample_rate_ = sample_rate ;
@@ -27,18 +27,16 @@ void ADSREnvelope::activate(double* sample_rate){
         true
     );
 
-    control_params_.push_back(ParameterType::ATTACK);
-    control_params_.push_back(ParameterType::DECAY);
-    control_params_.push_back(ParameterType::SUSTAIN);
-    control_params_.push_back(ParameterType::RELEASE);
+    control_params_ = {
+        ParameterType::ATTACK,
+        ParameterType::DECAY,
+        ParameterType::SUSTAIN,
+        ParameterType::RELEASE
+    };
 }
 
-uint32_t ADSREnvelope::getNumControlPorts(){
-    return control_params_.size() ;
-}
-
-const boost::container::vector<ParameterType>* ADSREnvelope::getControlPorts(){
-    return &control_params_ ;
+std::pair<const ParameterType*, size_t> ADSREnvelope::getControlPorts(){
+    return {control_params_.data(), control_params_.size() } ;
 }
 
 double ADSREnvelope::getAttack(const double value, const double start_level, const double time_pressed, const double attack){

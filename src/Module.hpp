@@ -15,7 +15,7 @@
 
 class Module {
 protected:
-    const double* sampleRate_;
+    const double* sampleRate_ ;
     ParameterController parameterController_ ;
 
 public:
@@ -64,7 +64,7 @@ public:
     /**
      * @brief increment module for next sample
     */
-    virtual void tick() = 0 ;
+    virtual void tick(){}
 
 };
 

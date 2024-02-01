@@ -14,7 +14,7 @@
 #endif
 
 // define static variables
-boost::container::vector<ParameterType> PolyOscillator::control_params_ ;
+std::array<ParameterType, 5> PolyOscillator::control_params_ ;
 
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
@@ -28,20 +28,18 @@ PolyOscillator::PolyOscillator(const double* sampleRate):
     parameterController_.addParameter<ParameterType::PAN>(0.0, true);
 }
 
-uint32_t PolyOscillator::getNumControlPorts(){
-    return control_params_.size() ;
-}
-
-const boost::container::vector<ParameterType>* PolyOscillator::getControlPorts(){
-    return &control_params_ ;
+std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
+    return { control_params_.data(), control_params_.size() };
 }
 
 void PolyOscillator::static_activate(){
-    control_params_.push_back(ParameterType::STATUS);
-    control_params_.push_back(ParameterType::WAVEFORM);
-    control_params_.push_back(ParameterType::GAIN);
-    control_params_.push_back(ParameterType::DETUNE);
-    control_params_.push_back(ParameterType::PAN);
+    control_params_ = {
+        ParameterType::STATUS,
+        ParameterType::WAVEFORM,
+        ParameterType::GAIN,
+        ParameterType::DETUNE,
+        ParameterType::PAN
+    };
 }
 
 void PolyOscillator::activate(){    

@@ -4,7 +4,8 @@
 #include "PolyOscillator.hpp"
 #include "ADSREnvelope.hpp"
 
-#include <boost/container/vector.hpp>
+#include <array>
+#include <utility>
 
 #include <iostream>
 
@@ -17,17 +18,17 @@ void ControlPortManager::initialize(){
     // set module start indices and total n_ports
     module_start_index_[ModuleType::PolyOscillator] = start_index_ ;
     module_start_index_[ModuleType::ADSREnvelope] = 
-        module_start_index_[ModuleType::PolyOscillator] + PolyOscillator::getNumControlPorts() * N_POLY_OSCILLATORS ;
+        module_start_index_[ModuleType::PolyOscillator] + PolyOscillator::getControlPorts().second * N_POLY_OSCILLATORS ;
 
     n_ports_ = 
-        module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getNumControlPorts() * N_ENVELOPES ;
+        module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getControlPorts().second * N_ENVELOPES ;
 
 }
 
 uint32_t ControlPortManager::getNumModulePorts(ModuleType m){
     switch(m){
-    case ModuleType::PolyOscillator: return PolyOscillator::getNumControlPorts();
-    case ModuleType::ADSREnvelope: return ADSREnvelope::getNumControlPorts();
+    case ModuleType::PolyOscillator: return PolyOscillator::getControlPorts().second ;
+    case ModuleType::ADSREnvelope: return ADSREnvelope::getControlPorts().second ;
     }
 }
 
@@ -61,9 +62,9 @@ void ControlPortManager::connectPort(uint32_t port, void* data){
 }
 
 void ControlPortManager::updateModuleParameters(ParameterController* params, ModuleType m, uint32_t instance){
-    const boost::container::vector<ParameterType>* control_params ;
-    if(m == ModuleType::PolyOscillator) control_params = PolyOscillator::getControlPorts();
-    else if (m == ModuleType::ADSREnvelope) control_params = ADSREnvelope::getControlPorts();
+    std::pair<const ParameterType*, size_t> ctrl ;
+    if ( m == ModuleType::PolyOscillator ) ctrl = PolyOscillator::getControlPorts();
+    else if ( m == ModuleType::ADSREnvelope ) ctrl = ADSREnvelope::getControlPorts();
     else return ;
 
     PortData port_data ;
@@ -71,13 +72,12 @@ void ControlPortManager::updateModuleParameters(ParameterController* params, Mod
     port_data.module_index = instance ;
 
     uint32_t relative_port = 0 ;
-    for (const auto& p : *control_params){
+    for (size_t i = 0; i < ctrl.second; ++i){
         port_data.relative_port = relative_port ;
         uint32_t port = getAbsolutePort(port_data);
-        setParameterValue(params,p,port);
+        setParameterValue(params,ctrl.first[i],port);
         ++relative_port;
     }
-    
 }
 
 void ControlPortManager::setParameterValue(ParameterController* params, ParameterType pt, uint32_t port){

@@ -7,14 +7,15 @@
 #include "ModulationParameter.hpp"
 
 #include <boost/container/flat_map.hpp>
-#include <boost/container/vector.hpp>
+#include <array>
+#include <utility>
 #include <cstdint>
 
 class ADSREnvelope {
 private:
     static ParameterController params_ ;
     static double* sample_rate_ ;
-    static boost::container::vector<ParameterType> control_params_ ;
+    static std::array<ParameterType,4> control_params_ ;
 
 public:
     /**
@@ -24,15 +25,9 @@ public:
     static void activate(double* sample_rate);
 
     /**
-     * @brief returns number of control ports present in an ADSREnvelope
-     * 
-    */
-    static uint32_t getNumControlPorts();
-
-    /**
      * @brief returns a pointer to a vector of all Parameter controlPorts
     */
-    static const boost::container::vector<ParameterType>* getControlPorts();
+    static std::pair<const ParameterType*, size_t> getControlPorts();
 
     /**
      * @brief modulate function
