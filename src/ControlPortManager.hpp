@@ -3,9 +3,10 @@
 
 #include "ModuleType.hpp"
 #include "ParameterController.hpp"
+#include "BMap.hpp"
 
 #include <cstdint>
-#include <boost/container/flat_map.hpp>
+
 
 
 /**
@@ -25,8 +26,8 @@ class ControlPortManager {
 private:
     static uint32_t start_index_ ;
     static uint32_t n_ports_ ;
-    static boost::container::flat_map<ModuleType,uint32_t> module_start_index_ ;
-    static boost::container::flat_map<uint32_t, const float*> control_values_ ;
+    static BMap<ModuleType,uint32_t,N_MODULE_TYPES> module_start_index_ ;
+    static BMap<uint32_t, const float*, CONFIG_MAX_NUM_CONTROL_PORTS> control_values_ ;
 
 public:
     /**

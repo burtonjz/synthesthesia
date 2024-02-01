@@ -4,7 +4,10 @@
 enum class ModuleType {
     PolyOscillator,
     ADSREnvelope,
-    MODULE_N
+    N_MODULES
 };
+
+constexpr int N_MODULE_TYPES = static_cast<int>(ModuleType::N_MODULES) ;
+
 
 #endif // __MODULE_TYPE_HPP_

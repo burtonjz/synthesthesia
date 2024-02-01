@@ -11,8 +11,8 @@
 
 uint32_t ControlPortManager::start_index_ = MidiPorts::MIDI_N + AudioPorts::AUDIO_N ;
 uint32_t ControlPortManager::n_ports_ ;
-boost::container::flat_map<ModuleType,uint32_t> ControlPortManager::module_start_index_ ;
-boost::container::flat_map<uint32_t, const float*> ControlPortManager::control_values_ ;
+BMap<ModuleType,uint32_t,N_MODULE_TYPES> ControlPortManager::module_start_index_ ;
+BMap<uint32_t, const float*,CONFIG_MAX_NUM_CONTROL_PORTS> ControlPortManager::control_values_ ;
 
 void ControlPortManager::initialize(){
     // set module start indices and total n_ports

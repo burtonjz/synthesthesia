@@ -1,6 +1,7 @@
 #ifndef __LINEAR_FADER_HPP_
 #define __LINEAR_FADER_HPP_
 
+#include "Parameter.hpp"
 #include "ModulationParameter.hpp"
 #include "KeyboardController.hpp"
 #include "Note.hpp"
@@ -13,11 +14,11 @@
 
 class LinearFader {
 public:
-    static double modulate(double value, boost::container::flat_map<ModulationParameter,double> params){
+    static double modulate(double value, ParameterModMap* modp){
         // REQUIRED PARAMS
-        if ( params.find(ModulationParameter::MIDI_NOTE) == params.end() ) return value ;
+        if ( modp->find(ModulationParameter::MIDI_NOTE) == modp->end() ) return value ;
 
-        uint8_t midi_note = static_cast<uint8_t>(params[ModulationParameter::MIDI_NOTE]);
+        uint8_t midi_note = static_cast<uint8_t>((*modp)[ModulationParameter::MIDI_NOTE]);
         const KeyboardMap* notes = KeyboardController::get_active_notes() ;
 
         auto it = notes->find(midi_note);

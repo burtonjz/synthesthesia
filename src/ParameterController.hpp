@@ -26,7 +26,7 @@
 class ParameterController {
 private:
     BMap<ParameterType,ParameterBase*,N_PARAMETER_TYPES> parameters_ ;
-    boost::container::flat_set<ParameterType> reference_parameters_ ;
+    BMap<ParameterType,bool,N_PARAMETER_TYPES> reference_parameters_ ;
 
 public:
     /**
@@ -129,7 +129,7 @@ public:
         const auto& otherParams = other.getParameters();
         for (const auto& pair : otherParams ){
             parameters_[pair.first] = pair.second ;
-            reference_parameters_.insert(pair.first);
+            reference_parameters_[pair.first] = true ;
         }
     }
 
