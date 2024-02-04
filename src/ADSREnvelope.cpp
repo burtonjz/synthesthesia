@@ -61,44 +61,45 @@ double ADSREnvelope::modulate(double value, ParameterModMap* modp){
     if ( modp->find(ModulationParameter::MIDI_NOTE) == modp->end() ) return value ;
     if ( modp->find(ModulationParameter::INITIAL_VALUE) == modp->end() ) return value ;
     if ( modp->find(ModulationParameter::LAST_VALUE) == modp->end() ) return value ;
+    return value ;
 
-    uint8_t midi_note = static_cast<uint8_t>((*modp)[ModulationParameter::MIDI_NOTE]);
-    const KeyboardMap* notes = KeyboardController::get_active_notes() ;
+    // uint8_t midi_note = static_cast<uint8_t>((*modp)[ModulationParameter::MIDI_NOTE]);
+    // const KeyboardMap* notes = KeyboardController::get_active_notes() ;
 
-    auto it = notes->find(midi_note);
-    if ( it == notes->end() ) return value ;
+    // auto it = notes->find(midi_note);
+    // if ( it == notes->end() ) return value ;
 
-    TYPE_TRAIT(ParameterType::ATTACK) a = params_.getParameterInstantaneousValue<ParameterType::ATTACK>();
-    TYPE_TRAIT(ParameterType::DECAY) d = params_.getParameterInstantaneousValue<ParameterType::DECAY>();
-    TYPE_TRAIT(ParameterType::SUSTAIN) s = params_.getParameterInstantaneousValue<ParameterType::SUSTAIN>();
-    TYPE_TRAIT(ParameterType::RELEASE) r = params_.getParameterInstantaneousValue<ParameterType::RELEASE>();
-    double rt = it->second.getTimeSinceReleased();
-    double pt = it->second.getTimeSincePressed();
-    double output ;
+    // TYPE_TRAIT(ParameterType::ATTACK) a = params_.getParameterInstantaneousValue<ParameterType::ATTACK>();
+    // TYPE_TRAIT(ParameterType::DECAY) d = params_.getParameterInstantaneousValue<ParameterType::DECAY>();
+    // TYPE_TRAIT(ParameterType::SUSTAIN) s = params_.getParameterInstantaneousValue<ParameterType::SUSTAIN>();
+    // TYPE_TRAIT(ParameterType::RELEASE) r = params_.getParameterInstantaneousValue<ParameterType::RELEASE>();
+    // double rt = it->second.getTimeSinceReleased();
+    // double pt = it->second.getTimeSincePressed();
+    // double output ;
 
-    if ( it->second.getIsPressed() ){    
-        if (pt == 0.0 ){ // if press stage just started, calculate initial_value
-            // (*modp)[ModulationParameter::INITIAL_VALUE] = getRelease(value,(*modp)[ModulationParameter::INITIAL_VALUE],rt - 1.0 / *sample_rate_ ,r);
-            (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
-        }
+    // if ( it->second.getIsPressed() ){    
+    //     if (pt == 0.0 ){ // if press stage just started, calculate initial_value
+    //         // (*modp)[ModulationParameter::INITIAL_VALUE] = getRelease(value,(*modp)[ModulationParameter::INITIAL_VALUE],rt - 1.0 / *sample_rate_ ,r);
+    //         (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
+    //     }
 
-        if ( pt < a ) output = getAttack(value,(*modp)[ModulationParameter::INITIAL_VALUE],pt,a);
-        else if ( pt < a + d ) output = getDecay(value, s, pt - a, d);
-        else output = getSustain(value, s) ;
+    //     if ( pt < a ) output = getAttack(value,(*modp)[ModulationParameter::INITIAL_VALUE],pt,a);
+    //     else if ( pt < a + d ) output = getDecay(value, s, pt - a, d);
+    //     else output = getSustain(value, s) ;
 
-    } else {
-        if (rt == 0.0){ // if release stage just started, calculate initial_value
-            // if (pt < a ) (*modp)[ModulationParameter::INITIAL_VALUE] = getAttack(1.0,0.0, pt - 1.0 / *sample_rate_ ,a) ;
-            // else if (pt < a + d ) (*modp)[ModulationParameter::INITIAL_VALUE] = getDecay(1.0, s, pt - a - 1.0 / *sample_rate_, d) ;
-            // else (*modp)[ModulationParameter::INITIAL_VALUE] = s ;
-            (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
-        }
+    // } else {
+    //     if (rt == 0.0){ // if release stage just started, calculate initial_value
+    //         // if (pt < a ) (*modp)[ModulationParameter::INITIAL_VALUE] = getAttack(1.0,0.0, pt - 1.0 / *sample_rate_ ,a) ;
+    //         // else if (pt < a + d ) (*modp)[ModulationParameter::INITIAL_VALUE] = getDecay(1.0, s, pt - a - 1.0 / *sample_rate_, d) ;
+    //         // else (*modp)[ModulationParameter::INITIAL_VALUE] = s ;
+    //         (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
+    //     }
 
-        output = getRelease((*modp)[ModulationParameter::INITIAL_VALUE], rt, r);
-    }    
+    //     output = getRelease((*modp)[ModulationParameter::INITIAL_VALUE], rt, r);
+    // }    
 
-    (*modp)[ModulationParameter::LAST_VALUE] = output ;
-    return output ;
+    // (*modp)[ModulationParameter::LAST_VALUE] = output ;
+    // return output ;
 
 }
 

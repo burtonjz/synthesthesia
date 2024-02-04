@@ -21,12 +21,16 @@ using KeyboardMap = BMap<uint8_t, Note, 128> ;
 */
 class KeyboardController {
 private:
-    static KeyboardMap notes_ ;
-    static uint16_t pitchbend_value_ ;
     static std::array<double,16384> pitchbend_scale_factor_ ;
-    static uint8_t sustain_ ;
+    KeyboardMap notes_ ;
+    uint16_t pitchbend_value_ ;
+    uint8_t sustain_ ;
 
 public:
+    /**
+     * @brief default constructor
+    */
+    KeyboardController();
 
     /**
      * @brief pre-compute values used in KeyboardController processing
@@ -40,7 +44,7 @@ public:
      * 
      * the vector will contain all active notes by order of longest to shortest total time since pressed
     */
-    static const KeyboardMap* get_active_notes();
+    const KeyboardMap* get_active_notes();
 
     /**
      * @brief process midi message
@@ -48,22 +52,22 @@ public:
      * @param message_type LV2 Midi message type
      * @param msg The message block of the LV2 Atom
     */
-    static void processMidi(LV2_Midi_Message_Type message_type, const uint8_t* const msg);
+    void processMidi(LV2_Midi_Message_Type message_type, const uint8_t* const msg);
 
     /**
      * @brief tick all active components
     */
-    static void tick(double time);
+    void tick(double time);
 
     /**
      * @brief get the pitchbend scale factor
     */
-    static float getPitchbend() ;
+    float getPitchbend() ;
 
     /**
      * @brief get the sustain value (between 0-127)
     */
-    static uint8_t getSustain() ;
+    uint8_t getSustain() ;
 
     /**
      * @brief modulation function for applying pitchbend
@@ -71,13 +75,13 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map.
     */
-    static double pitchbendModulation(double value, ParameterModMap* modp);
+    double pitchbendModulation(double value, ParameterModMap* modp);
 
 private:
-    static void pressNote(uint8_t midi_note, float velocity);
-    static void releaseNote(uint8_t midi_note);
-    static void setPitchbend(uint16_t pitchBendValue );
-    static void setSustain(uint8_t sustain );
+    void pressNote(uint8_t midi_note, float velocity);
+    void releaseNote(uint8_t midi_note);
+    void setPitchbend(uint16_t pitchBendValue );
+    void setSustain(uint8_t sustain );
 
     static void computePitchbendScaleFactor();
 

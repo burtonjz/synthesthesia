@@ -1,11 +1,9 @@
 #include "PolyOscillator.hpp"
 #include "ParameterController.hpp"
-#include "KeyboardController.hpp"
 #include "ParameterType.hpp"
 #include "LinearFader.hpp"
 #include "ADSREnvelope.hpp"
 #include "ModulationParameter.hpp"
-#include "Detune.hpp"
 
 #include "BMap.hpp"
 #include <cstdint>
@@ -20,20 +18,16 @@ std::array<ParameterType, 5> PolyOscillator::control_params_ ;
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
-    oscillator_()
+    keyboardController_(nullptr),
+    oscillator_(),
+    detuner_(nullptr)
 {
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
     parameterController_.addParameter<ParameterType::GAIN>(1.0, false);
     parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
     parameterController_.addParameter<ParameterType::PAN>(0.0, true);
-}
 
-std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
-    return { control_params_.data(), control_params_.size() };
-}
-
-void PolyOscillator::static_activate(){
     control_params_ = {
         ParameterType::STATUS,
         ParameterType::WAVEFORM,
@@ -43,7 +37,13 @@ void PolyOscillator::static_activate(){
     };
 }
 
-void PolyOscillator::activate(){    
+std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
+    return { control_params_.data(), control_params_.size() };
+}
+
+void PolyOscillator::activate(KeyboardController* keyboardController){
+        keyboardController_ = keyboardController ;
+        detuner_.activate(keyboardController);
 }
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
@@ -69,7 +69,7 @@ void PolyOscillator::tick(){
 }
 
 void PolyOscillator::updateOscillators(){
-    const KeyboardMap* notes_ptr = KeyboardController::get_active_notes();
+    const KeyboardMap* notes_ptr = keyboardController_->get_active_notes();
     // first, update oscillators with new information from active_notes
     for (const auto& pair : *notes_ptr ){
         auto it = oscillator_.find(pair.first);
@@ -99,24 +99,24 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     p->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
     p->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
 
-    // set amplitude modulation (currently hard-coded to ADSR envelope)
-    ParameterModMap amp_map ;
-    amp_map[ModulationParameter::MIDI_NOTE] = midi_note ;
-    amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
-    amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
+    // // set amplitude modulation (currently hard-coded to ADSR envelope)
+    // ParameterModMap amp_map ;
+    // amp_map[ModulationParameter::MIDI_NOTE] = midi_note ;
+    // amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
+    // amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
     
-    p->setParameterModulation<ParameterType::AMPLITUDE>( 
-        ADSREnvelope::modulate, 
-        amp_map
-    );
+    // p->setParameterModulation<ParameterType::AMPLITUDE>( 
+    //     ADSREnvelope::modulate, 
+    //     amp_map
+    // );
     
-    // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
-    ParameterModMap freq_map ;
-    freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
-    p->setParameterModulation<ParameterType::FREQUENCY>(
-        Detune::modulate,
-        freq_map
-    );
+    // // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
+    // ParameterModMap freq_map ;
+    // freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
+    // p->setParameterModulation<ParameterType::FREQUENCY>(
+    //     Detune::modulate,
+    //     freq_map
+    // );
 
     updateChildOutputBuffers(midi_note);
 }

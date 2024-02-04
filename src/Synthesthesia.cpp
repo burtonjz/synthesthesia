@@ -1,10 +1,9 @@
 #include "Synthesthesia.hpp"
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
-#include "KeyboardController.hpp"
 #include "ADSREnvelope.hpp"
 #include "ControlPortManager.hpp"
-#include "Detune.hpp"
+#include "Detuner.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -17,6 +16,7 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     urid_map(nullptr),
     audio_out{nullptr},
     sampleRate_(sample_rate),
+    keyboardController_(),
     oscillator_{PolyOscillator(&sampleRate_)}
 {
     const char* missing = lv2_features_query(
@@ -31,7 +31,6 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
 
     // Note: this must happen before connect port, which happens before activate...
     ADSREnvelope::activate(&sampleRate_);
-    PolyOscillator::static_activate();
     ControlPortManager::initialize();
 
 }
@@ -58,12 +57,12 @@ void Synthesthesia::activate(){
     Wavetable::generate();
     MidiNote::generate();
     KeyboardController::generate();
-    Detune::generate();
+    Detuner::generate();
 
     // activate modules and set buffers
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
-    oscillator_[0].activate();
+    oscillator_[0].activate(&keyboardController_);
 
     std::cout << "Activated!" << std::endl; 
 }
@@ -95,7 +94,7 @@ void Synthesthesia::processMidi(LV2_Atom_Event* ev){
     const uint8_t* const msg = reinterpret_cast<const uint8_t*>(ev + 1);
     const LV2_Midi_Message_Type typ = lv2_midi_message_type(msg);
 
-    KeyboardController::processMidi(typ, msg);
+    keyboardController_.processMidi(typ, msg);
 }
 
 
@@ -109,7 +108,7 @@ void Synthesthesia::play(const uint32_t start, const uint32_t end){
 void Synthesthesia::tick(double time){
     oscillator_[0].tick();
     ADSREnvelope::tick();
-    KeyboardController::tick(time);
+    keyboardController_.tick(time);
 }
 
 void Synthesthesia::updateControlPorts(){

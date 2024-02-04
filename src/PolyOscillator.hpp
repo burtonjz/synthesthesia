@@ -7,6 +7,8 @@
 #include "IO.hpp"
 #include "portInfo.hpp"
 #include "Note.hpp"
+#include "KeyboardController.hpp"
+#include "Detuner.hpp"
 
 #include "BMap.hpp"
 #include <array>
@@ -19,6 +21,8 @@ protected:
     BMap<uint8_t,Oscillator, 128> oscillator_ ;
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     static std::array<ParameterType, 5> control_params_ ;
+    KeyboardController* keyboardController_ ;
+    Detuner detuner_ ;
 
 public:
     PolyOscillator(const double* sampleRate);
@@ -29,16 +33,11 @@ public:
     static std::pair<const ParameterType*, size_t> getControlPorts();
 
     /**
-     * @brief Activate the static components of the module. Must be called before real-time processing begins
-     * 
-     * Create all oscillator objects
-    */
-    static void static_activate();
-
-    /**
      * @brief Activate the module. Must be called before real-time processing begins
+     * 
+     * @param keyboardController ptr to keyboard controller
     */
-    void activate();
+    void activate(KeyboardController* keyboardController);
     
     /**
      * @brief set output buffer for specified channel

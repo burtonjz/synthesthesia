@@ -3,11 +3,15 @@
 
 #include "config.hpp"
 #include "urids.hpp"
-#include "PolyOscillator.hpp"
 #include "portInfo.hpp"
+
+#include "KeyboardController.hpp"
+
+#include "PolyOscillator.hpp"
 
 #include <cstdint>
 #include <array>
+
 #include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
@@ -22,9 +26,9 @@ private:
     LV2_URID_Map* urid_map ;
     Urids urids;
 
-    std::array<PolyOscillator,1> oscillator_ ;
-
     double sampleRate_ ;
+    KeyboardController keyboardController_ ;
+    std::array<PolyOscillator,1> oscillator_ ;
 
 public:
     /**
