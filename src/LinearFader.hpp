@@ -1,6 +1,8 @@
 #ifndef __LINEAR_FADER_HPP_
 #define __LINEAR_FADER_HPP_
 
+#include "commonTypes.hpp"
+
 #include "Parameter.hpp"
 #include "ModulationParameter.hpp"
 #include "KeyboardController.hpp"

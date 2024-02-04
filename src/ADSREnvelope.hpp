@@ -2,6 +2,8 @@
 #define __ADSR_ENVELOPE_HPP_
 
 #include "config.hpp"
+#include "commonTypes.hpp"
+
 #include "Parameter.hpp"
 #include "ParameterController.hpp"
 #include "ParameterType.hpp"

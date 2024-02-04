@@ -1,3 +1,5 @@
+#include "commonTypes.hpp"
+
 #include "PolyOscillator.hpp"
 #include "ParameterController.hpp"
 #include "ParameterType.hpp"
@@ -110,13 +112,13 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     //     amp_map
     // );
     
-    // // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
-    // ParameterModMap freq_map ;
-    // freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
-    // p->setParameterModulation<ParameterType::FREQUENCY>(
-    //     Detune::modulate,
-    //     freq_map
-    // );
+    // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
+    ParameterModMap freq_map ;
+    freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
+    p->setParameterModulation<ParameterType::FREQUENCY>(
+        &detuner_,
+        freq_map
+    );
 
     updateChildOutputBuffers(midi_note);
 }

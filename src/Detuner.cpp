@@ -1,4 +1,5 @@
 #include "Detuner.hpp"
+#include "ModulatorType.hpp"
 
 #include <cmath>
 
@@ -6,6 +7,7 @@
 std::array<double,CONFIG_DETUNE_MAX_CENTS_2 + 1> Detuner::scaleFactor ;
 
 Detuner::Detuner(KeyboardController* keyboardController):
+    Modulator(ModulatorType::Detuner),
     keyboardController_(keyboardController)
 {}
 
@@ -25,7 +27,7 @@ void Detuner::generate(){
     }
 }
 
-double Detuner::modulate(double value, ParameterModMap* modp){
+double Detuner::modulate(double value, ParameterModMap* modp) const {
     if (!keyboardController_) return value ;
     if ( modp->find(ModulationParameter::DETUNE_CENTS) == modp->end() ) return value * keyboardController_->getPitchbend() ;
     return value * keyboardController_->getPitchbend() * getDetuneFactor((*modp)[ModulationParameter::DETUNE_CENTS]);

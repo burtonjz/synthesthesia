@@ -9,6 +9,7 @@
 */
 
 enum class ModulationParameter {
+    MODULATION_SOURCE,
     MIDI_NOTE,
     INITIAL_VALUE, 
     LAST_VALUE,

@@ -2,6 +2,8 @@
 #define __KEYBOARD_CONTROLLER_HPP_
 
 #include "config.hpp"
+#include "commonTypes.hpp"
+
 #include "Note.hpp"
 #include "Parameter.hpp"
 #include "ModulationParameter.hpp"

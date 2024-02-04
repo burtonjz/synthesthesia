@@ -2,6 +2,9 @@
 #define __DETUNER_HPP_
 
 #include "config.hpp"
+#include "commonTypes.hpp"
+
+#include "Modulator.hpp"
 #include "Parameter.hpp"
 #include "ModulationParameter.hpp"
 #include "KeyboardController.hpp"
@@ -11,7 +14,7 @@
 /**
  * @brief static class to handle detune scaling factors/modulation
 */
-class Detuner {
+class Detuner : public Modulator {
 private:
     static std::array<double,CONFIG_DETUNE_MAX_CENTS_2 + 1> scaleFactor ;
     KeyboardController* keyboardController_ ;
@@ -49,7 +52,7 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map. Must contain DETUNE_CENTS
     */
-    double modulate(double value, ParameterModMap* modp);
+    double modulate(double value, ParameterModMap* modp) const override;
 
 };
 
