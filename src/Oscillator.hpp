@@ -8,7 +8,7 @@
 
 #include <array>
 #include <utility>
-
+#include <cstdint>
 
 /**
  * @brief basic Oscillator Module. Parameterized input, no output
