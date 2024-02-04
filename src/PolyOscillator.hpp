@@ -8,7 +8,9 @@
 #include "portInfo.hpp"
 #include "Note.hpp"
 #include "KeyboardController.hpp"
+#include "ADSREnvelope.hpp"
 #include "Detuner.hpp"
+#include "Modulator.hpp"
 
 #include "BMap.hpp"
 #include <array>
@@ -22,6 +24,7 @@ protected:
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     static std::array<ParameterType, 5> control_params_ ;
     KeyboardController* keyboardController_ ;
+    ADSREnvelope* envelope_ ;
     Detuner detuner_ ;
 
 public:
@@ -37,7 +40,7 @@ public:
      * 
      * @param keyboardController ptr to keyboard controller
     */
-    void activate(KeyboardController* keyboardController);
+    void activate(KeyboardController* keyboardController, ADSREnvelope* envelope);
     
     /**
      * @brief set output buffer for specified channel
@@ -55,6 +58,14 @@ public:
      * @brief increment state of polyphonic oscillator
     */
     void tick() override ;
+
+    /**
+     * @brief sets the modulation for a specific parameter
+     * 
+     * @param param parameter to set modulation for
+     * @param mod_ptr pointer to modulator instance
+    */
+    void setModulation(ParameterController* params, ParameterType p, Modulator* mod_ptr, uint32_t midi_note) ;
 
 private:
     /**

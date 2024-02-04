@@ -4,8 +4,9 @@
 #include "config.hpp"
 #include "commonTypes.hpp"
 
-#include "Parameter.hpp"
+#include "Modulator.hpp"
 #include "ParameterController.hpp"
+#include "KeyboardController.hpp"
 #include "ParameterType.hpp"
 #include "ModulationParameter.hpp"
 
@@ -13,23 +14,29 @@
 #include <utility>
 #include <cstdint>
 
-class ADSREnvelope {
+class ADSREnvelope : public Modulator {
 private:
-    static ParameterController params_ ;
-    static double* sample_rate_ ;
+    const double* sampleRate_ ;
+    ParameterController params_ ;
+    KeyboardController* keyboardController_ ;
     static std::array<ParameterType,4> control_params_ ;
 
 public:
     /**
-     * @brief activates the ADSR envelope
-     * 
-    */
-    static void activate(double* sample_rate);
-
-    /**
      * @brief returns a pointer to a vector of all Parameter controlPorts
     */
     static std::pair<const ParameterType*, size_t> getControlPorts();
+
+    /**
+     * @brief activates the ADSR envelope
+     * 
+    */
+    ADSREnvelope();
+
+    /**
+     * @brief activate modulator.
+    */
+    void activate(const double* sample_rate, KeyboardController* keyboardController);
 
     /**
      * @brief modulate function
@@ -40,24 +47,24 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map. Must contain MIDI_NOTE.
     */
-    static double modulate(double value, ParameterModMap* modp);
+    double modulate(double value, ParameterModMap* modp) const override;
 
     /**
      * @brief returns a pointer to the ParameterController
     */
-    static ParameterController* getParameterController();
+    ParameterController* getParameterController();
 
     /**
      * @brief tick envelope to next sample
      * 
      * Ticks envelope to next sample, which will modulate the ADSR values if modulation is set
     */
-    static void tick();
+    void tick();
 
     /**
      * @brief returns the currently set release time
     */
-    static double getReleaseTime();
+    double getReleaseTime();
 
 private:
     /**
@@ -68,7 +75,7 @@ private:
      * @param time_pressed time in seconds since key press
      * @param attack the time duration in seconds for the attack stage
     */
-    static double getAttack(const double value, const double start_level, const double time_pressed, const double attack);
+    double getAttack(const double value, const double start_level, const double time_pressed, const double attack) const ;
 
     /**
      * @brief get modulated value for decay stage
@@ -78,7 +85,7 @@ private:
      * @param time_decay the time since decay stage triggered
      * @param decay the time duration in seconds for the decay stage
     */
-    static double getDecay(const double value, const double sustain, const double time_decay, const double decay);
+    double getDecay(const double value, const double sustain, const double time_decay, const double decay) const ;
 
     /**
      * @brief get modulated value for decay stage
@@ -86,7 +93,7 @@ private:
      * @param value input value
      * @param sustain sustain level
     */
-    static double getSustain(const double value, const double sustain);
+    double getSustain(const double value, const double sustain) const ;
 
     /**
      * @brief get modulated value for decay stage
@@ -95,7 +102,7 @@ private:
      * @param time_release the time since release stage triggered
      * @param release the time duration in seconds for the release stage
     */
-    static double getRelease(const double start_level, const double time_release, const double release); 
+    double getRelease(const double start_level, const double time_release, const double release) const ; 
 };
 
 #endif // __ADSR_ENVELOPE_HPP_

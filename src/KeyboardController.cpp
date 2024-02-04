@@ -79,13 +79,13 @@ void KeyboardController::processMidi(LV2_Midi_Message_Type message_type, const u
     }
 }
 
-void KeyboardController::tick(double time){
+void KeyboardController::tick(double time, double rt){
     for (auto it = notes_.begin(); it != notes_.end(); ){
         it->second.tick(time);
         if (
             !it->second.getIsPressed() &&
             // it->second.getTimeSinceReleased() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second
-            it->second.getTimeSinceReleased() > ADSREnvelope::getReleaseTime() // TODO: will need to update this if we make ADSREnvelope dynamically set
+            it->second.getTimeSinceReleased() > rt
         ){
             it = notes_.erase(it) ;
         } else {

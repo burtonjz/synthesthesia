@@ -6,7 +6,7 @@
 #include "portInfo.hpp"
 
 #include "KeyboardController.hpp"
-
+#include "ADSREnvelope.hpp"
 #include "PolyOscillator.hpp"
 
 #include <cstdint>
@@ -29,6 +29,8 @@ private:
     double sampleRate_ ;
     KeyboardController keyboardController_ ;
     std::array<PolyOscillator,1> oscillator_ ;
+
+    ADSREnvelope envelope_ ;
 
 public:
     /**

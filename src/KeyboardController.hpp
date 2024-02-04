@@ -58,8 +58,11 @@ public:
 
     /**
      * @brief tick all active components
+     * 
+     * @param time time since last tick
+     * @param rt release time (likely from envelope)
     */
-    void tick(double time);
+    void tick(double time, double rt);
 
     /**
      * @brief get the pitchbend scale factor
