@@ -3,14 +3,12 @@
 
 #include "ParameterBase.hpp"
 #include "ParameterType.hpp"
-#include "ModulationParameter.hpp"
+#include "Modulator.hpp"
 
-#include "BMap.hpp"
 #include <limits>
 #include <functional>
 #include <algorithm>
 
-using ParameterModMap = BMap<ModulationParameter, double, N_MODULATION_PARAMETERS> ;
 
 /**
  * @brief template class containing logic to define and manipulate a parameter
@@ -22,7 +20,6 @@ template <ParameterType Type>
 class Parameter : public ParameterBase {
 public:
     using ValueType = typename ParameterTypeTraits<Type>::ValueType ;
-    using ParameterModFunc = std::function<ValueType( ValueType, ParameterModMap* )> ;
     
 private:
     ValueType value_ ;
@@ -30,26 +27,23 @@ private:
     ValueType defaultValue_ ;
     ValueType minValue_ ;
     ValueType maxValue_ ;
-    ParameterModFunc modulationFunction_ ;
 
 public:
-    Parameter(
-        ValueType defaultValue, 
-        bool modulatable, 
-        ValueType minValue, 
-        ValueType maxValue,
-        ParameterModFunc modulationFunction, 
-        ParameterModMap modulationParameters
-    ):
-        ParameterBase(Type,modulatable,modulationParameters),
-        minValue_(minValue),
-        maxValue_(maxValue),
-        modulationFunction_(modulationFunction)
-    {
-        defaultValue_ = limitToRange(defaultValue);
-        setValue(defaultValue_) ;
-    }
+    /**
+     * @brief simplest parameter constructor
+    */
+    Parameter(ValueType defaultValue, bool modulatable):
+        Parameter(
+            defaultValue,
+            modulatable, 
+            static_cast<ValueType>(parameterLimits[static_cast<int>(Type)].first), 
+            static_cast<ValueType>(parameterLimits[static_cast<int>(Type)].second)
+        )
+    {}
 
+    /**
+     * @brief Construct with min/max values
+    */
     Parameter(
         ValueType defaultValue, 
         bool modulatable, 
@@ -60,40 +54,45 @@ public:
         minValue_(minValue),
         maxValue_(maxValue)
     {
-        auto nullModulationFunction = [](ValueType value, ParameterModMap* map) -> ValueType {
-            return value;
-        };
-
-        setModulationFunction(nullModulationFunction);
-
         defaultValue_ = limitToRange(defaultValue);
         setValue(defaultValue_);
     }
 
-    Parameter(ValueType defaultValue, bool modulatable):
-        Parameter(
-            defaultValue,
-            modulatable, 
-            static_cast<ValueType>(parameterLimits[static_cast<int>(Type)].first), 
-            static_cast<ValueType>(parameterLimits[static_cast<int>(Type)].second)
-        )
-    {}
-
+    /**
+     * @brief construct with modulation source, no min/max values
+    */
     Parameter(
         ValueType defaultValue, 
         bool modulatable,
-        ParameterModFunc modulationFunction, 
-        ParameterModMap modulationParameters
+        Modulator* mod_ptr,
+        ParameterModMap modp
     ):
-        ParameterBase(Type,modulatable,modulationParameters),
+        ParameterBase(Type,modulatable,mod_ptr,modp),
         minValue_(parameterLimits[static_cast<int>(type_)].first),
-        maxValue_(parameterLimits[static_cast<int>(type_)].second),
-        modulationFunction_(modulationFunction)
+        maxValue_(parameterLimits[static_cast<int>(type_)].second)
     {
         defaultValue_ = limitToRange(defaultValue);
         setValue(defaultValue_);
     }
 
+    /**
+     * @brief construct with modulation source and default values
+    */
+    Parameter(
+        ValueType defaultValue, 
+        bool modulatable, 
+        ValueType minValue, 
+        ValueType maxValue,
+        Modulator* mod_ptr,
+        ParameterModMap modp
+    ):
+        ParameterBase(Type,modulatable,mod_ptr,modp),
+        minValue_(minValue),
+        maxValue_(maxValue)
+    {
+        defaultValue_ = limitToRange(defaultValue);
+        setValue(defaultValue_) ;
+    }
 
     /**
      * @brief set parameter value
@@ -143,26 +142,6 @@ public:
     }
 
     /**
-     * @brief set the modulation function
-    */
-    void setModulationFunction(
-        std::function<ValueType(ValueType, ParameterModMap*)> func, 
-        ParameterModMap modulationParameters
-    ){
-        modulationFunction_ = func ;
-        modulationParameters_ = modulationParameters ;
-    }
-
-    /**
-     * @brief set the modulation function
-    */
-    void setModulationFunction(
-        std::function<ValueType(ValueType, ParameterModMap*)> func
-    ){
-        modulationFunction_ = func ;
-    }
-
-    /**
      * @brief limit value to Parameter's range
      * 
      * @param value value
@@ -180,8 +159,9 @@ public:
      * 
     */
     void modulate() override {
-        if(!modulatable_) return ;
-        setInstantaneousValue(modulationFunction_(value_, &modulationParameters_));
+        if(!modulatable_ || !mod_ptr_ ) return ;
+
+        setInstantaneousValue(mod_ptr_->modulate(value_, &modp_));
     }
 
 private:

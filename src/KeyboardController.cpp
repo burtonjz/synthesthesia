@@ -6,10 +6,13 @@
 #include <algorithm>
 
 // initialization of static class member variables
-KeyboardMap KeyboardController::notes_ ;
 std::array<double,16384> KeyboardController::pitchbend_scale_factor_ ;
-uint16_t KeyboardController::pitchbend_value_ = 8192 ;
-uint8_t KeyboardController::sustain_ = 0 ;
+
+KeyboardController::KeyboardController():
+    notes_(),
+    pitchbend_value_(8192),
+    sustain_(0)
+{}
 
 void KeyboardController::generate(){
     computePitchbendScaleFactor();
@@ -76,13 +79,13 @@ void KeyboardController::processMidi(LV2_Midi_Message_Type message_type, const u
     }
 }
 
-void KeyboardController::tick(double time){
+void KeyboardController::tick(double time, double rt){
     for (auto it = notes_.begin(); it != notes_.end(); ){
         it->second.tick(time);
         if (
             !it->second.getIsPressed() &&
             // it->second.getTimeSinceReleased() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second
-            it->second.getTimeSinceReleased() > ADSREnvelope::getReleaseTime()
+            it->second.getTimeSinceReleased() > rt
         ){
             it = notes_.erase(it) ;
         } else {

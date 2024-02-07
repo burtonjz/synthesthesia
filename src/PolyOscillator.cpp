@@ -1,11 +1,12 @@
+#include "commonTypes.hpp"
+
 #include "PolyOscillator.hpp"
 #include "ParameterController.hpp"
-#include "KeyboardController.hpp"
 #include "ParameterType.hpp"
 #include "LinearFader.hpp"
-#include "ADSREnvelope.hpp"
+
 #include "ModulationParameter.hpp"
-#include "Detune.hpp"
+#include "ModulatorType.hpp"
 
 #include "BMap.hpp"
 #include <cstdint>
@@ -15,35 +16,40 @@
 #endif
 
 // define static variables
-std::array<ParameterType, 5> PolyOscillator::control_params_ ;
+std::array<ParameterType, 5> PolyOscillator::control_params_ = {
+    ParameterType::STATUS,
+    ParameterType::WAVEFORM,
+    ParameterType::GAIN,
+    ParameterType::DETUNE,
+    ParameterType::PAN
+};
 
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
-    oscillator_()
+    keyboardController_(nullptr),
+    oscillator_(),
+    detuner_(nullptr),
+    freq_mod_(nullptr),
+    amp_mod_(nullptr)
 {
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
     parameterController_.addParameter<ParameterType::GAIN>(1.0, false);
     parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
     parameterController_.addParameter<ParameterType::PAN>(0.0, true);
+
 }
 
 std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
     return { control_params_.data(), control_params_.size() };
 }
 
-void PolyOscillator::static_activate(){
-    control_params_ = {
-        ParameterType::STATUS,
-        ParameterType::WAVEFORM,
-        ParameterType::GAIN,
-        ParameterType::DETUNE,
-        ParameterType::PAN
-    };
-}
-
-void PolyOscillator::activate(){    
+void PolyOscillator::activate(KeyboardController* keyboardController, Modulator* freq_mod, Modulator* amp_mod){
+        keyboardController_ = keyboardController ;
+        detuner_.activate(keyboardController);
+        freq_mod_ = freq_mod ;
+        amp_mod_ = amp_mod ;
 }
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
@@ -69,7 +75,7 @@ void PolyOscillator::tick(){
 }
 
 void PolyOscillator::updateOscillators(){
-    const KeyboardMap* notes_ptr = KeyboardController::get_active_notes();
+    const KeyboardMap* notes_ptr = keyboardController_->get_active_notes();
     // first, update oscillators with new information from active_notes
     for (const auto& pair : *notes_ptr ){
         auto it = oscillator_.find(pair.first);
@@ -94,30 +100,17 @@ void PolyOscillator::updateOscillators(){
 
 void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     oscillator_.insert(std::make_pair(midi_note,Oscillator(sampleRate_,parameterController_)));
-    ParameterController* p = oscillator_[midi_note].getParameterController();
+    ParameterController* params = oscillator_[midi_note].getParameterController();
     
-    p->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
-    p->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
+    // set note-specific parameters
+    params->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
+    params->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
 
-    // set amplitude modulation (currently hard-coded to ADSR envelope)
-    ParameterModMap amp_map ;
-    amp_map[ModulationParameter::MIDI_NOTE] = midi_note ;
-    amp_map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
-    amp_map[ModulationParameter::LAST_VALUE] = 0.0 ;
+    // set modulation TODO: make modulation controller, do this all fancy?
+    setModulation(params, ParameterType::AMPLITUDE, amp_mod_, midi_note);
+    setModulation(params, ParameterType::FREQUENCY, freq_mod_, midi_note);
+    // setModulation(params, ParameterType::FREQUENCY, &detuner_, midi_note);
     
-    p->setParameterModulation<ParameterType::AMPLITUDE>( 
-        ADSREnvelope::modulate, 
-        amp_map
-    );
-    
-    // set frequency modulation (currently hard-coded to Detune/keyboard pitchbend) TODO: better to be able to chain modulation functions somehow.
-    ParameterModMap freq_map ;
-    freq_map[ModulationParameter::DETUNE_CENTS] = parameterController_.getParameterInstantaneousValue<ParameterType::DETUNE>() ;
-    p->setParameterModulation<ParameterType::FREQUENCY>(
-        Detune::modulate,
-        freq_map
-    );
-
     updateChildOutputBuffers(midi_note);
 }
 
@@ -127,12 +120,52 @@ void PolyOscillator::updateChildOutputBuffers(uint8_t index){
     }
 }
 
+void PolyOscillator::setModulation(ParameterController* params, ParameterType p, Modulator* mod_ptr, uint32_t midi_note){
+    if( !mod_ptr ) return ;
+    if ( !params->parameterExists(p) ) return ;
+
+    ParameterModMap map ;
+    switch(mod_ptr->getType()){
+    case ModulatorType::ADSREnvelope:
+        map[ModulationParameter::MIDI_NOTE] = midi_note ;
+        map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
+        map[ModulationParameter::LAST_VALUE] = 0.0 ;
+        break ;
+    case ModulatorType::Detuner:
+        map[ModulationParameter::DETUNE_CENTS] = params->getParameterInstantaneousValue<ParameterType::DETUNE>() ;
+        break ;
+    case ModulatorType::LinearFader:
+        map[ModulationParameter::MIDI_NOTE] = midi_note ;
+        break ;
+    case ModulatorType::LFO: // no map params needed.
+    case ModulatorType::None:
+    default:
+        break ;
+    }
+
+    switch(p){
+    case ParameterType::AMPLITUDE:
+        params->setParameterModulation<ParameterType::AMPLITUDE>(mod_ptr, map);
+        return ;
+    case ParameterType::FREQUENCY:
+        params->setParameterModulation<ParameterType::FREQUENCY>(mod_ptr, map);
+        return ;
+    case ParameterType::PHASE:
+        params->setParameterModulation<ParameterType::PHASE>(mod_ptr, map);
+        return ;
+    default:
+        return ;
+
+    }
+
+    
+}
 
 #ifdef DEBUG
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
 #include <iostream>
-// gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
+// gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lm -lstdc++
 int main() {
     double sample_rate = 10 ;
     int n_samples = 100 ;

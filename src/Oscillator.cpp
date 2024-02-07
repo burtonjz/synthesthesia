@@ -62,17 +62,19 @@ void Oscillator::processSample(uint32_t idx){
     if(!parameterController_.getParameterValue<ParameterType::STATUS>()) return ;
     if(!isOutputBufferSet()) return ;
 
+    panSample(getSample(),idx);
+}
+
+double Oscillator::getSample() const {
     const std::array<double,WAVETABLE_SIZE>* wave_ptr;
-    double p ;
-    double index ;
+    double p, index, frac, sample ;
     int index_floor ;
-    double frac ;
-    double sample ;
 
     wave_ptr = Wavetable::getWavetable(static_cast<Waveform>(parameterController_.getParameterValue<ParameterType::WAVEFORM>()));
 
-    // get linear interpolation of wavetable value
+    // linear interpolation of wavetable lookup value
     p = std::fmod(phase_ + parameterController_.getParameterInstantaneousValue<ParameterType::PHASE>(),1.0);
+    
     index = p * (WAVETABLE_SIZE - 1);
     index_floor = static_cast<int>(std::floor(index));
     frac = index - index_floor ;
@@ -81,8 +83,8 @@ void Oscillator::processSample(uint32_t idx){
 
     sample *= parameterController_.getParameterInstantaneousValue<ParameterType::AMPLITUDE>();
     sample *= parameterController_.getParameterInstantaneousValue<ParameterType::GAIN>();
-    panSample(sample,idx);
 
+    return sample ;
 }
 
 void Oscillator::tick(){

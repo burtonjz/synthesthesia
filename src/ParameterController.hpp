@@ -1,9 +1,12 @@
 #ifndef __PARAMETER_CONTROLLER_HPP_
 #define __PARAMETER_CONTROLLER_HPP_
 
+#include "commonTypes.hpp"
+
 #include "ParameterType.hpp"
 #include "ParameterBase.hpp"
 #include "Parameter.hpp"
+#include "Modulator.hpp"
 
 #include "BMap.hpp"
 #include <limits>
@@ -43,8 +46,8 @@ public:
      * @param modulatable set the parameter to be modulatable
      * @param minValue minimum value limit [default: minimum for type]
      * @param maxValue maximum value limit [default: maximum for type]
-     * @param modulationFunction function to perform modulation
-     * @param modulationParameters map of ModulationParameters
+     * @param mod_ptr pointer to modulator 
+     * @param modp modulation parameters
     */
     template <ParameterType param>
     void addParameter(
@@ -52,12 +55,12 @@ public:
         bool modulatable,
         TYPE_TRAIT(param) minValue,
         TYPE_TRAIT(param) maxValue,
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction, 
-        ParameterModMap modulationParameters
+        Modulator* mod_ptr,
+        ParameterModMap modp
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, minValue, maxValue, modulationFunction, modulationParameters);
+            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, minValue, maxValue, mod_ptr, modp);
             parameters_[param] = p ;
         }
     }
@@ -86,19 +89,19 @@ public:
      * @param param Id for the parameter
      * @param defaultValue default value to reset value to
      * @param modulatable set the parameter to be modulatable
-     * @param modulationFunction function to perform modulation
-     * @param modulationParameters map of ModulationParameters
+     * @param mod_ptr pointer to modulator instance
+     * @param modp modulation parameters map
     */
     template <ParameterType param>
     void addParameter(
         TYPE_TRAIT(param) defaultValue, 
         bool modulatable,
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction, 
-        ParameterModMap modulationParameters
+        Modulator* mod_ptr, 
+        ParameterModMap modp
     ){
         auto it = parameters_.find(param);
         if (it == parameters_.end()){
-            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, modulationFunction, modulationParameters);
+            Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, mod_ptr, modp);
             parameters_[param] = p ;
         }
     }
@@ -174,22 +177,12 @@ public:
 
     template <ParameterType param>
     void setParameterModulation(
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction, 
-        ParameterModMap modulationParameters
+        Modulator* mod_ptr, 
+        ParameterModMap modp
     ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            dynamic_cast<Parameter<param>*>(it->second)->setModulationFunction(modulationFunction,modulationParameters);
-        }
-    }
-
-    template <ParameterType param>
-    void setParameterModulation(
-        std::function<TYPE_TRAIT(param)(TYPE_TRAIT(param), ParameterModMap* )> modulationFunction
-    ){
-        auto it = parameters_.find(param);
-        if (it != parameters_.end() ){
-            dynamic_cast<Parameter<param>*>(it->second)->setModulationFunction(modulationFunction);
+            dynamic_cast<Parameter<param>*>(it->second)->setModulation(mod_ptr,modp);
         }
     }
 
