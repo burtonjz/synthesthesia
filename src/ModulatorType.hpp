@@ -9,6 +9,7 @@ enum class ModulatorType {
     LinearFader,
     ADSREnvelope,
     Detuner,
+    LFO,
     None
 };
 

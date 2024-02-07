@@ -3,6 +3,7 @@
 #include "portInfo.hpp"
 #include "PolyOscillator.hpp"
 #include "ADSREnvelope.hpp"
+#include "LFO.hpp"
 
 #include <array>
 #include <utility>
@@ -19,9 +20,11 @@ void ControlPortManager::initialize(){
     module_start_index_[ModuleType::PolyOscillator] = start_index_ ;
     module_start_index_[ModuleType::ADSREnvelope] = 
         module_start_index_[ModuleType::PolyOscillator] + PolyOscillator::getControlPorts().second * N_POLY_OSCILLATORS ;
+    module_start_index_[ModuleType::LFO] =
+        module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getControlPorts().second * N_ENVELOPES ;
 
     n_ports_ = 
-        module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getControlPorts().second * N_ENVELOPES ;
+        module_start_index_[ModuleType::LFO] + LFO::getControlPorts().second * N_LFOS ;
 
 }
 
@@ -29,6 +32,7 @@ uint32_t ControlPortManager::getNumModulePorts(ModuleType m){
     switch(m){
     case ModuleType::PolyOscillator: return PolyOscillator::getControlPorts().second ;
     case ModuleType::ADSREnvelope: return ADSREnvelope::getControlPorts().second ;
+    case ModuleType::LFO: return LFO::getControlPorts().second ;
     }
 }
 
@@ -65,6 +69,7 @@ void ControlPortManager::updateModuleParameters(ParameterController* params, Mod
     std::pair<const ParameterType*, size_t> ctrl ;
     if ( m == ModuleType::PolyOscillator ) ctrl = PolyOscillator::getControlPorts();
     else if ( m == ModuleType::ADSREnvelope ) ctrl = ADSREnvelope::getControlPorts();
+    else if ( m == ModuleType::LFO ) ctrl = LFO::getControlPorts();
     else return ;
 
     PortData port_data ;

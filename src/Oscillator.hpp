@@ -51,11 +51,21 @@ public:
     void setOutputBuffer(float* buffer, size_t channel) override;
 
     /**
-     * @brief process samples through the module
+     * @brief process samples through the module.
+     * 
+     * This saves the sample from getSample to the output buffer (if defined) and pans it appropriately
      * 
      * @param idx frame to process
     */
     void processSample(uint32_t idx);
+
+
+    /**
+     * @brief gets the sample value at oscillator's current position.
+     * 
+     * Does not save output to outputBuffer. This is primarily used external to the module in the case of LFOs.
+    */
+    double getSample() const ;
 
     /**
      * @brief increment oscillator for next sample

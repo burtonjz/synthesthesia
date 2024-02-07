@@ -17,7 +17,8 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     sampleRate_(sample_rate),
     keyboardController_(),
     oscillator_{PolyOscillator(&sampleRate_)},
-    envelope_()
+    envelope_(),
+    lfo_()
 {
     const char* missing = lv2_features_query(
         features,
@@ -30,7 +31,7 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     urids.initialize(urid_map);
 
     // Note: this must happen before connect port, which happens before activate...
-    envelope_.activate(&sampleRate_, &keyboardController_);
+    envelope_.activate(&sampleRate_, &keyboardController_); // TODO: this can move next to the other activates, I think.
     ControlPortManager::initialize();
 
 }
@@ -60,9 +61,11 @@ void Synthesthesia::activate(){
     Detuner::generate();
 
     // activate modules and set buffers
+    lfo_.activate(&sampleRate_);
+
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
-    oscillator_[0].activate(&keyboardController_, &envelope_);
+    oscillator_[0].activate(&keyboardController_, &lfo_, &envelope_);
 
     std::cout << "Activated!" << std::endl; 
 }
@@ -108,10 +111,12 @@ void Synthesthesia::play(const uint32_t start, const uint32_t end){
 void Synthesthesia::tick(double time){
     oscillator_[0].tick();
     envelope_.tick(); 
+    lfo_.tick();
     keyboardController_.tick(time, envelope_.getReleaseTime());
 }
 
 void Synthesthesia::updateControlPorts(){
     ControlPortManager::updateModuleParameters(oscillator_[0].getParameterController(),ModuleType::PolyOscillator,0);
     ControlPortManager::updateModuleParameters(envelope_.getParameterController(),ModuleType::ADSREnvelope,0);
+    ControlPortManager::updateModuleParameters(lfo_.getParameterController(),ModuleType::LFO,0);
 }

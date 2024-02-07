@@ -30,7 +30,8 @@ PolyOscillator::PolyOscillator(const double* sampleRate):
     keyboardController_(nullptr),
     oscillator_(),
     detuner_(nullptr),
-    envelope_(nullptr)
+    freq_mod_(nullptr),
+    amp_mod_(nullptr)
 {
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
@@ -44,10 +45,11 @@ std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
     return { control_params_.data(), control_params_.size() };
 }
 
-void PolyOscillator::activate(KeyboardController* keyboardController, ADSREnvelope* envelope){
+void PolyOscillator::activate(KeyboardController* keyboardController, Modulator* freq_mod, Modulator* amp_mod){
         keyboardController_ = keyboardController ;
         detuner_.activate(keyboardController);
-        envelope_ = envelope ;
+        freq_mod_ = freq_mod ;
+        amp_mod_ = amp_mod ;
 }
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
@@ -105,8 +107,9 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     params->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
 
     // set modulation TODO: make modulation controller, do this all fancy?
-    setModulation(params, ParameterType::AMPLITUDE, envelope_, midi_note);
-    setModulation(params, ParameterType::FREQUENCY, &detuner_, midi_note);
+    setModulation(params, ParameterType::AMPLITUDE, amp_mod_, midi_note);
+    setModulation(params, ParameterType::FREQUENCY, freq_mod_, midi_note);
+    // setModulation(params, ParameterType::FREQUENCY, &detuner_, midi_note);
     
     updateChildOutputBuffers(midi_note);
 }
@@ -134,6 +137,7 @@ void PolyOscillator::setModulation(ParameterController* params, ParameterType p,
     case ModulatorType::LinearFader:
         map[ModulationParameter::MIDI_NOTE] = midi_note ;
         break ;
+    case ModulatorType::LFO: // no map params needed.
     case ModulatorType::None:
     default:
         break ;
@@ -161,7 +165,7 @@ void PolyOscillator::setModulation(ParameterController* params, ParameterType p,
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
 #include <iostream>
-// gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lboost_container -lm -lstdc++
+// gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lm -lstdc++
 int main() {
     double sample_rate = 10 ;
     int n_samples = 100 ;

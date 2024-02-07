@@ -23,7 +23,7 @@ private:
 
 public:
     /**
-     * @brief returns a pointer to a vector of all Parameter controlPorts
+     * @brief returns Parameter controlPorts
     */
     static std::pair<const ParameterType*, size_t> getControlPorts();
 

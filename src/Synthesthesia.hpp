@@ -6,8 +6,9 @@
 #include "portInfo.hpp"
 
 #include "KeyboardController.hpp"
-#include "ADSREnvelope.hpp"
 #include "PolyOscillator.hpp"
+#include "ADSREnvelope.hpp"
+#include "LFO.hpp"
 
 #include <cstdint>
 #include <array>
@@ -31,6 +32,7 @@ private:
     std::array<PolyOscillator,1> oscillator_ ;
 
     ADSREnvelope envelope_ ;
+    LFO lfo_ ;
 
 public:
     /**

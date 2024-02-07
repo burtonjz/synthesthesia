@@ -8,7 +8,6 @@
 #include "portInfo.hpp"
 #include "Note.hpp"
 #include "KeyboardController.hpp"
-#include "ADSREnvelope.hpp"
 #include "Detuner.hpp"
 #include "Modulator.hpp"
 
@@ -24,7 +23,9 @@ protected:
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     static std::array<ParameterType, 5> control_params_ ;
     KeyboardController* keyboardController_ ;
-    ADSREnvelope* envelope_ ;
+
+    Modulator* freq_mod_ ;
+    Modulator* amp_mod_ ;
     Detuner detuner_ ;
 
 public:
@@ -40,7 +41,7 @@ public:
      * 
      * @param keyboardController ptr to keyboard controller
     */
-    void activate(KeyboardController* keyboardController, ADSREnvelope* envelope);
+    void activate(KeyboardController* keyboardController, Modulator* freq_mod, Modulator* amp_mod);
     
     /**
      * @brief set output buffer for specified channel
