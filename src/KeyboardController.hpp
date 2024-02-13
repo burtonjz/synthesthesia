@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "commonTypes.hpp"
 
+#include "Modulator.hpp"
 #include "Note.hpp"
 #include "Parameter.hpp"
 #include "ModulationParameter.hpp"
@@ -21,7 +22,7 @@ using KeyboardMap = BMap<uint8_t, Note, 128> ;
  * Handle midi inputs. This class will keep track of what midi notes have been pressed, if they have been released, 
  * and how long it has been since they were released.
 */
-class KeyboardController {
+class KeyboardController : public Modulator {
 private:
     static std::array<double,16384> pitchbend_scale_factor_ ;
     KeyboardMap notes_ ;
@@ -80,7 +81,7 @@ public:
      * @param value value to modulate (the Parameter value)
      * @param modp ModulationParameter map.
     */
-    double pitchbendModulation(double value, ParameterModMap* modp);
+    double modulate(double value, ParameterModMap* modp) const override ;
 
 private:
     void pressNote(uint8_t midi_note, float velocity);

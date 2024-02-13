@@ -6,18 +6,9 @@
 // initialization of static class member variables
 std::array<double,CONFIG_DETUNE_MAX_CENTS_2 + 1> Detuner::scaleFactor ;
 
-Detuner::Detuner(KeyboardController* keyboardController):
-    Modulator(ModulatorType::Detuner),
-    keyboardController_(keyboardController)
-{}
-
 Detuner::Detuner():
-    Detuner(nullptr)
+    Modulator(ModulatorType::Detuner)
 {}
-
-void Detuner::activate(KeyboardController* keyboardController){
-    keyboardController_ = keyboardController ;
-}
 
 double Detuner::getDetuneFactor(int cents){
     int idx = cents + CONFIG_DETUNE_MAX_CENTS ; // shift negative values into index range
@@ -32,7 +23,6 @@ void Detuner::generate(){
 }
 
 double Detuner::modulate(double value, ParameterModMap* modp) const {
-    if (!keyboardController_) return value ;
-    if ( modp->find(ModulationParameter::DETUNE_CENTS) == modp->end() ) return value * keyboardController_->getPitchbend() ;
-    return value * keyboardController_->getPitchbend() * getDetuneFactor((*modp)[ModulationParameter::DETUNE_CENTS]);
+    if ( modp->find(ModulationParameter::DETUNE_CENTS) == modp->end() ) return value ;
+    return value * getDetuneFactor((*modp)[ModulationParameter::DETUNE_CENTS]);
 }

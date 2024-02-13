@@ -9,6 +9,7 @@
 std::array<double,16384> KeyboardController::pitchbend_scale_factor_ ;
 
 KeyboardController::KeyboardController():
+    Modulator(ModulatorType::MidiControl),
     notes_(),
     pitchbend_value_(8192),
     sustain_(0)
@@ -84,7 +85,6 @@ void KeyboardController::tick(double time, double rt){
         it->second.tick(time);
         if (
             !it->second.getIsPressed() &&
-            // it->second.getTimeSinceReleased() > parameterLimits[static_cast<int>(ParameterType::RELEASE)].second
             it->second.getTimeSinceReleased() > rt
         ){
             it = notes_.erase(it) ;
@@ -94,6 +94,6 @@ void KeyboardController::tick(double time, double rt){
     }
 }
 
-double KeyboardController::pitchbendModulation(double value, ParameterModMap* modp){
-    return value * getPitchbend();
+double KeyboardController::modulate(double value, ParameterModMap* modp) const {
+    return value * pitchbend_scale_factor_[pitchbend_value_] ;
 }

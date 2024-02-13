@@ -63,13 +63,13 @@ void Synthesthesia::activate(){
 
     // activate modules and set buffers
     lfo_.activate(&sampleRate_);
-    detuner_.activate(&keyboardController_);
 
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
 
     // set oscillator modulation chain TODO: encapsulate this logic and other modulation management functions in a class...
-    osc_freq_mod_.addModulator(&detuner_);
+    osc_freq_mod_.addModulator(&keyboardController_); // midi pitchbend 
+    osc_freq_mod_.addModulator(&detuner_); // LV2 port detune
     osc_freq_mod_.addModulator(&lfo_);
 
     oscillator_[0].activate(&keyboardController_, &osc_freq_mod_, &envelope_);

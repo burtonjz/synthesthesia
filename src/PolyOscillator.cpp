@@ -164,8 +164,10 @@ void PolyOscillator::updateModulationMap(ParameterModMap* modp, ParameterControl
     case ModulatorType::LinearFader:
         (*modp)[ModulationParameter::MIDI_NOTE] = midi_note ;
         break ;
-    case ModulatorType::ModulationChain: // handled at top
-    case ModulatorType::LFO: // no map params needed.
+    // no map params needed for the following:
+    case ModulatorType::LFO: 
+    case ModulatorType::MidiControl:
+    case ModulatorType::ModulationChain: 
     default:
         break ;
     }
