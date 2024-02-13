@@ -7,9 +7,12 @@
 
 #include "ModulationParameter.hpp"
 #include "ModulatorType.hpp"
+#include "ModulationChain.hpp" // TODO: not a necessary header once this is encapsulated in modulation controller class.
 
 #include "BMap.hpp"
+
 #include <cstdint>
+#include <utility>
 
 #ifdef DEBUG
 #include <iostream>
@@ -122,41 +125,50 @@ void PolyOscillator::setModulation(ParameterController* params, ParameterType p,
     if( !mod_ptr ) return ;
     if ( !params->parameterExists(p) ) return ;
 
-    ParameterModMap map ;
-    switch(mod_ptr->getType()){
-    case ModulatorType::ADSREnvelope:
-        map[ModulationParameter::MIDI_NOTE] = midi_note ;
-        map[ModulationParameter::INITIAL_VALUE] = 0.0 ;
-        map[ModulationParameter::LAST_VALUE] = 0.0 ;
-        break ;
-    case ModulatorType::Detuner:
-        map[ModulationParameter::DETUNE_CENTS] = params->getParameterInstantaneousValue<ParameterType::DETUNE>() ;
-        break ;
-    case ModulatorType::LinearFader:
-        map[ModulationParameter::MIDI_NOTE] = midi_note ;
-        break ;
-    case ModulatorType::LFO: // no map params needed.
-    case ModulatorType::None:
-    default:
-        break ;
-    }
-
+    ParameterModMap modp ;
+    updateModulationMap(&modp,params,mod_ptr,midi_note);
+    
     switch(p){
     case ParameterType::AMPLITUDE:
-        params->setParameterModulation<ParameterType::AMPLITUDE>(mod_ptr, map);
+        params->setParameterModulation<ParameterType::AMPLITUDE>(mod_ptr, modp);
         return ;
     case ParameterType::FREQUENCY:
-        params->setParameterModulation<ParameterType::FREQUENCY>(mod_ptr, map);
+        params->setParameterModulation<ParameterType::FREQUENCY>(mod_ptr, modp);
         return ;
     case ParameterType::PHASE:
-        params->setParameterModulation<ParameterType::PHASE>(mod_ptr, map);
+        params->setParameterModulation<ParameterType::PHASE>(mod_ptr, modp);
         return ;
     default:
         return ;
 
     }
+}
 
-    
+void PolyOscillator::updateModulationMap(ParameterModMap* modp, ParameterController* params, Modulator* mod_ptr, uint32_t midi_note){
+    ModulatorType t = mod_ptr->getType() ;
+    if ( t == ModulatorType::ModulationChain){
+        ModulationChain* c = dynamic_cast<ModulationChain*>(mod_ptr) ;
+        int n_mods = c->getNumModulators();
+        for ( int i = 0 ; i < n_mods ; ++i ) updateModulationMap(modp,params,c->getModulator(i),midi_note);
+    }
+
+    switch(mod_ptr->getType()){
+    case ModulatorType::ADSREnvelope:
+        (*modp)[ModulationParameter::MIDI_NOTE] = midi_note ;
+        (*modp)[ModulationParameter::INITIAL_VALUE] = 0.0 ;
+        (*modp)[ModulationParameter::LAST_VALUE] = 0.0 ;
+        break ;
+    case ModulatorType::Detuner:
+        (*modp)[ModulationParameter::DETUNE_CENTS] = params->getParameterInstantaneousValue<ParameterType::DETUNE>() ;
+        break ;
+    case ModulatorType::LinearFader:
+        (*modp)[ModulationParameter::MIDI_NOTE] = midi_note ;
+        break ;
+    case ModulatorType::ModulationChain: // handled at top
+    case ModulatorType::LFO: // no map params needed.
+    default:
+        break ;
+    }
 }
 
 #ifdef DEBUG

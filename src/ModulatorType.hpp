@@ -11,7 +11,9 @@ enum class ModulatorType {
     Detuner,
     LFO,
     ModulationChain,
-    None
+    N_MODULATORS
 };
+
+constexpr int N_MODULATOR_TYPES = static_cast<int>(ModulatorType::N_MODULATORS) ;
 
 #endif // __MODULATOR_TYPE_HPP_

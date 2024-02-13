@@ -58,14 +58,27 @@ public:
     */
     void tick() override ;
 
+    // TODO: the below classes should be encapsulated in a modulation controller class.
     /**
      * @brief sets the modulation for a specific parameter
      * 
-     * @param param parameter to set modulation for
-     * @param mod_ptr pointer to modulator instance
+     * @param params Parameter Controller pointer
+     * @param p Parameter Type to set modulation for
+     * @param mod_ptr modulator pointer
+     * @param midi_note midi note from keyboard controller (for syncing things like envelopes)
     */
     void setModulation(ParameterController* params, ParameterType p, Modulator* mod_ptr, uint32_t midi_note) ;
 
+    /**
+     * @brief update the modulation map with the requirements of a specific modulator type
+     * 
+     * @param modp pointer to modulation map (to be updated)
+     * @param params Parameter Controller pointer
+     * @param mod_ptr pointer to modulator
+     * @param midi_note midi note
+    */
+    void updateModulationMap(ParameterModMap* modp, ParameterController* params, Modulator* mod_ptr, uint32_t midi_note);
+    
 private:
     /**
      * @brief update oscillators with data from KeyboardController
