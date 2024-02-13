@@ -2,7 +2,7 @@
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
 #include "ControlPortManager.hpp"
-#include "Detuner.hpp"
+#include "ModulationChain.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>
@@ -18,7 +18,8 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     keyboardController_(),
     oscillator_{PolyOscillator(&sampleRate_)},
     envelope_(),
-    lfo_()
+    lfo_(),
+    detuner_()
 {
     const char* missing = lv2_features_query(
         features,
@@ -62,10 +63,16 @@ void Synthesthesia::activate(){
 
     // activate modules and set buffers
     lfo_.activate(&sampleRate_);
+    detuner_.activate(&keyboardController_);
 
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
-    oscillator_[0].activate(&keyboardController_, &lfo_, &envelope_);
+
+    // set oscillator modulation chain TODO: encapsulate this logic and other modulation management functions in a class...
+    osc_freq_mod_.addModulator(&detuner_);
+    osc_freq_mod_.addModulator(&lfo_);
+
+    oscillator_[0].activate(&keyboardController_, &osc_freq_mod_, &envelope_);
 
     std::cout << "Activated!" << std::endl; 
 }

@@ -11,6 +11,10 @@ Detuner::Detuner(KeyboardController* keyboardController):
     keyboardController_(keyboardController)
 {}
 
+Detuner::Detuner():
+    Detuner(nullptr)
+{}
+
 void Detuner::activate(KeyboardController* keyboardController){
     keyboardController_ = keyboardController ;
 }

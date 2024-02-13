@@ -10,6 +10,7 @@ enum class ModulatorType {
     ADSREnvelope,
     Detuner,
     LFO,
+    ModulationChain,
     None
 };
 

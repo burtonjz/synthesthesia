@@ -8,7 +8,6 @@
 #include "portInfo.hpp"
 #include "Note.hpp"
 #include "KeyboardController.hpp"
-#include "Detuner.hpp"
 #include "Modulator.hpp"
 
 #include "BMap.hpp"
@@ -26,7 +25,6 @@ protected:
 
     Modulator* freq_mod_ ;
     Modulator* amp_mod_ ;
-    Detuner detuner_ ;
 
 public:
     PolyOscillator(const double* sampleRate);

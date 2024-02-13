@@ -9,6 +9,8 @@
 #include "PolyOscillator.hpp"
 #include "ADSREnvelope.hpp"
 #include "LFO.hpp"
+#include "Detuner.hpp"
+#include "ModulationChain.hpp"
 
 #include <cstdint>
 #include <array>
@@ -30,9 +32,12 @@ private:
     double sampleRate_ ;
     KeyboardController keyboardController_ ;
     std::array<PolyOscillator,1> oscillator_ ;
+    
+    ModulationChain osc_freq_mod_ ;
 
     ADSREnvelope envelope_ ;
     LFO lfo_ ;
+    Detuner detuner_ ;
 
 public:
     /**

@@ -20,4 +20,6 @@ constexpr float CONFIG_LFO_DEFAULT_FREQ = 2.0 ;
 constexpr float CONFIG_LFO_MIN_FREQ = 0.01 ;
 constexpr float CONFIG_LFO_MAX_FREQ = 20.0 ;
 
+constexpr int CONFIG_MAX_MODULATION_CHAIN = 10 ;
+
 #endif // __CONFIG_HPP_

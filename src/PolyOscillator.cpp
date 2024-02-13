@@ -29,7 +29,6 @@ PolyOscillator::PolyOscillator(const double* sampleRate):
     Module(sampleRate),
     keyboardController_(nullptr),
     oscillator_(),
-    detuner_(nullptr),
     freq_mod_(nullptr),
     amp_mod_(nullptr)
 {
@@ -47,7 +46,6 @@ std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
 
 void PolyOscillator::activate(KeyboardController* keyboardController, Modulator* freq_mod, Modulator* amp_mod){
         keyboardController_ = keyboardController ;
-        detuner_.activate(keyboardController);
         freq_mod_ = freq_mod ;
         amp_mod_ = amp_mod ;
 }

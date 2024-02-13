@@ -25,10 +25,10 @@ public:
      * 
      * @param keyboardController used to add in pitchbend logic
      * 
-     * TODO: if this gets advanced enough, may need to make a "FunctionChain" style class that can combine 
-     * modulation functions so that keyboard controller isn't necessary here.
     */
     Detuner(KeyboardController* keyboardController);
+
+    Detuner();
 
     /**
      * @brief activate the module instance by connecting a keyboard controller
