@@ -16,7 +16,6 @@ ControlPortManager::ControlPortManager():
     module_start_index_(),
     control_values_()
 {
-    initialize() ;
 }
 
 void ControlPortManager::initialize(){
@@ -26,10 +25,8 @@ void ControlPortManager::initialize(){
         module_start_index_[ModuleType::PolyOscillator] + PolyOscillator::getControlPorts().second * N_POLY_OSCILLATORS ;
     module_start_index_[ModuleType::LFO] =
         module_start_index_[ModuleType::ADSREnvelope] + ADSREnvelope::getControlPorts().second * N_ENVELOPES ;
-
     n_ports_ = 
         module_start_index_[ModuleType::LFO] + LFO::getControlPorts().second * N_LFOS ;
-
 }
 
 uint32_t ControlPortManager::getNumModulePorts(ModuleType m){

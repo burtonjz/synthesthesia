@@ -31,6 +31,7 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     if(missing) throw std::invalid_argument("Feature map not provided by the host. Cannot instantiate plugin.");
 
     urids.initialize(urid_map);
+    portManager_.initialize();
 
 }
 
