@@ -10,10 +10,14 @@
 
 #include <iostream>
 
-uint32_t ControlPortManager::start_index_ = MidiPorts::MIDI_N + AudioPorts::AUDIO_N ;
-uint32_t ControlPortManager::n_ports_ ;
-BMap<ModuleType,uint32_t,N_MODULE_TYPES> ControlPortManager::module_start_index_ ;
-BMap<uint32_t, const float*,CONFIG_MAX_NUM_CONTROL_PORTS> ControlPortManager::control_values_ ;
+ControlPortManager::ControlPortManager():
+    start_index_(MidiPorts::MIDI_N + AudioPorts::AUDIO_N),
+    n_ports_(),
+    module_start_index_(),
+    control_values_()
+{
+    initialize() ;
+}
 
 void ControlPortManager::initialize(){
     // set module start indices and total n_ports

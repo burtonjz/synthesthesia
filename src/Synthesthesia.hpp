@@ -6,6 +6,8 @@
 #include "portInfo.hpp"
 
 #include "KeyboardController.hpp"
+#include "ControlPortManager.hpp"
+
 #include "PolyOscillator.hpp"
 #include "ADSREnvelope.hpp"
 #include "LFO.hpp"
@@ -31,6 +33,7 @@ private:
 
     double sampleRate_ ;
     KeyboardController keyboardController_ ;
+    ControlPortManager portManager_ ;
     std::array<PolyOscillator,1> oscillator_ ;
     
     ModulationChain osc_freq_mod_ ;

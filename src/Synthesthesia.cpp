@@ -16,6 +16,7 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     audio_out{nullptr},
     sampleRate_(sample_rate),
     keyboardController_(),
+    portManager_(),
     oscillator_{PolyOscillator(&sampleRate_)},
     envelope_(),
     lfo_(),
@@ -31,10 +32,6 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
 
     urids.initialize(urid_map);
 
-    // Note: this must happen before connect port, which happens before activate...
-    envelope_.activate(&sampleRate_, &keyboardController_); // TODO: this can move next to the other activates, I think.
-    ControlPortManager::initialize();
-
 }
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
@@ -47,7 +44,7 @@ void Synthesthesia::connectPort(const uint32_t port, void* data){
         audio_out[port - MidiPorts::MIDI_N] = static_cast<float*>(data);
         break ;
     default:
-        ControlPortManager::connectPort(port,data);
+        portManager_.connectPort(port,data);
         break ;
     }
 }
@@ -63,6 +60,7 @@ void Synthesthesia::activate(){
 
     // activate modules and set buffers
     lfo_.activate(&sampleRate_);
+    envelope_.activate(&sampleRate_, &keyboardController_);
 
     oscillator_[0].setOutputBuffer(audio_out[0],0);
     oscillator_[0].setOutputBuffer(audio_out[1],1);
@@ -123,7 +121,7 @@ void Synthesthesia::tick(double time){
 }
 
 void Synthesthesia::updateControlPorts(){
-    ControlPortManager::updateModuleParameters(oscillator_[0].getParameterController(),ModuleType::PolyOscillator,0);
-    ControlPortManager::updateModuleParameters(envelope_.getParameterController(),ModuleType::ADSREnvelope,0);
-    ControlPortManager::updateModuleParameters(lfo_.getParameterController(),ModuleType::LFO,0);
+    portManager_.updateModuleParameters(oscillator_[0].getParameterController(),ModuleType::PolyOscillator,0);
+    portManager_.updateModuleParameters(envelope_.getParameterController(),ModuleType::ADSREnvelope,0);
+    portManager_.updateModuleParameters(lfo_.getParameterController(),ModuleType::LFO,0);
 }

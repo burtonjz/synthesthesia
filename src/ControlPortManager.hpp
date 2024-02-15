@@ -24,23 +24,28 @@ struct PortData {
 
 class ControlPortManager {
 private:
-    static uint32_t start_index_ ;
-    static uint32_t n_ports_ ;
-    static BMap<ModuleType,uint32_t,N_MODULE_TYPES> module_start_index_ ;
-    static BMap<uint32_t, const float*, CONFIG_MAX_NUM_CONTROL_PORTS> control_values_ ;
+    uint32_t start_index_ ;
+    uint32_t n_ports_ ;
+    BMap<ModuleType,uint32_t,N_MODULE_TYPES> module_start_index_ ;
+    BMap<uint32_t, const float*, CONFIG_MAX_NUM_CONTROL_PORTS> control_values_ ;
 
 public:
     /**
+     * @brief default constructor
+    */
+    ControlPortManager();
+
+    /**
      * @brief creates initial data structures
     */
-    static void initialize();
+    void initialize();
 
     /**
      * @brief returns number of ports present in a ModuleType
      * 
      * @param m ModuleType
     */
-    static uint32_t getNumModulePorts(ModuleType m);
+    uint32_t getNumModulePorts(ModuleType m);
 
     /**
      * @brief gets the relative port information from absolute port index
@@ -48,21 +53,21 @@ public:
      * @param port LV2 port index
      * 
     */
-    static PortData getPortData(uint32_t port) ;
+    PortData getPortData(uint32_t port) ;
 
     /**
      * @brief returns absolute port from PortData
      * 
      * @param port_data PortData object
     */
-    static uint32_t getAbsolutePort(PortData port_data);
+    uint32_t getAbsolutePort(PortData port_data);
 
     /**
      * @brief connects a port to the portManager
      * 
      * @param data data pointer from LV2 Host
     */
-    static void connectPort(uint32_t port, void* data);
+    void connectPort(uint32_t port, void* data);
 
     /**
      * @brief update all ports for a specified module
@@ -72,7 +77,7 @@ public:
      * @param instance module instance
      * 
     */
-    static void updateModuleParameters(ParameterController* params, ModuleType m, uint32_t instance );
+    void updateModuleParameters(ParameterController* params, ModuleType m, uint32_t instance );
 
 private:
     /**
@@ -82,7 +87,7 @@ private:
      * @param pt parameter type
      * @param port absolute port to update
     */
-    static void setParameterValue(ParameterController* params, ParameterType pt, uint32_t port );
+    void setParameterValue(ParameterController* params, ParameterType pt, uint32_t port );
     
 };
 
