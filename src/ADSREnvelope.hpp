@@ -4,6 +4,7 @@
 #include "config.hpp"
 #include "commonTypes.hpp"
 
+#include "Module.hpp"
 #include "Modulator.hpp"
 #include "ParameterController.hpp"
 #include "KeyboardController.hpp"
@@ -14,10 +15,8 @@
 #include <utility>
 #include <cstdint>
 
-class ADSREnvelope : public Modulator {
+class ADSREnvelope : public Modulator, public Module {
 private:
-    const double* sampleRate_ ;
-    ParameterController params_ ;
     KeyboardController* keyboardController_ ;
     static std::array<ParameterType,4> control_params_ ;
 
@@ -28,7 +27,7 @@ public:
     static std::pair<const ParameterType*, size_t> getControlPorts();
 
     /**
-     * @brief activates the ADSR envelope
+     * @brief default constructor
      * 
     */
     ADSREnvelope();

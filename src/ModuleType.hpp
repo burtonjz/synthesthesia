@@ -2,9 +2,11 @@
 #define __MODULE_TYPE_HPP_
 
 enum class ModuleType {
+    Oscillator,
     PolyOscillator,
     ADSREnvelope,
     LFO,
+    Filter,
     N_MODULES
 };
 

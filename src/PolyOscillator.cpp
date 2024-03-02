@@ -19,38 +19,45 @@
 #endif
 
 // define static variables
-std::array<ParameterType, 5> PolyOscillator::control_params_ = {
+std::array<ParameterType, 9> PolyOscillator::control_params_ = {
     ParameterType::STATUS,
     ParameterType::WAVEFORM,
     ParameterType::GAIN,
     ParameterType::DETUNE,
-    ParameterType::PAN
+    ParameterType::PAN,
+    ParameterType::MC_AMPLITUDE,
+    ParameterType::MC_FREQUENCY,
+    ParameterType::MC_PAN,
+    ParameterType::MC_PHASE
 };
 
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
-    Module(sampleRate),
+    Module(ModuleType::PolyOscillator),
     keyboardController_(nullptr),
-    oscillator_(),
-    freq_mod_(nullptr),
-    amp_mod_(nullptr)
+    modulationController_(nullptr),
+    oscillator_()
 {
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
     parameterController_.addParameter<ParameterType::GAIN>(1.0, false);
-    parameterController_.addParameter<ParameterType::DETUNE>(0.0, true);
+    parameterController_.addParameter<ParameterType::DETUNE>(0.0, false);
     parameterController_.addParameter<ParameterType::PAN>(0.0, true);
+    parameterController_.addParameter<ParameterType::MC_AMPLITUDE>(0,false);
+    parameterController_.addParameter<ParameterType::MC_FREQUENCY>(0,false);
+    parameterController_.addParameter<ParameterType::MC_PAN>(0,false);
+    parameterController_.addParameter<ParameterType::MC_PHASE>(0,false);
 
+    setSampleRate(sampleRate);
 }
 
 std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
     return { control_params_.data(), control_params_.size() };
 }
 
-void PolyOscillator::activate(KeyboardController* keyboardController, Modulator* freq_mod, Modulator* amp_mod){
+void PolyOscillator::activate(KeyboardController* keyboardController, ModulationController* modulationController){
         keyboardController_ = keyboardController ;
-        freq_mod_ = freq_mod ;
-        amp_mod_ = amp_mod ;
+        modulationController_ = modulationController ;
 }
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
@@ -69,10 +76,7 @@ void PolyOscillator::processSample(uint32_t idx){
 void PolyOscillator::tick(){
     updateOscillators();
 
-    // modulate parameters
-    parameterController_.modulateParameter<ParameterType::PAN>();
-    parameterController_.modulateParameter<ParameterType::DETUNE>();
-
+    parameterController_.modulate(); //TODO: make sure that the modulationController is updating the parent modulations (pan) when those values are changing
 }
 
 void PolyOscillator::updateOscillators(){
@@ -107,10 +111,31 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     params->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
     params->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
 
-    // set modulation TODO: make modulation controller, do this all fancy?
-    setModulation(params, ParameterType::AMPLITUDE, amp_mod_, midi_note);
-    setModulation(params, ParameterType::FREQUENCY, freq_mod_, midi_note);
-    // setModulation(params, ParameterType::FREQUENCY, &detuner_, midi_note);
+    // set modulation
+    modulationController_->setModulation(
+        getType(),
+        getInstance(),
+        params,
+        ParameterType::FREQUENCY,
+        parameterController_.getParameterValue<ParameterType::MC_FREQUENCY>(),
+        midi_note
+    ); 
+    modulationController_->setModulation(
+        getType(),
+        getInstance(),
+        params,
+        ParameterType::AMPLITUDE,
+        parameterController_.getParameterValue<ParameterType::MC_AMPLITUDE>(),
+        midi_note
+    ); 
+    // modulationController_->setModulation(
+    //     getType(),
+    //     getInstance(),
+    //     params,
+    //     ParameterType::PHASE,
+    //     parameterController_.getParameterValue<ParameterType::MC_PHASE>(),
+    //     midi_note
+    // ); 
     
     updateChildOutputBuffers(midi_note);
 }
@@ -121,141 +146,3 @@ void PolyOscillator::updateChildOutputBuffers(uint8_t index){
     }
 }
 
-void PolyOscillator::setModulation(ParameterController* params, ParameterType p, Modulator* mod_ptr, uint32_t midi_note){
-    if( !mod_ptr ) return ;
-    if ( !params->parameterExists(p) ) return ;
-
-    ParameterModMap modp ;
-    updateModulationMap(&modp,params,mod_ptr,midi_note);
-    
-    switch(p){
-    case ParameterType::AMPLITUDE:
-        params->setParameterModulation<ParameterType::AMPLITUDE>(mod_ptr, modp);
-        return ;
-    case ParameterType::FREQUENCY:
-        params->setParameterModulation<ParameterType::FREQUENCY>(mod_ptr, modp);
-        return ;
-    case ParameterType::PHASE:
-        params->setParameterModulation<ParameterType::PHASE>(mod_ptr, modp);
-        return ;
-    default:
-        return ;
-
-    }
-}
-
-void PolyOscillator::updateModulationMap(ParameterModMap* modp, ParameterController* params, Modulator* mod_ptr, uint32_t midi_note){
-    ModulatorType t = mod_ptr->getType() ;
-    if ( t == ModulatorType::ModulationChain){
-        ModulationChain* c = dynamic_cast<ModulationChain*>(mod_ptr) ;
-        int n_mods = c->getNumModulators();
-        for ( int i = 0 ; i < n_mods ; ++i ) updateModulationMap(modp,params,c->getModulator(i),midi_note);
-    }
-
-    switch(mod_ptr->getType()){
-    case ModulatorType::ADSREnvelope:
-        (*modp)[ModulationParameter::MIDI_NOTE] = midi_note ;
-        (*modp)[ModulationParameter::INITIAL_VALUE] = 0.0 ;
-        (*modp)[ModulationParameter::LAST_VALUE] = 0.0 ;
-        break ;
-    case ModulatorType::Detuner:
-        (*modp)[ModulationParameter::DETUNE_CENTS] = params->getParameterInstantaneousValue<ParameterType::DETUNE>() ;
-        break ;
-    case ModulatorType::LinearFader:
-        (*modp)[ModulationParameter::MIDI_NOTE] = midi_note ;
-        break ;
-    // no map params needed for the following:
-    case ModulatorType::LFO: 
-    case ModulatorType::MidiControl:
-    case ModulatorType::ModulationChain: 
-    default:
-        break ;
-    }
-}
-
-#ifdef DEBUG
-#include "Wavetable.hpp"
-#include "MidiNote.hpp"
-#include <iostream>
-// gcc -DDEBUG -std=c++17 -o test ADSREnvelope.cpp MidiNote.cpp Wavetable.cpp Oscillator.cpp Note.cpp KeyboardController.cpp PolyOscillator.cpp -I/usr/include/lv2 -L/usr/lib/lv2 -lm -lstdc++
-int main() {
-    double sample_rate = 10 ;
-    int n_samples = 100 ;
-    uint8_t midi_msg[3] = {0, 69, 80} ;
-
-    KeyboardController::generate();
-    MidiNote::generate();
-    ADSREnvelope::activate(&sample_rate);
-
-    PolyOscillator p(&sample_rate);
-    
-
-    float audio_buffer_L[n_samples] ;
-    float audio_buffer_R[n_samples] ;
-
-    for(int i = 0; i < n_samples; ++i){
-        audio_buffer_L[i] = 0.0f ;
-        audio_buffer_R[i] = 0.0f ;
-    }
-
-    // activate stuff
-    Wavetable::generate() ; 
-
-    p.activate();
-    p.setOutputBuffer(audio_buffer_L, 0);
-    p.setOutputBuffer(audio_buffer_R, 1);
-
-    // give keyboard controller a midi message
-    KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_ON, midi_msg);
-    // p.tick();
-
-    for(int i = 0; i < 60; ++i ){
-        std::cout << std::to_string(i) ;
-        p.processSample(i);
-        p.tick();
-        KeyboardController::tick(1.0/sample_rate);
-        std::cout
-            << ", audio_out=" << std::to_string(audio_buffer_L[i]) 
-            << std::endl ;
-    }
-
-    // release note and refresh buffer
-    KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_OFF, midi_msg);
-    for(int i = 0; i < n_samples; ++i){
-        audio_buffer_L[i] = 0.0f ;
-        audio_buffer_R[i] = 0.0f ;
-    }
-
-    for(int i = 0; i < 15; ++i ){
-        std::cout << std::to_string(i) ;
-        p.processSample(i);
-        p.tick();
-        KeyboardController::tick(1.0/sample_rate);
-        std::cout
-            << ", audio_out=" << std::to_string(audio_buffer_L[i]) 
-            << std::endl ;
-    }
-
-    // press note again & refresh buffer
-    KeyboardController::processMidi(LV2_MIDI_MSG_NOTE_ON, midi_msg);
-    for(int i = 0; i < n_samples; ++i){
-        audio_buffer_L[i] = 0.0f ;
-        audio_buffer_R[i] = 0.0f ;
-    }
-
-    for(int i = 0; i < 15; ++i ){
-        std::cout << std::to_string(i) ;
-        p.processSample(i);
-        p.tick();
-        KeyboardController::tick(1.0/sample_rate);
-        std::cout
-            << ", audio_out=" << std::to_string(audio_buffer_L[i]) 
-            << std::endl ;
-    }
-
-
-
-    return 0 ;
-
-}
-#endif

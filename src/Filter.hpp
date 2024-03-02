@@ -48,7 +48,7 @@ public:
     /**
      * @brief set output buffer for specified channel
     */
-    void setOutputBuffer(float* buffer, size_t channel) override;
+    void setOutputBuffer(float* buffer, size_t channel);
 
     /**
      * @brief get filter type

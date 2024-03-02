@@ -1,11 +1,12 @@
 #include "Filter.hpp"
+#include "ModuleType.hpp"
 
 Filter::Filter():
     Filter(nullptr)
 {}
 
 Filter::Filter(const double* sampleRate):
-    Module(sampleRate)
+    Module(sampleRate,ModuleType::Filter,-1) // TODO: set instance properly
 {}
 
 std::pair<const ParameterType*, size_t> Filter::getControlPorts(){}

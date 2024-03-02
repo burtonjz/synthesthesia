@@ -6,6 +6,7 @@
 #include "portInfo.hpp"
 
 #include "KeyboardController.hpp"
+#include "ModulationController.hpp"
 #include "ControlPortManager.hpp"
 
 #include "PolyOscillator.hpp"
@@ -32,16 +33,13 @@ private:
     Urids urids;
 
     double sampleRate_ ;
+
     KeyboardController keyboardController_ ;
+    ModulationController modulationController_ ;
     ControlPortManager portManager_ ;
-    std::array<PolyOscillator,1> oscillator_ ;
+
+    std::array<PolyOscillator,N_POLY_OSCILLATORS> oscillator_ ;
     
-    ModulationChain osc_freq_mod_ ;
-
-    ADSREnvelope envelope_ ;
-    LFO lfo_ ;
-    Detuner detuner_ ;
-
 public:
     /**
      * @brief Construct a new Synthesthesia object

@@ -105,6 +105,46 @@
         [
             a lv2:InputPort , lv2:ControlPort ;
             lv2:index 8 ;
+            lv2:portProperty lv2:integer ;
+            lv2:symbol "OSC1_MC_AMPLITUDE" ;
+            lv2:name "OSC1 Amplitude Modulation" ;
+            lv2:default 0 ;
+            lv2:minimum 0 ;
+            lv2:maximum 10000000000 ;
+        ] ,
+        [
+            a lv2:InputPort , lv2:ControlPort ;
+            lv2:index 9 ;
+            lv2:portProperty lv2:integer ;
+            lv2:symbol "OSC1_MC_FREQUENCY" ;
+            lv2:name "OSC1 Frequency Modulation" ;
+            lv2:default 0 ;
+            lv2:minimum 0 ;
+            lv2:maximum 10000000000 ;
+        ] ,
+        [
+            a lv2:InputPort , lv2:ControlPort ;
+            lv2:index 10 ;
+            lv2:portProperty lv2:integer ;
+            lv2:symbol "OSC1_MC_PAN" ;
+            lv2:name "OSC1 Pan Modulation" ;
+            lv2:default 0 ;
+            lv2:minimum 0 ;
+            lv2:maximum 10000000000 ;
+        ] ,
+        [
+            a lv2:InputPort , lv2:ControlPort ;
+            lv2:index 11 ;
+            lv2:portProperty lv2:integer ;
+            lv2:symbol "OSC1_MC_PHASE" ;
+            lv2:name "OSC1 Phase Modulation" ;
+            lv2:default 0 ;
+            lv2:minimum 0 ;
+            lv2:maximum 10000000000 ;
+        ] ,
+        [
+            a lv2:InputPort , lv2:ControlPort ;
+            lv2:index 12 ;
             lv2:symbol "env_attack" ;
             lv2:name "ENV Attack" ;
             lv2:default 0.1 ;
@@ -115,7 +155,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 9 ;
+            lv2:index 13 ;
             lv2:symbol "env_decay" ;
             lv2:name "ENV Decay" ;
             lv2:default 0.1 ;
@@ -126,7 +166,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 10 ;
+            lv2:index 14 ;
             lv2:symbol "env_sustain" ;
             lv2:name "ENV Sustain" ;
             lv2:default 0.5 ;
@@ -135,7 +175,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 11 ;
+            lv2:index 15 ;
             lv2:symbol "env_release" ;
             lv2:name "ENV Release" ;
             lv2:default 0.1 ;
@@ -146,7 +186,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 12 ;
+            lv2:index 16 ;
             lv2:symbol "lfo_status" ;
             lv2:name "LFO Status" ;
             lv2:default 1 ;
@@ -156,7 +196,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 13 ;
+            lv2:index 17 ;
             lv2:symbol "lfo_waveform" ;
             lv2:name "LFO Waveform" ;
             lv2:portProperty lv2:integer, lv2:enumeration ;
@@ -171,7 +211,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 14 ;
+            lv2:index 18 ;
             lv2:symbol "lfo_freq" ;
             lv2:name "LFO Frequency" ;
             lv2:default 0.01 ;
@@ -180,7 +220,7 @@
         ] ,
         [
             a lv2:InputPort , lv2:ControlPort ;
-            lv2:index 15 ;
+            lv2:index 19 ;
             lv2:symbol "lfo_depth" ;
             lv2:name "LFO Depth" ;
             lv2:default 0.1 ;

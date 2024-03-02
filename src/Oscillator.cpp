@@ -14,7 +14,7 @@
 #endif
 
 Oscillator::Oscillator(const double* sampleRate):
-    Module(sampleRate),
+    Module(sampleRate,ModuleType::Oscillator,-1), //TODO: investigate what passing real instances would do for us here
     outputBuffer_(),
     phase_(0),
     increment_(0)
@@ -42,7 +42,7 @@ Oscillator::Oscillator(const double* sampleRate, ParameterController& params):
 }
 
 void Oscillator::activate(const double* sampleRate){
-    sampleRate_ = sampleRate ;
+    setSampleRate(sampleRate);
 }
 
 
@@ -88,14 +88,12 @@ double Oscillator::getSample() const {
 }
 
 void Oscillator::tick(){
+    if (!sampleRate_) return ;
+
     increment_ = parameterController_.getParameterInstantaneousValue<ParameterType::FREQUENCY>() / *sampleRate_ ;
     phase_ = std::fmod(phase_ + increment_, 1.0);
-    parameterController_.modulateParameter<ParameterType::FREQUENCY>();
-    parameterController_.modulateParameter<ParameterType::AMPLITUDE>();
-    parameterController_.modulateParameter<ParameterType::GAIN>();
-    parameterController_.modulateParameter<ParameterType::PHASE>();
-    parameterController_.modulateParameter<ParameterType::PAN>();
-    parameterController_.modulateParameter<ParameterType::DETUNE>();
+
+    parameterController_.modulate();
 }
 
 void Oscillator::panSample(double sample_value, uint32_t idx){

@@ -9,10 +9,11 @@
 #include "Modulator.hpp"
 
 #include "BMap.hpp"
-#include <limits>
-#include <functional>
-#include <variant>
 
+#include <limits>
+#include <array>
+#include <utility>
+#include <set>
 #include <stdexcept>
 #include <sstream>
 
@@ -28,14 +29,17 @@
 class ParameterController {
 private:
     BMap<ParameterType,ParameterBase*,N_PARAMETER_TYPES> parameters_ ;
-    BMap<ParameterType,bool,N_PARAMETER_TYPES> reference_parameters_ ;
+    std::set<ParameterType> reference_parameters_ ;
+    std::set<ParameterType> modulatable_parameters_ ;
 
 public:
     /**
      * @brief constructor for ParameterController
     */
     ParameterController():
-        parameters_()
+        parameters_(),
+        reference_parameters_(),
+        modulatable_parameters_()
     {}
 
     /**
@@ -62,6 +66,7 @@ public:
         if (it == parameters_.end()){
             Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, minValue, maxValue, mod_ptr, modp);
             parameters_[param] = p ;
+            if (modulatable) modulatable_parameters_.insert(param);
         }
     }
 
@@ -80,6 +85,7 @@ public:
         if (it == parameters_.end()){
             Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, minValue, maxValue);
             parameters_[param] = p ;
+            if (modulatable) modulatable_parameters_.insert(param);
         }
     }
 
@@ -103,6 +109,7 @@ public:
         if (it == parameters_.end()){
             Parameter<param>* p = new Parameter<param>(defaultValue, modulatable, mod_ptr, modp);
             parameters_[param] = p ;
+            if (modulatable) modulatable_parameters_.insert(param);
         }
     }
 
@@ -119,6 +126,7 @@ public:
         if (it == parameters_.end()){
             Parameter<param>* p = new Parameter<param>(defaultValue, modulatable);
             parameters_[param] = p ;
+            if (modulatable) modulatable_parameters_.insert(param);
         }
     }
 
@@ -131,7 +139,8 @@ public:
         const auto& otherParams = other.getParameters();
         for (const auto& pair : otherParams ){
             parameters_[pair.first] = pair.second ;
-            reference_parameters_[pair.first] = true ;
+            reference_parameters_.insert(pair.first);
+            if(pair.second->isModulatable()) modulatable_parameters_.insert(pair.first);
         }
     }
 
@@ -175,14 +184,14 @@ public:
         throw std::runtime_error(errorMessage.str());
     }
 
-    template <ParameterType param>
     void setParameterModulation(
+        ParameterType param,
         Modulator* mod_ptr, 
         ParameterModMap modp
     ){
         auto it = parameters_.find(param);
         if (it != parameters_.end() ){
-            dynamic_cast<Parameter<param>*>(it->second)->setModulation(mod_ptr,modp);
+            it->second->setModulation(mod_ptr,modp);
         }
     }
 
@@ -204,18 +213,33 @@ public:
     }
 
     /**
+     * @brief return a set of all modulatable parameters
+    */
+    std::set<ParameterType> getModulatableParameters() const {
+        return modulatable_parameters_ ;
+    }
+
+    /**
      * @brief modulates a parameter if it is modulatable
      * 
      * @param param Id for the parameter
     */
-    template <ParameterType param>
-    void modulateParameter(){
+    void modulateParameter(ParameterType param){
         auto it = parameters_.find(param);
         if (it != parameters_.end() && !isReferenceParameter(param) ){
-            dynamic_cast<Parameter<param>*>(it->second)->modulate();
+            it->second->modulate();
         }
     }
 
+    /**
+     * @brief modulate all modulatable parameters in the controller
+    */
+    void modulate(){
+        for (auto it = modulatable_parameters_.begin(); it != modulatable_parameters_.end(); ++it ){
+            modulateParameter(*it);
+        }
+    }
+    
 private:
 
     bool isReferenceParameter(ParameterType param){

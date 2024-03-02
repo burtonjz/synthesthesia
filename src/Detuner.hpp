@@ -12,8 +12,10 @@
 
 /**
  * @brief static class to handle detune scaling factors/modulation
+ * 
+ * TODO: remove the detune parameter from the oscillator and give it to this class.
 */
-class Detuner : public Modulator {
+class Detuner : public Modulator { // TODO: make this a module as well. I think it should have a parameterController with the detune param.
 private:
     static std::array<double,CONFIG_DETUNE_MAX_CENTS_2 + 1> scaleFactor ;
 

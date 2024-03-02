@@ -2,15 +2,17 @@
 #define __LFO_HPP_
 
 #include "commonTypes.hpp"
-#include "ParameterController.hpp"
+#include "config.hpp"
+
 #include "Modulator.hpp"
+#include "Module.hpp"
+
+#include "ParameterController.hpp"
 #include "Oscillator.hpp"
 
-class LFO : public Modulator {
+class LFO : public Modulator, public Module {
 private:
     static std::array<ParameterType,4> control_params_ ;
-
-    ParameterController parameterController_ ;
     Oscillator oscillator_ ;
     
 public:
@@ -31,11 +33,6 @@ public:
      * @param sampleRate synth sample rate
     */
     void activate(const double* sampleRate);
-
-    /**
-     * @brief returns a pointer to the ParameterController
-    */
-    ParameterController* getParameterController();
 
     /**
      * @brief tick the LFO

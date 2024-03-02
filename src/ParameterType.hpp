@@ -12,6 +12,8 @@
 
 /**
  * @brief types of parameters that might exist within any given module
+ * 
+ * "MC" Parameters are Modulator connection parameters. See ModulationController/ControlPortManager for their uses.
 */
 enum class ParameterType {
     STATUS,
@@ -29,6 +31,10 @@ enum class ParameterType {
     FILTER_TYPE,
     CUTOFF,
     Q_FACTOR,
+    MC_FREQUENCY,
+    MC_AMPLITUDE,
+    MC_PHASE,
+    MC_PAN,
     N_PARAMETERS
 };
 
@@ -38,21 +44,25 @@ constexpr int N_PARAMETER_TYPES = static_cast<int>(ParameterType::N_PARAMETERS) 
  * @brief define value variable type for each ParameterType
 */
 template <ParameterType Type> struct ParameterTypeTraits ;
-template <> struct ParameterTypeTraits<ParameterType::STATUS>      {using ValueType = bool;};
-template <> struct ParameterTypeTraits<ParameterType::WAVEFORM>    {using ValueType = int;};
-template <> struct ParameterTypeTraits<ParameterType::FREQUENCY>   {using ValueType = double;};
-template <> struct ParameterTypeTraits<ParameterType::AMPLITUDE>   {using ValueType = double;};
-template <> struct ParameterTypeTraits<ParameterType::GAIN>        {using ValueType = double;};
-template <> struct ParameterTypeTraits<ParameterType::PHASE>       {using ValueType = double;};
-template <> struct ParameterTypeTraits<ParameterType::PAN>         {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::DETUNE>      {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::ATTACK>      {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::DECAY>       {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::SUSTAIN>     {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::RELEASE>     {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::FILTER_TYPE> {using ValueType = int;};
-template <> struct ParameterTypeTraits<ParameterType::CUTOFF>      {using ValueType = float;};
-template <> struct ParameterTypeTraits<ParameterType::Q_FACTOR>    {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::STATUS>       {using ValueType = bool;};
+template <> struct ParameterTypeTraits<ParameterType::WAVEFORM>     {using ValueType = int;};
+template <> struct ParameterTypeTraits<ParameterType::FREQUENCY>    {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::AMPLITUDE>    {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::GAIN>         {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::PHASE>        {using ValueType = double;};
+template <> struct ParameterTypeTraits<ParameterType::PAN>          {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::DETUNE>       {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::ATTACK>       {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::DECAY>        {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::SUSTAIN>      {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::RELEASE>      {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::FILTER_TYPE>  {using ValueType = int;};
+template <> struct ParameterTypeTraits<ParameterType::CUTOFF>       {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::Q_FACTOR>     {using ValueType = float;};
+template <> struct ParameterTypeTraits<ParameterType::MC_FREQUENCY> {using ValueType = int;};
+template <> struct ParameterTypeTraits<ParameterType::MC_AMPLITUDE> {using ValueType = int;};
+template <> struct ParameterTypeTraits<ParameterType::MC_PHASE>     {using ValueType = int;};
+template <> struct ParameterTypeTraits<ParameterType::MC_PAN>       {using ValueType = int;};
 
 
 /**
@@ -74,6 +84,10 @@ constexpr std::array<std::pair<float, float>, N_PARAMETER_TYPES> parameterLimits
     std::make_pair(0.0f, 3.0f),                                        // FILTER_TYPE  
     std::make_pair(0.0f, 20000.0f ),                                   // CUTOFF
     std::make_pair(0.5f, 10.0f),                                       // Q_FACTOR
+    std::make_pair(0.0f,CONFIG_MAX_MODULATION_ENCODED_VALUE),          // MC_FREQ
+    std::make_pair(0.0f,CONFIG_MAX_MODULATION_ENCODED_VALUE),          // MC_AMPLITUDE
+    std::make_pair(0.0f,CONFIG_MAX_MODULATION_ENCODED_VALUE),          // MC_PHASE
+    std::make_pair(0.0f,CONFIG_MAX_MODULATION_ENCODED_VALUE),          // MC_PAN
 });
 
 /**
@@ -95,6 +109,10 @@ constexpr std::array<float, N_PARAMETER_TYPES> parameterDefaults({
     0.0f,                               // FILTER_TYPE
     0.0f,                               // CUTOFF
     0.5f,                               // Q_FACTOR
+    0.0f,                               // MC_FREQUENCY
+    0.0f,                               // MC_AMPLITUDE
+    0.0f,                               // MC_PHASE
+    0.0f,                               // MC_PAN
 });
 
 #endif // __PARAMETER_TYPE_HPP_

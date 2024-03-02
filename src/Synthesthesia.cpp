@@ -16,11 +16,9 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     audio_out{nullptr},
     sampleRate_(sample_rate),
     keyboardController_(),
+    modulationController_(),
     portManager_(),
-    oscillator_{PolyOscillator(&sampleRate_)},
-    envelope_(),
-    lfo_(),
-    detuner_()
+    oscillator_{&sampleRate_}
 {
     const char* missing = lv2_features_query(
         features,
@@ -33,6 +31,10 @@ Synthesthesia::Synthesthesia(const double sample_rate, const LV2_Feature *const 
     urids.initialize(urid_map);
     portManager_.initialize();
 
+    // initialize modules
+    for(int i = 0; i < N_POLY_OSCILLATORS; ++i ){
+        oscillator_[i].setInstance(i);
+    }
 }
 
 void Synthesthesia::connectPort(const uint32_t port, void* data){
@@ -57,21 +59,17 @@ void Synthesthesia::activate(){
     Wavetable::generate();
     MidiNote::generate();
     KeyboardController::generate();
-    Detuner::generate();
 
     // activate modules and set buffers
-    lfo_.activate(&sampleRate_);
-    envelope_.activate(&sampleRate_, &keyboardController_);
-
-    oscillator_[0].setOutputBuffer(audio_out[0],0);
-    oscillator_[0].setOutputBuffer(audio_out[1],1);
-
-    // set oscillator modulation chain TODO: encapsulate this logic and other modulation management functions in a class...
-    osc_freq_mod_.addModulator(&keyboardController_); // midi pitchbend 
-    osc_freq_mod_.addModulator(&detuner_); // LV2 port detune
-    osc_freq_mod_.addModulator(&lfo_);
-
-    oscillator_[0].activate(&keyboardController_, &osc_freq_mod_, &envelope_);
+    modulationController_.activate(&keyboardController_, &sampleRate_);
+    
+    // activate modules
+    for( size_t i = 0; i < oscillator_.size(); ++i){
+        oscillator_[i].setOutputBuffer(audio_out[0],0);
+        oscillator_[i].setOutputBuffer(audio_out[1],1);
+        oscillator_[i].activate(&keyboardController_,&modulationController_);
+        modulationController_.registerModule(&oscillator_[i]);
+    } 
 
     std::cout << "Activated!" << std::endl; 
 }
@@ -115,14 +113,12 @@ void Synthesthesia::play(const uint32_t start, const uint32_t end){
 }
 
 void Synthesthesia::tick(double time){
-    oscillator_[0].tick();
-    envelope_.tick(); 
-    lfo_.tick();
-    keyboardController_.tick(time, envelope_.getReleaseTime());
+    for (size_t i = 0; i < oscillator_.size(); ++i) oscillator_[i].tick();
+    modulationController_.tick();
+    keyboardController_.tick(time, modulationController_.getAmplitudeModulatorRelease()); 
 }
 
 void Synthesthesia::updateControlPorts(){
     portManager_.updateModuleParameters(oscillator_[0].getParameterController(),ModuleType::PolyOscillator,0);
-    portManager_.updateModuleParameters(envelope_.getParameterController(),ModuleType::ADSREnvelope,0);
-    portManager_.updateModuleParameters(lfo_.getParameterController(),ModuleType::LFO,0);
+    modulationController_.updateControlPorts(&portManager_);
 }

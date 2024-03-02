@@ -1,4 +1,6 @@
 #include "ADSREnvelope.hpp"
+#include "ModulatorType.hpp"
+#include "ModuleType.hpp"
 #include "Modulator.hpp"
 #include "KeyboardController.hpp"
 
@@ -13,27 +15,26 @@ std::array<ParameterType,4> ADSREnvelope::control_params_ = {
 
 ADSREnvelope::ADSREnvelope():
     Modulator(ModulatorType::ADSREnvelope),
-    sampleRate_(nullptr),
-    params_()
+    Module(ModuleType::ADSREnvelope)
 {}
 
 void ADSREnvelope::activate(const double* sample_rate, KeyboardController* keyboardController){
-    sampleRate_ = sample_rate ;
+    setSampleRate(sample_rate);
     keyboardController_ = keyboardController ;
 
-    params_.addParameter<ParameterType::ATTACK>(
+    parameterController_.addParameter<ParameterType::ATTACK>(
         parameterDefaults[static_cast<int>(ParameterType::ATTACK)],
         true
     );
-    params_.addParameter<ParameterType::DECAY>(
+    parameterController_.addParameter<ParameterType::DECAY>(
         parameterDefaults[static_cast<int>(ParameterType::DECAY)],
         true
     );
-    params_.addParameter<ParameterType::SUSTAIN>(
+    parameterController_.addParameter<ParameterType::SUSTAIN>(
         parameterDefaults[static_cast<int>(ParameterType::SUSTAIN)],
         true
     );
-    params_.addParameter<ParameterType::RELEASE>(
+    parameterController_.addParameter<ParameterType::RELEASE>(
         parameterDefaults[static_cast<int>(ParameterType::RELEASE)],
         true
     );
@@ -73,10 +74,10 @@ double ADSREnvelope::modulate(double value, ParameterModMap* modp) const {
     auto it = notes->find(midi_note);
     if ( it == notes->end() ) return value ;
 
-    TYPE_TRAIT(ParameterType::ATTACK) a = params_.getParameterInstantaneousValue<ParameterType::ATTACK>();
-    TYPE_TRAIT(ParameterType::DECAY) d = params_.getParameterInstantaneousValue<ParameterType::DECAY>();
-    TYPE_TRAIT(ParameterType::SUSTAIN) s = params_.getParameterInstantaneousValue<ParameterType::SUSTAIN>();
-    TYPE_TRAIT(ParameterType::RELEASE) r = params_.getParameterInstantaneousValue<ParameterType::RELEASE>();
+    TYPE_TRAIT(ParameterType::ATTACK) a = parameterController_.getParameterInstantaneousValue<ParameterType::ATTACK>();
+    TYPE_TRAIT(ParameterType::DECAY) d = parameterController_.getParameterInstantaneousValue<ParameterType::DECAY>();
+    TYPE_TRAIT(ParameterType::SUSTAIN) s = parameterController_.getParameterInstantaneousValue<ParameterType::SUSTAIN>();
+    TYPE_TRAIT(ParameterType::RELEASE) r = parameterController_.getParameterInstantaneousValue<ParameterType::RELEASE>();
     double rt = it->second.getTimeSinceReleased();
     double pt = it->second.getTimeSincePressed();
     double output ;
@@ -93,9 +94,6 @@ double ADSREnvelope::modulate(double value, ParameterModMap* modp) const {
 
     } else {
         if (rt == 0.0){ // if release stage just started, calculate initial_value
-            // if (pt < a ) (*modp)[ModulationParameter::INITIAL_VALUE] = getAttack(1.0,0.0, pt - 1.0 / *sample_rate_ ,a) ;
-            // else if (pt < a + d ) (*modp)[ModulationParameter::INITIAL_VALUE] = getDecay(1.0, s, pt - a - 1.0 / *sample_rate_, d) ;
-            // else (*modp)[ModulationParameter::INITIAL_VALUE] = s ;
             (*modp)[ModulationParameter::INITIAL_VALUE] = (*modp)[ModulationParameter::LAST_VALUE] ;
         }
 
@@ -108,19 +106,16 @@ double ADSREnvelope::modulate(double value, ParameterModMap* modp) const {
 }
 
 ParameterController* ADSREnvelope::getParameterController(){
-    return &params_ ;
+    return &parameterController_ ;
 }
 
 void ADSREnvelope::tick(){
-    params_.modulateParameter<ParameterType::ATTACK>();
-    params_.modulateParameter<ParameterType::DECAY>();
-    params_.modulateParameter<ParameterType::SUSTAIN>();
-    params_.modulateParameter<ParameterType::RELEASE>();
+    parameterController_.modulate();
 }
 
 double ADSREnvelope::getReleaseTime(){
-    if(params_.parameterExists(ParameterType::RELEASE)){
-        return params_.getParameterInstantaneousValue<ParameterType::RELEASE>();
+    if(parameterController_.parameterExists(ParameterType::RELEASE)){
+        return parameterController_.getParameterInstantaneousValue<ParameterType::RELEASE>();
     }
 
     return parameterLimits[static_cast<int>(ParameterType::RELEASE)].second ;

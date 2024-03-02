@@ -63,6 +63,7 @@ uint32_t ControlPortManager::getAbsolutePort(PortData port_data){
 }
 
 void ControlPortManager::connectPort(uint32_t port, void* data){
+    std::cout << "[ControlPortManager] Connecting port " << port << std::endl ;
     control_values_[port] = static_cast<const float*>(data) ;
 }
 
@@ -129,6 +130,27 @@ void ControlPortManager::setParameterValue(ParameterController* params, Paramete
             break ;
         case ParameterType::RELEASE:
             params->setParameterValue<ParameterType::RELEASE>(v);
+            break ;
+        case ParameterType::FILTER_TYPE:
+            params->setParameterValue<ParameterType::FILTER_TYPE>(v);
+            break ;
+        case ParameterType::CUTOFF:
+            params->setParameterValue<ParameterType::CUTOFF>(v);
+            break ;
+        case ParameterType::Q_FACTOR:
+            params->setParameterValue<ParameterType::Q_FACTOR>(v);
+            break ;
+        case ParameterType::MC_FREQUENCY:
+            params->setParameterValue<ParameterType::MC_FREQUENCY>(v);
+            break ;
+        case ParameterType::MC_AMPLITUDE:
+            params->setParameterValue<ParameterType::MC_AMPLITUDE>(v);
+            break ;
+        case ParameterType::MC_PHASE:
+            params->setParameterValue<ParameterType::MC_PHASE>(v);
+            break ;
+        case ParameterType::MC_PAN:
+            params->setParameterValue<ParameterType::MC_PAN>(v);
             break ;
         default:
             break ;

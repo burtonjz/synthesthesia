@@ -2,9 +2,11 @@
 #define __MODULE_HPP_
 
 #include "config.hpp"
+#include "ModuleType.hpp"
+#include "ParameterType.hpp"
 #include "ParameterController.hpp"
 
-#include <array>
+#include <utility>
 
 /**
  * @brief the base class for all synthesizer modules
@@ -14,18 +16,28 @@
 */
 
 class Module {
-protected:
-    const double* sampleRate_ ;
+protected: // TODO: set all to private I think.
     ParameterController parameterController_ ;
+    const double* sampleRate_ ;
+    ModuleType type_ ;
+    int instance_ ;
 
 public:
     /**
      * @brief Module constructor
     */
-    Module(const double* sampleRate):
+    Module(const double* sampleRate, ModuleType typ, int instance):
+        parameterController_(),
         sampleRate_(sampleRate),
-        parameterController_()
+        type_(typ),
+        instance_(instance)
     {}
+
+    Module(ModuleType typ):
+        Module(nullptr,typ,-1)
+    {}
+
+    virtual ~Module() = default ;
 
     /**
      * @brief Activate the module. Must be called before real-time processing begins
@@ -36,14 +48,9 @@ public:
     // virtual void activate() = 0 ;
 
     /**
-     * @brief set output buffer for channel. All modules must have at least one output
-    */
-    virtual void setOutputBuffer(float* buffer, size_t channel) = 0;
-
-    /**
      * @brief returns a read-only pointer to the module's sample rate
     */
-    const double* getSampleRate(){
+    const double* getSampleRate() const {
         return sampleRate_ ;
     }
 
@@ -55,6 +62,28 @@ public:
     }
 
     /**
+     * @brief get the module type
+    */
+    const ModuleType getType() const {
+        return type_ ;
+    }
+
+    /**
+     * @brief get the module instance
+    */
+    const int getInstance() const {
+        return instance_ ;
+    }
+
+    /**
+     * @brief set the instance for the module
+    */
+    void setInstance(const int instance){
+        instance_ = instance ;
+    }
+   
+
+    /**
      * @brief get a pointer to the parameterController
     */
     ParameterController* getParameterController(){
@@ -64,7 +93,9 @@ public:
     /**
      * @brief increment module for next sample
     */
-    virtual void tick(){}
+    virtual void tick(){
+        // TODO: call parameterController_.modulate() here then call Module::tick() in derived classes to capture it.
+    }
 
 };
 

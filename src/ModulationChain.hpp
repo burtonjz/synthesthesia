@@ -11,6 +11,8 @@
 #include <utility>
 #include <exception>
 
+#include <iostream>
+
 class ModulationChain: public Modulator {
 private:
     std::array<Modulator*,CONFIG_MAX_MODULATION_CHAIN> modulators_ ;
@@ -48,6 +50,11 @@ public:
      * @brief adds a modulator to the next available slot in the modulator chain
     */
     void addModulator(Modulator* mod){
+        if(!mod){
+            std::cout << "[ModulationChain] WARNING addModulator recieved null pointer. No changes to the modulation chain" << std::endl ;
+            return ;
+        }
+
         for(int i = 0; i < CONFIG_MAX_MODULATION_CHAIN; ++i){
             if(!modulators_[i]){
                 modulators_[i] = mod ;

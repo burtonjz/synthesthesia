@@ -8,7 +8,7 @@
 #include "portInfo.hpp"
 #include "Note.hpp"
 #include "KeyboardController.hpp"
-#include "Modulator.hpp"
+#include "ModulationController.hpp"
 
 #include "BMap.hpp"
 #include <array>
@@ -20,11 +20,10 @@ class PolyOscillator : public Module {
 protected:
     BMap<uint8_t,Oscillator, 128> oscillator_ ;
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
-    static std::array<ParameterType, 5> control_params_ ;
+    static std::array<ParameterType, 9> control_params_ ;
+    
     KeyboardController* keyboardController_ ;
-
-    Modulator* freq_mod_ ;
-    Modulator* amp_mod_ ;
+    ModulationController* modulationController_ ;
 
 public:
     PolyOscillator(const double* sampleRate);
@@ -38,13 +37,14 @@ public:
      * @brief Activate the module. Must be called before real-time processing begins
      * 
      * @param keyboardController ptr to keyboard controller
+     * @param modulationController ptr to modulation controller
     */
-    void activate(KeyboardController* keyboardController, Modulator* freq_mod, Modulator* amp_mod);
+    void activate(KeyboardController* keyboardController, ModulationController* modulationController);
     
     /**
      * @brief set output buffer for specified channel
     */
-    void setOutputBuffer(float* buffer, size_t channel) override ;
+    void setOutputBuffer(float* buffer, size_t channel);
 
     /**
      * @brief process samples through the module
@@ -57,33 +57,10 @@ public:
      * @brief increment state of polyphonic oscillator
     */
     void tick() override ;
-
-    // TODO: the below classes should be encapsulated in a modulation controller class.
-    /**
-     * @brief sets the modulation for a specific parameter
-     * 
-     * @param params Parameter Controller pointer
-     * @param p Parameter Type to set modulation for
-     * @param mod_ptr modulator pointer
-     * @param midi_note midi note from keyboard controller (for syncing things like envelopes)
-    */
-    void setModulation(ParameterController* params, ParameterType p, Modulator* mod_ptr, uint32_t midi_note) ;
-
-    /**
-     * @brief update the modulation map with the requirements of a specific modulator type
-     * 
-     * @param modp pointer to modulation map (to be updated)
-     * @param params Parameter Controller pointer
-     * @param mod_ptr pointer to modulator
-     * @param midi_note midi note
-    */
-    void updateModulationMap(ParameterModMap* modp, ParameterController* params, Modulator* mod_ptr, uint32_t midi_note);
     
 private:
     /**
      * @brief update oscillators with data from KeyboardController
-     * 
-     * @param note_info NoteInfo struct from the KeyboardController
     */
     void updateOscillators();
 
@@ -93,6 +70,7 @@ private:
      * @param
     */
     void createChildOscillator(uint8_t midi_note, const Note note);
+
     /**
      * @brief set child oscillator output buffer to same as this
     */

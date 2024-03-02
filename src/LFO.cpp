@@ -1,5 +1,7 @@
 #include "LFO.hpp"
-#include "config.hpp"
+
+#include "ModulatorType.hpp"
+#include "ModuleType.hpp"
 #include "ParameterType.hpp"
 
 std::array<ParameterType,4> LFO::control_params_ = {
@@ -15,7 +17,7 @@ std::pair<const ParameterType*, size_t> LFO::getControlPorts(){
 
 LFO::LFO():
     Modulator(ModulatorType::LFO),
-    parameterController_(),
+    Module(ModuleType::LFO),
     oscillator_()
 {
     // create LFO parameters
@@ -37,10 +39,6 @@ LFO::LFO():
 
 void LFO::activate(const double* sampleRate){
     oscillator_.activate(sampleRate);
-}
-
-ParameterController* LFO::getParameterController(){
-    return &parameterController_ ;
 }
 
 void LFO::tick(){
