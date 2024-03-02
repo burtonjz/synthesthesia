@@ -17,6 +17,9 @@
 */
 class Oscillator : public Module {
 protected:
+    static std::array<ParameterType, 0> control_params_ ;
+    static std::array<ParameterType, 5> modulatable_params_ ;
+
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     double phase_ ;
     double increment_ ;
@@ -26,10 +29,22 @@ public:
      * @brief construct an Oscillator module.
     */
     Oscillator(const double* sampleRate);
+
     /**
      * @brief construct an empty Oscillator module. Must be activated.
     */
     Oscillator();
+
+    /**
+     * @brief returns pointer to array of Oscillator Control Ports
+    */
+    static std::pair<const ParameterType*, size_t> getControlPorts();
+
+    /**
+     * @brief returns modulatable parameters
+    */
+    static std::pair<const ParameterType*, size_t> getModulatableParameters();
+
     /**
      * @brief construct a child Oscillator module
      * 

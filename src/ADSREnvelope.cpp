@@ -13,10 +13,25 @@ std::array<ParameterType,4> ADSREnvelope::control_params_ = {
     ParameterType::RELEASE
 };
 
+std::array<ParameterType,4> ADSREnvelope::modulatable_params_ = {
+    ParameterType::ATTACK,
+    ParameterType::DECAY,
+    ParameterType::SUSTAIN,
+    ParameterType::RELEASE
+};
+
 ADSREnvelope::ADSREnvelope():
     Modulator(ModulatorType::ADSREnvelope),
     Module(ModuleType::ADSREnvelope)
 {}
+
+std::pair<const ParameterType*, size_t> ADSREnvelope::getControlPorts(){
+    return { control_params_.data(), control_params_.size() } ;
+}
+
+std::pair<const ParameterType*, size_t> ADSREnvelope::getModulatableParameters(){
+    return { modulatable_params_.data(), modulatable_params_.size() } ;
+}
 
 void ADSREnvelope::activate(const double* sample_rate, KeyboardController* keyboardController){
     setSampleRate(sample_rate);
@@ -39,10 +54,6 @@ void ADSREnvelope::activate(const double* sample_rate, KeyboardController* keybo
         true
     );
 
-}
-
-std::pair<const ParameterType*, size_t> ADSREnvelope::getControlPorts(){
-    return {control_params_.data(), control_params_.size() } ;
 }
 
 double ADSREnvelope::getAttack(const double value, const double start_level, const double time_pressed, const double attack) const {

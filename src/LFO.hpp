@@ -13,6 +13,7 @@
 class LFO : public Modulator, public Module {
 private:
     static std::array<ParameterType,4> control_params_ ;
+    static std::array<ParameterType,2> modulatable_params_ ;
     Oscillator oscillator_ ;
     
 public:
@@ -20,6 +21,11 @@ public:
      * @brief returns Parameter controlPorts
     */
     static std::pair<const ParameterType*, size_t> getControlPorts();
+
+    /**
+     * @brief returns modulatable parameters
+    */
+    static std::pair<const ParameterType*, size_t> getModulatableParameters();
 
     /**
      * @brief LFO constructor

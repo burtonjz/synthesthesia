@@ -18,8 +18,10 @@
 
 class PolyOscillator : public MidiModule<ModuleType::Oscillator> {
 protected:
-    IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     static std::array<ParameterType, 9> control_params_ ;
+    static std::array<ParameterType, 1> modulatable_params_ ;
+
+    IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     ModulationController* modulationController_ ;
 
 public:
@@ -30,6 +32,11 @@ public:
     */
     static std::pair<const ParameterType*, size_t> getControlPorts();
 
+    /**
+     * @brief returns modulatable parameters
+    */
+    static std::pair<const ParameterType*, size_t> getModulatableParameters();
+    
     /**
      * @brief Activate the module. Must be called before real-time processing begins
      * 

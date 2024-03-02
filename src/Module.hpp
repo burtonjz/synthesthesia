@@ -82,7 +82,6 @@ public:
         instance_ = instance ;
     }
    
-
     /**
      * @brief get a pointer to the parameterController
     */

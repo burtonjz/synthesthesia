@@ -14,16 +14,17 @@
 #include "Detuner.hpp"
 #include "LFO.hpp"
 #include "ModulationChain.hpp"
+#include "ControlPortManager.hpp"
 
 #include "ParameterController.hpp"
 #include "ParameterType.hpp"
-
-#include "ControlPortManager.hpp"
 
 #include <map>
 #include <array>
 #include <cstdint>
 #include <tuple>
+
+
 
 /**
  * @brief object to provide key indexing of ModulationChains within map

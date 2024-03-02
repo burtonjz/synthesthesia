@@ -13,6 +13,26 @@
 #include <iostream>
 #endif
 
+// define static variables
+std::array<ParameterType, 0> Oscillator::control_params_ = {
+};
+
+std::array<ParameterType, 5> Oscillator::modulatable_params_ = {
+    ParameterType::FREQUENCY,
+    ParameterType::AMPLITUDE,
+    ParameterType::GAIN,
+    ParameterType::PHASE,
+    ParameterType::PAN
+};
+
+std::pair<const ParameterType*, size_t> Oscillator::getControlPorts(){
+    return { control_params_.data(), control_params_.size() } ;
+}
+
+std::pair<const ParameterType*, size_t> Oscillator::getModulatableParameters(){
+    return { modulatable_params_.data(), modulatable_params_.size() } ;
+}
+
 Oscillator::Oscillator(const double* sampleRate):
     Module(sampleRate,ModuleType::Oscillator,-1), //TODO: investigate what passing real instances would do for us here
     outputBuffer_(),

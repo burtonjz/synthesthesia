@@ -31,6 +31,17 @@ std::array<ParameterType, 9> PolyOscillator::control_params_ = {
     ParameterType::MC_PHASE
 };
 
+std::array<ParameterType, 1> PolyOscillator::modulatable_params_ = {
+    ParameterType::PAN,
+};
+
+std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
+    return { control_params_.data(), control_params_.size() };
+}
+
+std::pair<const ParameterType*, size_t> PolyOscillator::getModulatableParameters(){
+    return { modulatable_params_.data(), modulatable_params_.size() } ;
+}
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
     MidiModule(ModuleType::PolyOscillator),
@@ -47,10 +58,6 @@ PolyOscillator::PolyOscillator(const double* sampleRate):
     parameterController_.addParameter<ParameterType::MC_PHASE>(0,false);
 
     setSampleRate(sampleRate);
-}
-
-std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
-    return { control_params_.data(), control_params_.size() };
 }
 
 void PolyOscillator::activate(KeyboardController* keyboardController, ModulationController* modulationController){

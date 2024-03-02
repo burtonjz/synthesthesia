@@ -1,5 +1,6 @@
 #include "ModulationController.hpp"
 #include "ModuleType.hpp"
+#include "MidiModule.hpp"
 
 #include <iostream>
 #include <set>
@@ -175,32 +176,40 @@ void ModulationController::registerModule(Module* mod){
     idx.mod_ = mod->getType();
     idx.inst_ = mod->getInstance();
     
-    // if a Module has "submodules" for each midi note... TODO: we should make this a base module function instead of hard coding here.
-    bool hasMidiModules = idx.mod_ == ModuleType::PolyOscillator ;
-
-    std::cout << "[ModulationController] Registering Module " << static_cast<int>(idx.mod_) << " Instance " << idx.inst_ << ". hasMidiModules: " << hasMidiModules << "." << std::endl ;
-
-    /**
-     * TODO: my modulation is failing because parent modules don't have access to child module modulatable parameters
-     * The PolyOscillator can't tell me that the child Oscillator has a modulatable frequency, amplitude, etc... 
-     * 
-     * What I need to do is create a ParentModule class and have PolyOscillator inherit from this. Then, this class will check if the pointer to a module
-     * is also a ParentModule, and in the case that it is, build out all the relevant modulation chains. LFO should also probably be a ParentModule, but is 
-     * less critical as it only has 1 child.
-     * 
-     * Lastly, midiNote in the ChainIndex should be called childIndex, and be a generic integer instead of a uint8_t.
-    */ 
+    std::cout << "[ModulationController] Registering Module " << static_cast<int>(idx.mod_) << " Instance " << idx.inst_ << std::endl ;
+    
+    // Verify if module is a midi module TODO: use type_traits to make this less hard coded
     ParameterController* params = mod->getParameterController();
     std::set<ParameterType> mp = params->getModulatableParameters();
-    for (auto it = mp.begin(); it != mp.end(); ++it ){
-        idx.p_ = *it ;
-        if (hasMidiModules){
-            for (uint8_t i = 0; i < 128; ++i){
-                idx.midi_note_ = i ;
+
+    // first, any parent modulatable parameters should have their chains created
+    
+
+    if (auto* midiModulePtr = dynamic_cast<MidiModule<ModuleType::Oscillator>*>(mod)){
+        // get child modulatable parameters, loop through them, and create chains under the parent
+        auto [ p, np ] = ControlPortManager::getModulatableParameters(midiModulePtr->getChildType());
+        for(int i = 0 ; i < np; ++i ){
+            idx.p_ = p[i];
+            for (int j = 0; j < 128; ++j){
+                idx.midi_note_ = j ;
                 std::cout << "[ModulationController]        Creating ModulationChain for Parameter=" << static_cast<int>(idx.p_) << " midiNote=" << static_cast<int>(idx.midi_note_) << std::endl ;
                 chains_[idx] = ModulationChain();
             }
-        } else {
+        }
+        // now loop through parent parameters that cascade down to children
+        for (auto it = mp.begin(); it != mp.end(); ++it ){
+            idx.p_ = *it ;
+            for (int j = 0; j < 128; ++j){
+                idx.midi_note_ = j ;
+                std::cout << "[ModulationController]        Creating ModulationChain for Parameter=" << static_cast<int>(idx.p_) << " midiNote=" << static_cast<int>(idx.midi_note_) << std::endl ;
+                chains_[idx] = ModulationChain();
+            }
+        }
+    } else {
+        // otherwise, we'll just create the chains for the parameters (no midi_note)
+        for (auto it = mp.begin(); it != mp.end(); ++it ){
+            idx.p_ = *it ;
+            std::cout << "[ModulationController]        Creating ModulationChain for Parameter=" << static_cast<int>(idx.p_) << std::endl ;
             chains_[idx] = ModulationChain();
         }
     }

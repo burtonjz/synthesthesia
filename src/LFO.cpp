@@ -11,8 +11,17 @@ std::array<ParameterType,4> LFO::control_params_ = {
     ParameterType::AMPLITUDE
 };
 
+std::array<ParameterType,2> LFO::modulatable_params_ {
+    ParameterType::FREQUENCY,
+    ParameterType::AMPLITUDE
+};
+
 std::pair<const ParameterType*, size_t> LFO::getControlPorts(){
-    return {control_params_.data(), control_params_.size() } ;
+    return { control_params_.data(), control_params_.size() } ;
+}
+
+std::pair<const ParameterType*, size_t> LFO::getModulatableParameters(){
+    return { modulatable_params_.data(), modulatable_params_.size() } ;
 }
 
 LFO::LFO():

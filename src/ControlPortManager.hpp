@@ -22,6 +22,9 @@ struct PortData {
     uint32_t relative_port ;  
 };
 
+/**
+ * @brief class passes port data from LV2 host to respective modules
+*/
 class ControlPortManager {
 private:
     uint32_t start_index_ ;
@@ -30,6 +33,11 @@ private:
     BMap<uint32_t, const float*, CONFIG_MAX_NUM_CONTROL_PORTS> control_values_ ;
 
 public:
+    static std::pair<const ParameterType*, size_t> getControlPorts(ModuleType typ);
+    static std::pair<const ParameterType*, size_t> getModulatableParameters(ModuleType typ);
+
+
+
     /**
      * @brief default constructor
     */
@@ -39,13 +47,6 @@ public:
      * @brief creates initial data structures
     */
     void initialize();
-
-    /**
-     * @brief returns number of ports present in a ModuleType
-     * 
-     * @param m ModuleType
-    */
-    uint32_t getNumModulePorts(ModuleType m);
 
     /**
      * @brief gets the relative port information from absolute port index

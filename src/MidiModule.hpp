@@ -11,8 +11,9 @@
 #include "Oscillator.hpp"
 
 #include "BMap.hpp"
-#include <set>
 
+#include <set>
+#include <type_traits>
 
 template <ModuleType T>
 struct ModContainer ;
@@ -62,11 +63,6 @@ public:
 
     const ModuleType getChildType() const {
         return childType_ ;
-    }
-
-    std::set<ParameterType> getChildModulatableParameters() const {
-        // TODO
-        return {ParameterType::AMPLITUDE};
     }
 
     /**
