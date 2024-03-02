@@ -33,10 +33,8 @@ std::array<ParameterType, 9> PolyOscillator::control_params_ = {
 
 
 PolyOscillator::PolyOscillator(const double* sampleRate):
-    Module(ModuleType::PolyOscillator),
-    keyboardController_(nullptr),
-    modulationController_(nullptr),
-    oscillator_()
+    MidiModule(ModuleType::PolyOscillator),
+    modulationController_(nullptr)
 {
     parameterController_.addParameter<ParameterType::STATUS>(true,false);
     parameterController_.addParameter<ParameterType::WAVEFORM>(parameterDefaults[static_cast<int>(ParameterType::WAVEFORM)],false);
@@ -56,56 +54,30 @@ std::pair<const ParameterType*, size_t> PolyOscillator::getControlPorts(){
 }
 
 void PolyOscillator::activate(KeyboardController* keyboardController, ModulationController* modulationController){
-        keyboardController_ = keyboardController ;
+        MidiModule::activate(keyboardController);
         modulationController_ = modulationController ;
 }
 
 void PolyOscillator::setOutputBuffer(float* buffer, size_t channel){
     outputBuffer_.set(buffer,channel);
-    for (auto& pair : oscillator_){
-        pair.second.setOutputBuffer(buffer,channel);
-    }
+    // for (auto& pair : getChildren()){
+    //     pair.second.setOutputBuffer(buffer,channel);
+    // }
 }
 
 void PolyOscillator::processSample(uint32_t idx){
-    for (auto& pair : oscillator_ ){
+    for (auto& pair : children_ ){
         pair.second.processSample(idx);
     }
 }
 
 void PolyOscillator::tick(){
-    updateOscillators();
-
-    parameterController_.modulate(); //TODO: make sure that the modulationController is updating the parent modulations (pan) when those values are changing
+    MidiModule::tick();
 }
 
-void PolyOscillator::updateOscillators(){
-    const KeyboardMap* notes_ptr = keyboardController_->get_active_notes();
-    // first, update oscillators with new information from active_notes
-    for (const auto& pair : *notes_ptr ){
-        auto it = oscillator_.find(pair.first);
-        if(it == oscillator_.end()){
-            createChildOscillator(pair.first,pair.second);
-        } else {
-            ParameterController* p = oscillator_[pair.first].getParameterController();
-            p->setParameterValue<ParameterType::AMPLITUDE>(pair.second.getVelocity() / 127.0);
-        }
-    }
-
-    // remove oscillators that are not active_notes
-    for (auto it = oscillator_.begin(); it != oscillator_.end(); ){
-        if ( (*notes_ptr).find(it->first) == (*notes_ptr).end()){
-            it = oscillator_.erase(it);
-        } else {
-            oscillator_[it->first].tick();
-            ++it ;
-        }
-    }
-}
-
-void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
-    oscillator_.insert(std::make_pair(midi_note,Oscillator(sampleRate_,parameterController_)));
-    ParameterController* params = oscillator_[midi_note].getParameterController();
+void PolyOscillator::createChild(uint8_t midi_note, const Note note){
+    children_.insert(std::make_pair(midi_note,Oscillator(sampleRate_,parameterController_)));
+    ParameterController* params = children_[midi_note].getParameterController();
     
     // set note-specific parameters
     params->setParameterValue<ParameterType::FREQUENCY>(note.getFrequency());
@@ -137,12 +109,15 @@ void PolyOscillator::createChildOscillator(uint8_t midi_note, const Note note){
     //     midi_note
     // ); 
     
-    updateChildOutputBuffers(midi_note);
-}
-
-void PolyOscillator::updateChildOutputBuffers(uint8_t index){
     for(int i = 0; i < AudioPorts::AUDIO_N; ++i ){
-        oscillator_[index].setOutputBuffer(outputBuffer_.get(i),i);
+        children_[midi_note].setOutputBuffer(outputBuffer_.get(i),i);
     }
 }
+
+void PolyOscillator::repressChild(uint8_t midi_note, const Note note){
+    ParameterController* p = children_[midi_note].getParameterController();
+    p->setParameterValue<ParameterType::AMPLITUDE>(note.getVelocity() / 127.0);
+}
+
+
 

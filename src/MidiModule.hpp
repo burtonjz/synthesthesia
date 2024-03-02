@@ -8,8 +8,21 @@
 #include "ParameterType.hpp"
 #include "KeyboardController.hpp"
 
+#include "Oscillator.hpp"
+
 #include "BMap.hpp"
 #include <set>
+
+
+template <ModuleType T>
+struct ModContainer ;
+
+// START supported child specializations
+template <>
+struct ModContainer <ModuleType::Oscillator> {
+    using containerType = BMap<uint8_t, Oscillator, 128>;
+};
+// END supported child specializations
 
 /**
  * @brief a module that spawns a child module for each midi note
@@ -17,21 +30,35 @@
 */
 template <ModuleType child>
 class MidiModule : public Module {
+public:
+    using ChildContainer = typename ModContainer<child>::containerType ;
+
 private:
+    // member variables
     ModuleType childType_ ;
-    BMap<uint8_t, child, 128> children_ ;
     KeyboardController* keyboardController_ ; 
+
+protected:
+    ChildContainer children_ ;
 
 public:
     MidiModule(ModuleType modType):
         Module(modType),
-        childModuleType_(child)
+        childType_(child),
+        children_(),
+        keyboardController_(nullptr)
     {}
 
     MidiModule(ModuleType typ, const double* sampleRate, int instance):
         Module(sampleRate,typ,instance),
-        childModuleType_(child)
+        childType_(child),
+        children_(),
+        keyboardController_(nullptr)
     {}
+
+    virtual void activate(KeyboardController* keyboardController){
+        keyboardController_ = keyboardController ;
+    }
 
     const ModuleType getChildType() const {
         return childType_ ;
@@ -39,6 +66,7 @@ public:
 
     std::set<ParameterType> getChildModulatableParameters() const {
         // TODO
+        return {ParameterType::AMPLITUDE};
     }
 
     /**
@@ -56,11 +84,12 @@ public:
      * Most commonly, this would be updating an amplitude parameter with the new
      * key velocity.
     */
-    virtual void repressChild(uint8_)t midi_note, const Note note) = 0 ;
+    virtual void repressChild(uint8_t midi_note, const Note note) = 0 ;
 
     virtual void tick(){  
         updateChildren();
         parameterController_.modulate();
+        // TODO: make sure that the modulationController is updating the parent modulations (pan) when those values are changing
     }
 
 private:

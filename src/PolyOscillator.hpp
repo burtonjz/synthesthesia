@@ -2,7 +2,7 @@
 #define __POLY_OSCILLATOR_HPP_
 
 #include "config.hpp"
-#include "Module.hpp"
+#include "MidiModule.hpp"
 #include "Oscillator.hpp"
 #include "IO.hpp"
 #include "portInfo.hpp"
@@ -16,20 +16,17 @@
 #include <cstddef>
 #include <array>
 
-class PolyOscillator : public Module {
+class PolyOscillator : public MidiModule<ModuleType::Oscillator> {
 protected:
-    BMap<uint8_t,Oscillator, 128> oscillator_ ;
     IO<float,AudioPorts::AUDIO_N> outputBuffer_ ;
     static std::array<ParameterType, 9> control_params_ ;
-    
-    KeyboardController* keyboardController_ ;
     ModulationController* modulationController_ ;
 
 public:
     PolyOscillator(const double* sampleRate);
 
     /**
-     * @brief returns pointer to vector of Oscillator Control Ports
+     * @brief returns pointer to array of Oscillator Control Ports
     */
     static std::pair<const ParameterType*, size_t> getControlPorts();
 
@@ -60,21 +57,14 @@ public:
     
 private:
     /**
-     * @brief update oscillators with data from KeyboardController
+     * @brief define creation logic for child oscillator
     */
-    void updateOscillators();
+    void createChild(uint8_t midi_note, const Note note) override ;
 
     /**
-     * @brief create child oscillator
-     * 
-     * @param
+     * @brief define repress logic for child oscillators
     */
-    void createChildOscillator(uint8_t midi_note, const Note note);
-
-    /**
-     * @brief set child oscillator output buffer to same as this
-    */
-    void updateChildOutputBuffers(uint8_t index);
+    void repressChild(uint8_t midi_note, const Note note) override ;
 
 };
 
