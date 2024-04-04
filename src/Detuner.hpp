@@ -5,8 +5,6 @@
 #include "commonTypes.hpp"
 
 #include "Modulator.hpp"
-#include "Parameter.hpp"
-#include "ModulationParameter.hpp"
 
 #include <array>
 

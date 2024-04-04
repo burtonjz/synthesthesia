@@ -1,7 +1,6 @@
 #ifndef __ADSR_ENVELOPE_HPP_
 #define __ADSR_ENVELOPE_HPP_
 
-#include "config.hpp"
 #include "commonTypes.hpp"
 
 #include "Module.hpp"
@@ -9,11 +8,9 @@
 #include "ParameterController.hpp"
 #include "KeyboardController.hpp"
 #include "ParameterType.hpp"
-#include "ModulationParameter.hpp"
 
 #include <array>
 #include <utility>
-#include <cstdint>
 
 class ADSREnvelope : public Modulator, public Module {
 private:
@@ -66,7 +63,7 @@ public:
      * 
      * Ticks envelope to next sample, which will modulate the ADSR values if modulation is set
     */
-    void tick();
+    void tick() override ;
 
     /**
      * @brief returns the currently set release time

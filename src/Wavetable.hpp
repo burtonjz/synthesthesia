@@ -5,7 +5,6 @@
 #include "Waveform.hpp"
 
 #include <array>
-#include <random>
 
 /**
  * class stores all wavetables available to an Oscillator

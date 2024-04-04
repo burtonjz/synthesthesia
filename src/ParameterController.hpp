@@ -10,8 +10,6 @@
 
 #include "BMap.hpp"
 
-#include <limits>
-#include <array>
 #include <utility>
 #include <set>
 #include <stdexcept>

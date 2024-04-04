@@ -1,13 +1,10 @@
 #ifndef __KEYBOARD_CONTROLLER_HPP_
 #define __KEYBOARD_CONTROLLER_HPP_
 
-#include "config.hpp"
 #include "commonTypes.hpp"
 
 #include "Modulator.hpp"
 #include "Note.hpp"
-#include "Parameter.hpp"
-#include "ModulationParameter.hpp"
 #include "BMap.hpp"
 
 #include <lv2/midi/midi.h>

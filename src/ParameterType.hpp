@@ -7,8 +7,6 @@
 #include <array>
 #include <utility>
 #include <limits>
-#include <cmath>
-
 
 /**
  * @brief types of parameters that might exist within any given module

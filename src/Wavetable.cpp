@@ -1,7 +1,7 @@
 #include "Wavetable.hpp"
 
 #include <cmath>
-#include <ctime>
+#include <random>
 
 std::array<std::array<double, WAVETABLE_SIZE>, static_cast<int>(Waveform::N)> Wavetable::wavetable_;
 

@@ -2,12 +2,10 @@
 #define __LFO_HPP_
 
 #include "commonTypes.hpp"
-#include "config.hpp"
 
 #include "Modulator.hpp"
 #include "Module.hpp"
 
-#include "ParameterController.hpp"
 #include "Oscillator.hpp"
 
 class LFO : public Modulator, public Module {
@@ -43,7 +41,7 @@ public:
     /**
      * @brief tick the LFO
     */
-    void tick();
+    void tick() override ;
     
     /**
      * @brief modulation function

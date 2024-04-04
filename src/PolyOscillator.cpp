@@ -1,13 +1,6 @@
-#include "commonTypes.hpp"
-
 #include "PolyOscillator.hpp"
 #include "ParameterController.hpp"
 #include "ParameterType.hpp"
-#include "LinearFader.hpp"
-
-#include "ModulationParameter.hpp"
-#include "ModulatorType.hpp"
-#include "ModulationChain.hpp" // TODO: not a necessary header once this is encapsulated in modulation controller class.
 
 #include "BMap.hpp"
 

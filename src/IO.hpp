@@ -3,7 +3,6 @@
 
 #include <array>
 #include <cstddef>
-#include <functional>
 #include <stdexcept>
 
 /**

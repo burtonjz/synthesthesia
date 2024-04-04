@@ -1,9 +1,6 @@
+#include "config.hpp"
 #include "KeyboardController.hpp"
-#include "ParameterType.hpp"
-#include "ADSREnvelope.hpp"
-
 #include <cmath>
-#include <algorithm>
 
 // initialization of static class member variables
 std::array<double,16384> KeyboardController::pitchbend_scale_factor_ ;

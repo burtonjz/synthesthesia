@@ -4,12 +4,9 @@
 #include "config.hpp"
 #include "Modulator.hpp"
 #include "ModulatorType.hpp"
-#include "BMap.hpp"
 
 #include <array>
 #include <iostream>
-#include <utility>
-#include <exception>
 
 #include <iostream>
 

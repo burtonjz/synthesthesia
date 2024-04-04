@@ -1,7 +1,6 @@
 #ifndef __COMMON_TYPES_HPP_
 #define __COMMON_TYPES_HPP_
 
-#include "config.hpp"
 #include "ModulationParameter.hpp"
 #include "BMap.hpp"
 

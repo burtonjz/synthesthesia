@@ -2,10 +2,10 @@
 #define __LINEAR_FADER_HPP_
 
 #include "commonTypes.hpp"
+#include "config.hpp"
 
 #include "Modulator.hpp"
 #include "ModulatorType.hpp"
-#include "Parameter.hpp"
 #include "ModulationParameter.hpp"
 #include "KeyboardController.hpp"
 #include "Note.hpp"

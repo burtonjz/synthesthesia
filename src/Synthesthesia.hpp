@@ -10,10 +10,6 @@
 #include "ControlPortManager.hpp"
 
 #include "PolyOscillator.hpp"
-#include "ADSREnvelope.hpp"
-#include "LFO.hpp"
-#include "Detuner.hpp"
-#include "ModulationChain.hpp"
 
 #include <cstdint>
 #include <array>

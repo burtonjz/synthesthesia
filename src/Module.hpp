@@ -1,12 +1,8 @@
 #ifndef __MODULE_HPP_
 #define __MODULE_HPP_
 
-#include "config.hpp"
 #include "ModuleType.hpp"
-#include "ParameterType.hpp"
 #include "ParameterController.hpp"
-
-#include <utility>
 
 /**
  * @brief the base class for all synthesizer modules
@@ -25,6 +21,9 @@ protected: // TODO: set all to private I think.
 public:
     /**
      * @brief Module constructor
+     * @param sampleRate pointer to sample rate
+     * @param typ Module Type
+     * @param instance Module instance
     */
     Module(const double* sampleRate, ModuleType typ, int instance):
         parameterController_(),

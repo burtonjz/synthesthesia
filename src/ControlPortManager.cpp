@@ -9,7 +9,6 @@
 #include "LFO.hpp"
 // #include "Filter.hpp"
 
-#include <array>
 #include <utility>
 
 #include <iostream>
@@ -27,6 +26,7 @@ std::pair<const ParameterType*, size_t> ControlPortManager::getControlPorts(Modu
         return LFO::getControlPorts();
     // case ModuleType::Filter:
     default:
+        throw std::invalid_argument("invalid module type received.");
         break ;
     }
 }
@@ -43,6 +43,7 @@ std::pair<const ParameterType*, size_t> ControlPortManager::getModulatableParame
         return LFO::getModulatableParameters();
     // case ModuleType::Filter:
     default:
+        throw std::invalid_argument("invalid module type received.");
         break ;
     }
 }

@@ -36,8 +36,6 @@ public:
     static std::pair<const ParameterType*, size_t> getControlPorts(ModuleType typ);
     static std::pair<const ParameterType*, size_t> getModulatableParameters(ModuleType typ);
 
-
-
     /**
      * @brief default constructor
     */

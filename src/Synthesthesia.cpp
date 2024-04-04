@@ -2,7 +2,6 @@
 #include "Wavetable.hpp"
 #include "MidiNote.hpp"
 #include "ControlPortManager.hpp"
-#include "ModulationChain.hpp"
 
 // #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/atom/util.h>

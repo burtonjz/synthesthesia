@@ -1,16 +1,13 @@
 #ifndef __POLY_OSCILLATOR_HPP_
 #define __POLY_OSCILLATOR_HPP_
 
-#include "config.hpp"
 #include "MidiModule.hpp"
-#include "Oscillator.hpp"
 #include "IO.hpp"
 #include "portInfo.hpp"
 #include "Note.hpp"
 #include "KeyboardController.hpp"
 #include "ModulationController.hpp"
 
-#include "BMap.hpp"
 #include <array>
 #include <utility>
 #include <cstddef>

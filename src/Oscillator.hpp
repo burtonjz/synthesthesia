@@ -1,7 +1,6 @@
 #ifndef __OSCILLATOR_HPP_
 #define __OSCILLATOR_HPP_
 
-#include "config.hpp"
 #include "Module.hpp"
 #include "IO.hpp"
 #include "portInfo.hpp"

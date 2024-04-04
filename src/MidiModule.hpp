@@ -1,19 +1,13 @@
 #ifndef __PARENT_MODULE_HPP_
 #define __PARENT_MODULE_HPP_
 
-#include "commonTypes.hpp"
-
 #include "Module.hpp"
 #include "ModuleType.hpp"
-#include "ParameterType.hpp"
 #include "KeyboardController.hpp"
 
 #include "Oscillator.hpp"
 
 #include "BMap.hpp"
-
-#include <set>
-#include <type_traits>
 
 template <ModuleType T>
 struct ModContainer ;

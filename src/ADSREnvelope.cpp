@@ -4,8 +4,6 @@
 #include "Modulator.hpp"
 #include "KeyboardController.hpp"
 
-#include <iostream>
-
 std::array<ParameterType,4> ADSREnvelope::control_params_ = {
     ParameterType::ATTACK,
     ParameterType::DECAY,

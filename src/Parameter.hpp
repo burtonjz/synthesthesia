@@ -5,11 +5,6 @@
 #include "ParameterType.hpp"
 #include "Modulator.hpp"
 
-#include <limits>
-#include <functional>
-#include <algorithm>
-
-
 /**
  * @brief template class containing logic to define and manipulate a parameter
  * 
