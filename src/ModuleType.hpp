@@ -6,7 +6,7 @@ enum class ModuleType {
     PolyOscillator,
     ADSREnvelope,
     LFO,
-    Filter,
+    // Filter,
     N_MODULES
 };
 
