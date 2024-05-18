@@ -1,6 +1,7 @@
 TODO
 build
 .vscode
+synthesthesia.code-workspace
 assets/*.svg
 *.o
 test
