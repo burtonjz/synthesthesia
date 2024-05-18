@@ -3,6 +3,7 @@
 
 enum class FilterType {
     NONE,
+    COMB,
     LOW_PASS,
     HIGH_PASS,
     BAND_PASS

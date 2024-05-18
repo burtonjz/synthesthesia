@@ -43,8 +43,14 @@ void ModulationController::activate(KeyboardController* keyboardController, cons
 
     // activate modulators
     for (size_t i = 0; i < faders_.size(); ++i) faders_[i].activate(keyboardController);
-    for (size_t i = 0; i < envelopes_.size(); ++i) envelopes_[i].activate(sampleRate,keyboardController);
-    for (size_t i = 0; i < lfos_.size(); ++i ) lfos_[i].activate(sampleRate);
+    for (size_t i = 0; i < envelopes_.size(); ++i) {
+        envelopes_[i].activate(sampleRate,keyboardController);
+        envelopes_[i].setInstance(i);
+    }
+    for (size_t i = 0; i < lfos_.size(); ++i ){
+        lfos_[i].activate(sampleRate);
+        lfos_[i].setInstance(i);
+    } 
 }
 
 
